@@ -1,0 +1,2278 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<roster id="40kapp-export" name="STRIKE FORCE COPHASTA" battleScribeVersion="2.03" gameSystemId="sys-352e-adc2-7639-d6a9" gameSystemName="Warhammer 40,000 10th Edition" xmlns="http://www.battlescribe.net/schema/rosterSchema">
+  <forces>
+    <force name="Army Roster" catalogueName="White Scars">
+      <selections>
+    <selection name="Outrider Squad A" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Chaplain on Bike</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Full-throttle Assault" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">If this unit made a charge move this turn, this unit’s:Thunder Hammer weapons have +1 to hit rolls and [Sustained Hits 1].Other melee weapons have +1 D and [Sustained Hits 1].</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Outrider" type="model" number="3">
+        <profiles>
+        <profile name="Outrider" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">4</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Chainsword" type="upgrade" number="3">
+        <profiles>
+          <profile name="Chainsword" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Twin Bolt Rifle" type="upgrade" number="3">
+        <profiles>
+          <profile name="Twin Bolt Rifle" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">ASSAULT, RAPID FIRE 2, TWIN-LINKED</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Bolt Pistol" type="upgrade" number="3">
+        <profiles>
+          <profile name="Heavy Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Outrider w/ Plasma Pistol - Standard + Plasma Pistol - Supercharge" type="model" number="2">
+        <profiles>
+        <profile name="Outrider w/ Plasma Pistol - Standard + Plasma Pistol - Supercharge" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">4</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Chainsword" type="upgrade" number="2">
+        <profiles>
+          <profile name="Chainsword" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Twin Bolt Rifle" type="upgrade" number="2">
+        <profiles>
+          <profile name="Twin Bolt Rifle" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">ASSAULT, RAPID FIRE 2, TWIN-LINKED</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Bolt Pistol" type="upgrade" number="2">
+        <profiles>
+          <profile name="Heavy Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma Pistol - Standard" type="upgrade" number="2">
+        <profiles>
+          <profile name="Plasma Pistol - Standard" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma Pistol - Supercharge" type="upgrade" number="2">
+        <profiles>
+          <profile name="Plasma Pistol - Supercharge" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS, HAZARDOUS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Outrider Sergeant" type="model" number="1">
+        <profiles>
+        <profile name="Outrider Sergeant" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">4</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Twin Bolt Rifle" type="upgrade" number="1">
+        <profiles>
+          <profile name="Twin Bolt Rifle" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">ASSAULT, RAPID FIRE 2, TWIN-LINKED</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Bolt Pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Thunder Hammer" type="upgrade" number="1">
+        <profiles>
+          <profile name="Thunder Hammer" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">4+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">3</characteristic>
+              <characteristic name="Keywords">DEVASTATING WOUNDS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Explosives"/>
+        <category name="Imperium"/>
+        <category name="Mounted"/>
+      </categories>
+    </selection>
+    <selection name="Storm Speeder Thunderstrike" type="model" number="1">
+      <profiles>
+        <profile name="Storm Speeder Thunderstrike" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">14&quot;</characteristic>
+            <characteristic name="T">9</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">11</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">3</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Shattered Defences" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">In your Shooting phase, when this unit has shot, select one enemy Monster/Vehicle unit hit by those attacks. Friendly Adeptus Astartes units’ ranged attacks that target that enemy unit have +1 AP.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deadly Demise D3" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Deadly Demise X. Each time a model with this ability is destroyed, after the units embarked within it (if any) have made their emergency disembark moves, roll one D6. On a 6, that model suffers a deadly demise; each unit within 6&quot; of that model suffers a number of mortal wounds denoted by X (if this is a random number, roll separately for each unit within 6&quot;).</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Thunderstrike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This unit’s ranged attacks that target a Monster/Vehicle unit have +1 to wound rolls.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Armoured Impact" type="upgrade" number="1">
+        <profiles>
+          <profile name="Armoured Impact" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">4+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Stormfury Missile Launcher" type="upgrade" number="1">
+        <profiles>
+          <profile name="Stormfury Missile Launcher" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">48&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">10</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">D3+3</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Thunderstrike Icarus Rocket Pod" type="upgrade" number="1">
+        <profiles>
+          <profile name="Thunderstrike Icarus Rocket Pod" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">6</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">ANTI-FLY 2+</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Thunderstrike Las-talon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Thunderstrike Las-talon" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">36&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">10</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">D3+3</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Fly"/>
+        <category name="Frame"/>
+        <category name="Imperium"/>
+        <category name="Speeder"/>
+        <category name="Vehicle"/>
+      </categories>
+    </selection>
+    <selection name="Brutalis Dreadnought" type="model" number="1">
+      <profiles>
+        <profile name="Brutalis Dreadnought" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">10&quot;</characteristic>
+            <characteristic name="T">10</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">12</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">4</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Brutalis Charge (Once per phase, per unit)" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">You can target this unit with the Crushing Impact stratagem, regardless of any other uses of that stratagem this phase. If you do:That use is -1 CP.That use does not prevent any uses of that stratagem on other units this phase.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deadly Demise D3" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Deadly Demise X. Each time a model with this ability is destroyed, after the units embarked within it (if any) have made their emergency disembark moves, roll one D6. On a 6, that model suffers a deadly demise; each unit within 6&quot; of that model suffers a number of mortal wounds denoted by X (if this is a random number, roll separately for each unit within 6&quot;).</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Damaged 4" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Damaged X. While a model’s remaining wounds are equal to or less than X, that model is damaged:While a model is damaged, that model's attacks have -1 to hit rolls.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Twin Icarus Ironhail Heavy Stubber" type="upgrade" number="1">
+        <profiles>
+          <profile name="Twin Icarus Ironhail Heavy Stubber" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">36&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">4</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">ANTI-FLY 3+, RAPID FIRE 3, TWIN-LINKED</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Bolt Rifles" type="upgrade" number="1">
+        <profiles>
+          <profile name="Bolt Rifles" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">TWIN-LINKED</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Brutalis Fists" type="upgrade" number="1">
+        <profiles>
+          <profile name="Brutalis Fists" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">6</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">12</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">D3+3</characteristic>
+              <characteristic name="Keywords">TWIN-LINKED</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Twin Heavy Bolter" type="upgrade" number="1">
+        <profiles>
+          <profile name="Twin Heavy Bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">36&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">RAPID FIRE 2, SUSTAINED HITS 1, TWIN-LINKED</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Dreadnought"/>
+        <category name="Imperium"/>
+        <category name="Vehicle"/>
+        <category name="Walker"/>
+      </categories>
+    </selection>
+    <selection name="Outrider Squad B" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Suboden Khan</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Full-throttle Assault" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">If this unit made a charge move this turn, this unit’s:Thunder Hammer weapons have +1 to hit rolls and [Sustained Hits 1].Other melee weapons have +1 D and [Sustained Hits 1].</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Outrider" type="model" number="1">
+        <profiles>
+        <profile name="Outrider" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">4</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Chainsword" type="upgrade" number="1">
+        <profiles>
+          <profile name="Chainsword" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Twin Bolt Rifle" type="upgrade" number="1">
+        <profiles>
+          <profile name="Twin Bolt Rifle" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">ASSAULT, RAPID FIRE 2, TWIN-LINKED</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Bolt Pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Outrider w/ Plasma Pistol - Standard + Plasma Pistol - Supercharge" type="model" number="1">
+        <profiles>
+        <profile name="Outrider w/ Plasma Pistol - Standard + Plasma Pistol - Supercharge" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">4</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Chainsword" type="upgrade" number="1">
+        <profiles>
+          <profile name="Chainsword" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Twin Bolt Rifle" type="upgrade" number="1">
+        <profiles>
+          <profile name="Twin Bolt Rifle" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">ASSAULT, RAPID FIRE 2, TWIN-LINKED</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Bolt Pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma Pistol - Standard" type="upgrade" number="1">
+        <profiles>
+          <profile name="Plasma Pistol - Standard" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma Pistol - Supercharge" type="upgrade" number="1">
+        <profiles>
+          <profile name="Plasma Pistol - Supercharge" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS, HAZARDOUS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Outrider Sergeant" type="model" number="1">
+        <profiles>
+        <profile name="Outrider Sergeant" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">4</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Twin Bolt Rifle" type="upgrade" number="1">
+        <profiles>
+          <profile name="Twin Bolt Rifle" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">ASSAULT, RAPID FIRE 2, TWIN-LINKED</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Bolt Pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Power Weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Power Weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Explosives"/>
+        <category name="Imperium"/>
+        <category name="Mounted"/>
+      </categories>
+    </selection>
+    <selection name="Hellblaster Squad" type="unit" number="1">
+      <profiles>
+        <profile name="Supported by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Lieutenant</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Rites of Thermal Appeasement" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This unit has +1 to hazard rolls made for its Plasma Incinerator and Plasma Pistol weapons.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Hellblaster Sergeant" type="model" number="1">
+        <profiles>
+        <profile name="Hellblaster Sergeant" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Ceramite Fists" type="upgrade" number="1">
+        <profiles>
+          <profile name="Ceramite Fists" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma Incinerator - Standard" type="upgrade" number="1">
+        <profiles>
+          <profile name="Plasma Incinerator - Standard" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">ASSAULT, RAPID FIRE 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma Incinerator - Supercharge" type="upgrade" number="1">
+        <profiles>
+          <profile name="Plasma Incinerator - Supercharge" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">ASSAULT, HAZARDOUS, RAPID FIRE 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma Pistol - Standard" type="upgrade" number="1">
+        <profiles>
+          <profile name="Plasma Pistol - Standard" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma Pistol - Supercharge" type="upgrade" number="1">
+        <profiles>
+          <profile name="Plasma Pistol - Supercharge" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS, HAZARDOUS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Hellblaster" type="model" number="9">
+        <profiles>
+        <profile name="Hellblaster" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Bolt Pistol" type="upgrade" number="9">
+        <profiles>
+          <profile name="Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Ceramite Fists" type="upgrade" number="9">
+        <profiles>
+          <profile name="Ceramite Fists" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma Incinerator - Standard" type="upgrade" number="9">
+        <profiles>
+          <profile name="Plasma Incinerator - Standard" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">ASSAULT, RAPID FIRE 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma Incinerator - Supercharge" type="upgrade" number="9">
+        <profiles>
+          <profile name="Plasma Incinerator - Supercharge" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">ASSAULT, HAZARDOUS, RAPID FIRE 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Explosives"/>
+        <category name="Imperium"/>
+        <category name="Infantry"/>
+        <category name="Tacticus"/>
+      </categories>
+    </selection>
+    <selection name="Bladeguard Veteran Squad" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Kor’sarro Khan</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Supported by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Bladeguard Ancient</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Bladeguard (Once per turn, per unit)" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">In the Fight phase, when this unit is selected to fight or when an enemy unit targets this unit, you can select one of the following:This unit’s melee attacks have +1 to hit rolls.Or: Attacks that target this unit have -1 to hit rolls.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Enhancement: Furious Assault (Upgrade)" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Adeptus Astartes Infantry unit only. This unit’s melee attacks have [Sustained Hits 1: non-Monster/Vehicle].</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Bladeguard Veteran Sergeant" type="model" number="1">
+        <profiles>
+        <profile name="Bladeguard Veteran Sergeant" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Master-crafted Power Sword" type="upgrade" number="1">
+        <profiles>
+          <profile name="Master-crafted Power Sword" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma Pistol - Standard" type="upgrade" number="1">
+        <profiles>
+          <profile name="Plasma Pistol - Standard" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma Pistol - Supercharge" type="upgrade" number="1">
+        <profiles>
+          <profile name="Plasma Pistol - Supercharge" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS, HAZARDOUS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Bladeguard Veteran" type="model" number="5">
+        <profiles>
+        <profile name="Bladeguard Veteran" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Heavy Bolt Pistol" type="upgrade" number="5">
+        <profiles>
+          <profile name="Heavy Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Master-crafted Power Sword" type="upgrade" number="5">
+        <profiles>
+          <profile name="Master-crafted Power Sword" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Explosives"/>
+        <category name="Imperium"/>
+        <category name="Infantry"/>
+        <category name="Tacticus"/>
+      </categories>
+    </selection>
+    <selection name="Suboden Khan" type="model" number="1">
+      <profiles>
+        <profile name="Suboden Khan" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">8</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Outrider Squad B</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Spear of Chogoris" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This unit’s ranged attacks have [Assault].When this unit is selected to make an advance move, that advance move does not prevent this unit from being eligible to declare a charge.If the assault doctrine is active for this unit, this unit has +1 to advance rolls and charge rolls.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Transhuman Strategist" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Skilled Riders" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This unit has Mobile.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Heavy Bolt Pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Onslaught gatling cannon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Onslaught gatling cannon" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">8</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Devastating Wounds</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Power Sword" type="upgrade" number="1">
+        <profiles>
+          <profile name="Power Sword" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">EXTRA ATTACKS, SUSTAINED HITS 1: non-MONSTER/VEHICLE</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Stormtooth" type="upgrade" number="1">
+        <profiles>
+          <profile name="Stormtooth" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">6</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">ANTI-MONSTER/VEHICLE 4+, LANCE</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Captain"/>
+        <category name="Character"/>
+        <category name="Epic Hero"/>
+        <category name="Explosives"/>
+        <category name="Imperium"/>
+        <category name="Mounted"/>
+      </categories>
+    </selection>
+    <selection name="Kor’sarro Khan" type="model" number="1">
+      <profiles>
+        <profile name="Kor’sarro Khan" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">5</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Bladeguard Veteran Squad</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Trophy Taker" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This unit’s attacks that target a Character unit can:Re-roll hit rolls of 1 Re-roll wound rolls of 1.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Transhuman Strategist" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="For the Khan!" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This unit’s ranged attacks have [ASSAULT]This unit’s melee attacks have [LANCE].</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Anzuq" type="upgrade" number="1">
+        <profiles>
+          <profile name="Anzuq" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">4</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">ANTI-INFANTRY 4+, CLOSE-QUARTERS, DEVASTATING WOUNDS: INFANTRY</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Bolt Pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Moonfang" type="upgrade" number="1">
+        <profiles>
+          <profile name="Moonfang" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">6</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">ANTI-CHARACTER 5+, DEVASTATING WOUNDS, PRECISION</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Captain"/>
+        <category name="Character"/>
+        <category name="Epic Hero"/>
+        <category name="Explosives"/>
+        <category name="Imperium"/>
+        <category name="Infantry"/>
+        <category name="Tacticus"/>
+      </categories>
+    </selection>
+    <selection name="Lieutenant" type="model" number="1">
+      <profiles>
+        <profile name="Lieutenant" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">4</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Hellblaster Squad</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Tactical Precision" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This unit’s attacks have [Lethal Hits: non-MONSTER/VEHICLE].</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Support" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19).</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Demi-company Commander (Once per turn, per unit)" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">When a friendly Captain unit uses its Strategic Acumen ability, you can use this ability. If you do, the selected combat doctrine is active for this unit until the start of your next Command phase.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Enhancement: Hunter's Eye" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Adeptus Astartes model only. This unit’s ranged attacks:Have [IGNORES COVER].Have [SUSTAINED HITS 1].</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Bolt Pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma Pistol - Standard" type="upgrade" number="1">
+        <profiles>
+          <profile name="Plasma Pistol - Standard" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma Pistol - Supercharge" type="upgrade" number="1">
+        <profiles>
+          <profile name="Plasma Pistol - Supercharge" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS, HAZARDOUS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Power Fist" type="upgrade" number="1">
+        <profiles>
+          <profile name="Power Fist" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Character"/>
+        <category name="Explosives"/>
+        <category name="Imperium"/>
+        <category name="Infantry"/>
+        <category name="Tacticus"/>
+      </categories>
+    </selection>
+    <selection name="Bladeguard Ancient" type="model" number="1">
+      <profiles>
+        <profile name="Bladeguard Ancient" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">4</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">3</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Bladeguard Veteran Squad</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deeds of Legend" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">While this unit is within range of an objective, this unit’s melee attacks have +1 A.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Support" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19).</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Raise the Banner" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">At the end of your Movement phase, if this unit is controlling an objective, that objective is secured.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Enhancement: Imperium’s Sword" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Adeptus Astartes model only. This model has the following weapon:</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Heavy Bolt Pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Relics of Battle" type="upgrade" number="1">
+        <profiles>
+          <profile name="Relics of Battle" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Ancient"/>
+        <category name="Character"/>
+        <category name="Explosives"/>
+        <category name="Imperium"/>
+        <category name="Infantry"/>
+        <category name="Tacticus"/>
+      </categories>
+    </selection>
+    <selection name="Chaplain on Bike" type="model" number="1">
+      <profiles>
+        <profile name="Chaplain on Bike" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">5</characteristic>
+            <characteristic name="LD">5+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Outrider Squad A</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Litany of Hate" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This unit’s melee attacks have [Lance].</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Catechism of Fire" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">In your Shooting phase, when this unit is selected to shoot, you can select one visible enemy unit. This unit’s ranged attacks that target that unit have [Devastating Wounds].</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Enhancement: Spearpoint Paragon" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Adeptus Astartes model only. This model’s melee attacks have:+1 S and AP.Or: If this unit made a charge move this turn, +2 S and AP.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Absolvor Bolt Pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Absolvor Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Crozius Arcanum" type="upgrade" number="1">
+        <profiles>
+          <profile name="Crozius Arcanum" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">CLEAVE 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Twin Bolt Rifle" type="upgrade" number="1">
+        <profiles>
+          <profile name="Twin Bolt Rifle" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">RAPID FIRE 2, TWIN-LINKED</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Chaplain"/>
+        <category name="Character"/>
+        <category name="Explosives"/>
+        <category name="Imperium"/>
+        <category name="Mounted"/>
+      </categories>
+    </selection>
+    <selection name="Rhino" type="model" number="1">
+      <profiles>
+        <profile name="Rhino" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">9</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">10</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Veiling Smoke (Once per phase, per unit)" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">You can target this unit with the Smokescreen stratagem, regardless of any other uses of that stratagem this phase. If you do:That use is -1 CP.That use does not prevent any uses of that stratagem on other units this phase.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Firing Deck 2" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Firing Deck X. In your Shooting phase, each time this TRANSPORT is selected to shoot, if one or more units are embarked within it, resolve the following sequence:
+1. Select up to X models embarked within this TRANSPORT (excluding models whose units have already been selected to shoot this phase).
+2. For each selected model, select one of its ranged weapons (excluding [ONE SHOT] weapons).
+3. Until this TRANSPORT has resolved all of its attacks, it has all of those selected weapons in addition to its other weapons.
+4. Until the end of the turn, units embarked within this TRANSPORT are not eligible to shoot.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deadly Demise D3" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Deadly Demise X. Each time a model with this ability is destroyed, after the units embarked within it (if any) have made their emergency disembark moves, roll one D6. On a 6, that model suffers a deadly demise; each unit within 6&quot; of that model suffers a number of mortal wounds denoted by X (if this is a random number, roll separately for each unit within 6&quot;).</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Armoured Tracks" type="upgrade" number="1">
+        <profiles>
+          <profile name="Armoured Tracks" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">4+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Hunter-killer Missile" type="upgrade" number="1">
+        <profiles>
+          <profile name="Hunter-killer Missile" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">48&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">14</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">D3+3</characteristic>
+              <characteristic name="Keywords">ONE SHOT</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Storm Bolter" type="upgrade" number="1">
+        <profiles>
+          <profile name="Storm Bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">RAPID FIRE 2</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Dedicated Transport"/>
+        <category name="Frame"/>
+        <category name="Imperium"/>
+        <category name="Smoke"/>
+        <category name="Transport"/>
+        <category name="Vehicle"/>
+      </categories>
+    </selection>
+    <selection name="Land Speeder" type="model" number="1">
+      <profiles>
+        <profile name="Land Speeder" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">14&quot;</characteristic>
+            <characteristic name="T">8</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">9</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">3</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Purgation Run" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">In your Shooting phase, when this unit has shot, you can use this ability. If you do:This unit can make a normal move of up to D6&quot;.This unit is not eligible to declare a charge until the end of the turn.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Armoured Impact" type="upgrade" number="1">
+        <profiles>
+          <profile name="Armoured Impact" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">4+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Multi-melta" type="upgrade" number="1">
+        <profiles>
+          <profile name="Multi-melta" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">10</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">D3+2</characteristic>
+              <characteristic name="Keywords">MELTA 3</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Stormfury Missile Launcher" type="upgrade" number="1">
+        <profiles>
+          <profile name="Stormfury Missile Launcher" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">48&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">10</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">D3+3</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Pyrecannon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Pyrecannon" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="BS">-</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">BLAST 2, TORRENT</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Fly"/>
+        <category name="Frame"/>
+        <category name="Imperium"/>
+        <category name="Speeder"/>
+        <category name="Vehicle"/>
+      </categories>
+    </selection>
+    <selection name="Storm Speeder Hailstrike" type="model" number="1">
+      <profiles>
+        <profile name="Storm Speeder Hailstrike" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">14&quot;</characteristic>
+            <characteristic name="T">9</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">11</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">3</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Hailstrike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">In your Shooting phase, when this unit has shot, select one enemy unit hit by those attacks. Friendly Adeptus Astartes units’ ranged attacks that target that enemy unit have [IGNORES COVER].</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deadly Demise D3" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Deadly Demise X. Each time a model with this ability is destroyed, after the units embarked within it (if any) have made their emergency disembark moves, roll one D6. On a 6, that model suffers a deadly demise; each unit within 6&quot; of that model suffers a number of mortal wounds denoted by X (if this is a random number, roll separately for each unit within 6&quot;).</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Armoured Impact" type="upgrade" number="1">
+        <profiles>
+          <profile name="Armoured Impact" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">4+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Fragstorm Grenade Launchers" type="upgrade" number="1">
+        <profiles>
+          <profile name="Fragstorm Grenade Launchers" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">6</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">4</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">BLAST 2, IGNORES COVER</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Ironhail Heavy Stubber Array" type="upgrade" number="1">
+        <profiles>
+          <profile name="Ironhail Heavy Stubber Array" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">36&quot;</characteristic>
+              <characteristic name="A">6</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">4</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">IGNORES COVER, RAPID FIRE 6</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Onslaught Gatling Cannon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Onslaught Gatling Cannon" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">8</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">DEVASTATING WOUNDS: non-MONSTER/VEHICLE, IGNORES COVER</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Fly"/>
+        <category name="Frame"/>
+        <category name="Imperium"/>
+        <category name="Speeder"/>
+        <category name="Vehicle"/>
+      </categories>
+    </selection>
+    <selection name="Outrider Squad C" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Captain on Bike</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Full-throttle Assault" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">If this unit made a charge move this turn, this unit’s:Thunder Hammer weapons have +1 to hit rolls and [Sustained Hits 1].Other melee weapons have +1 D and [Sustained Hits 1].</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Outrider" type="model" number="2">
+        <profiles>
+        <profile name="Outrider" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">4</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Chainsword" type="upgrade" number="2">
+        <profiles>
+          <profile name="Chainsword" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Twin Bolt Rifle" type="upgrade" number="2">
+        <profiles>
+          <profile name="Twin Bolt Rifle" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">ASSAULT, RAPID FIRE 2, TWIN-LINKED</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Bolt Pistol" type="upgrade" number="2">
+        <profiles>
+          <profile name="Heavy Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Outrider Sergeant" type="model" number="1">
+        <profiles>
+        <profile name="Outrider Sergeant" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">4</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Twin Bolt Rifle" type="upgrade" number="1">
+        <profiles>
+          <profile name="Twin Bolt Rifle" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">ASSAULT, RAPID FIRE 2, TWIN-LINKED</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Bolt Pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Chainsword" type="upgrade" number="1">
+        <profiles>
+          <profile name="Chainsword" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Explosives"/>
+        <category name="Imperium"/>
+        <category name="Mounted"/>
+      </categories>
+    </selection>
+    <selection name="Captain on Bike" type="model" number="1">
+      <profiles>
+        <profile name="Captain on Bike" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">6</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Outrider Squad C</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Into the Fray" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">If this unit made a charge move this turn, this unit’s melee attacks have [cleave 1].</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Strategic Acumen" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">In your Command phase, you can use this ability. If you do, select one combat doctrine to be active for this unit until the start of your next Command phase.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Transhuman Strategist" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Twin Bolt Rifle" type="upgrade" number="1">
+        <profiles>
+          <profile name="Twin Bolt Rifle" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">ASSAULT, RAPID FIRE 2, TWIN-LINKED</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma Pistol - Standard" type="upgrade" number="1">
+        <profiles>
+          <profile name="Plasma Pistol - Standard" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma Pistol - Supercharge" type="upgrade" number="1">
+        <profiles>
+          <profile name="Plasma Pistol - Supercharge" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS, HAZARDOUS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Master-crafted Power Weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Master-crafted Power Weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">6</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Captain"/>
+        <category name="Character"/>
+        <category name="Explosives"/>
+        <category name="Imperium"/>
+        <category name="Mounted"/>
+      </categories>
+    </selection>
+    <selection name="Assault Intercessor Squad" type="unit" number="1">
+      <profiles>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Targeted Intercession" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">If this unit made a charge move this turn, this unit’s melee attacks have +1 S and AP.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Enhancement: Furious Assault (Upgrade)" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Adeptus Astartes Infantry unit only. This unit’s melee attacks have [Sustained Hits 1: non-Monster/Vehicle].</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Assault Intercessor" type="model" number="4">
+        <profiles>
+        <profile name="Assault Intercessor" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Chainsword" type="upgrade" number="4">
+        <profiles>
+          <profile name="Chainsword" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Bolt Pistol" type="upgrade" number="4">
+        <profiles>
+          <profile name="Heavy Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Assault Intercessor Sergeant" type="model" number="1">
+        <profiles>
+        <profile name="Assault Intercessor Sergeant" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Chainsword" type="upgrade" number="1">
+        <profiles>
+          <profile name="Chainsword" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Bolt Pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: White Scars"/>
+        <category name="Battleline"/>
+        <category name="Explosives"/>
+        <category name="Imperium"/>
+        <category name="Infantry"/>
+        <category name="Tacticus"/>
+      </categories>
+    </selection>
+      </selections>
+    </force>
+  </forces>
+</roster>

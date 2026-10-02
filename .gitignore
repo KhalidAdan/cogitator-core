@@ -1,0 +1,9 @@
+node_modules/
+build/
+.react-router/
+
+# the SQLite database and the downloaded Wahapedia exports (rules text is Games Workshop's; keep it out of any remote)
+data/
+
+.env
+.DS_Store

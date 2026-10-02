@@ -1,0 +1,153 @@
+/** The pure domain helpers: option intents, the matrix view model, weapon keywords, rule effects in words. */
+import { describe, expect, it } from "vitest"
+import { MOD0 } from "~/domain/engine"
+import { describeFx, describeRule } from "~/domain/fx"
+import { keywordsFromInput, keywordsToInput, keywordText, parseWeaponKeywords } from "~/domain/keywords"
+import { availableMarks, effectiveOpts, findings, matrix, ruleState } from "~/domain/ledger"
+import { applyIntent, defaultOpts, intentFromForm } from "~/domain/options"
+import type { RuleBook, Target, Unit } from "~/domain/schema"
+import seed from "~/.server/seed/poc-seed.json"
+import { pocCophasta } from "./helpers/poc"
+
+const rules = seed.rules as unknown as RuleBook
+const targets = seed.targets as unknown as Array<Target>
+const list = (id: string) => seed.lists.find((l) => l.id === id)! as unknown as { units: Array<Unit>; rules: RuleBook; groups: Record<string, { nm: string; short: string }> }
+const form = (fields: Record<string, string>) => {
+  const fd = new FormData()
+  for (const [k, v] of Object.entries(fields)) fd.set(k, v)
+  return fd
+}
+
+describe("option intents", () => {
+  const units = list("builtin-burning-v2").units
+  const apply = (fields: Record<string, string>, from = defaultOpts()) => applyIntent(from, intentFromForm(form(fields))!, units)
+
+  it("sets the phase and ignores values it doesn’t know", () => {
+    expect(apply({ intent: "set", key: "phase", value: "melee" }).phase).toBe("melee")
+    expect(apply({ intent: "set", key: "phase", value: "sideways" }).phase).toBe("all")
+    expect(apply({ intent: "set", key: "combine", value: "false" }).combine).toBe(false)
+  })
+
+  it("treats an unchecked checkbox (no value posted) as off", () => {
+    expect(apply({ intent: "flag", key: "charged" }).flags.charged).toBe(false)
+    expect(apply({ intent: "flag", key: "riven", value: "true" }).flags.riven).toBe(true)
+    expect(apply({ intent: "set", key: "enh" }).enh).toBe(false)
+  })
+
+  it("keeps modifiers per scope, clamps them, and drops a scope once it is empty", () => {
+    let o = apply({ intent: "mod", scope: "all", key: "hit", value: "5" })
+    expect(o.mods.all).toEqual({ ...MOD0, hit: 1 })
+    o = apply({ intent: "mod", scope: "fuegan", key: "rrWound", value: "full" }, o)
+    expect(Object.keys(o.mods).sort()).toEqual(["all", "fuegan"])
+    o = apply({ intent: "mod", scope: "all", key: "hit", value: "0" }, o)
+    expect(Object.keys(o.mods)).toEqual(["fuegan"])
+    expect(apply({ intent: "mod-clear", scope: "fuegan" }, o).mods).toEqual({})
+  })
+
+  it("switches a rule off for one owner and back on", () => {
+    const off = apply({ intent: "rule-switch", key: "prince-yriel:piratical-hero" })
+    expect(off.off).toEqual({ "prince-yriel:piratical-hero": true })
+    expect(apply({ intent: "rule-switch", key: "prince-yriel:piratical-hero", on: "true" }, off).off).toEqual({})
+  })
+
+  it("applies the presets but keeps the phase and the attached-unit view", () => {
+    const from = { ...defaultOpts(), phase: "ranged" as const, combine: false, flags: { charged: false, riven: true } }
+    const bare = apply({ intent: "preset", value: "bare" }, from)
+    expect(bare.phase).toBe("ranged")
+    expect(bare.combine).toBe(false)
+    expect(bare.off["prince-yriel:piratical-hero"]).toBe(true)
+    expect(Object.keys(bare.off)).toHaveLength(units.length * 3)
+    expect(apply({ intent: "preset", value: "table" }, bare)).toEqual({ ...defaultOpts(), phase: "ranged", combine: false })
+  })
+
+  it("rejects posts that aren’t intents", () => {
+    expect(intentFromForm(form({ intent: "set", key: "units", value: "[]" }))).toBeNull()
+    expect(intentFromForm(form({ intent: "mod", scope: "all", key: "nope", value: "1" }))).toBeNull()
+    expect(intentFromForm(form({}))).toBeNull()
+  })
+})
+
+describe("the matrix view model", () => {
+  const v2 = list("builtin-burning-v2")
+  const ledger = { units: v2.units, rules: { ...rules, ...v2.rules }, targets, opts: defaultOpts(), groups: v2.groups }
+
+  it("orders targets infantry first and counts coverage at the 65% line", () => {
+    const m = matrix(ledger)
+    expect(m.targets).toHaveLength(19)
+    expect(m.infantry).toBe(9)
+    expect(m.targets.slice(0, 9).every((t) => t.cls === "inf")).toBe(true)
+    expect(m.rows).toHaveLength(16)
+    m.targets.forEach((_, k) => expect(m.coverage[k]).toBe(m.rows.filter((r) => r.cells[k].roi >= 65).length))
+  })
+
+  it("reproduces the handoff’s headline numbers for the v2 list", () => {
+    const m = matrix(ledger)
+    const yv = m.rows.find((r) => r.unit.id === "grp-D")!
+    const at = (id: string) => Math.round(yv.cells[m.targets.findIndex((t) => t.id === id)].roi)
+    // "Yriel + Voidscarred is the best answer to almost every elite target"
+    expect([at("terminators"), at("intercessors"), at("canoptek-wraiths"), at("ctan")]).toEqual([107, 104, 64, 55])
+    // "points-weighted average return 49.4%" and "1,085 of 2,000 pts in units averaging 50%+"
+    const pts = m.rows.reduce((s, r) => s + r.unit.pts, 0)
+    expect(pts).toBe(2000)
+    expect((m.rows.reduce((s, r) => s + r.avg * r.unit.pts, 0) / pts).toFixed(1)).toBe("49.4")
+    expect(m.rows.filter((r) => r.avg >= 50).reduce((s, r) => s + r.unit.pts, 0)).toBe(1085)
+  })
+
+  it("writes the three findings: the gap, the prime trigger, the enhancement tax", () => {
+    const f = findings(ledger, matrix(ledger))
+    expect(f.map((x) => x.kind)).toEqual(["gap", "prime", "enhancement"])
+    const gap = f[0]
+    // "Canoptek Wraiths, Mutalith and C'tan have no answer at 65%"
+    expect(gap.kind === "gap" && gap.others).toBe(2)
+  })
+
+  it("only offers the target marks a unit in the list can set", () => {
+    expect(availableMarks(v2.units, ledger.rules).map((m) => m.key).sort()).toEqual(["guide", "quarry", "riven", "spiritmark", "web"])
+    const cophasta = pocCophasta() as unknown as ReturnType<typeof list>
+    expect(availableMarks(cophasta.units, { ...rules, ...cophasta.rules }).map((m) => m.label).sort()).toEqual(["Hailstrike-marked", "Shattered"])
+    // a mark left on from another list is forced off where nobody can set it
+    const o = effectiveOpts({ units: cophasta.units, rules }, { ...defaultOpts(), flags: { riven: true, shattered: true } })
+    expect(o.flags).toMatchObject({ riven: false, shattered: true })
+  })
+
+  it("gives every rule chip a state", () => {
+    const o = defaultOpts()
+    expect(ruleState(rules["piratical-hero"], "yriel", "piratical-hero", o)).toBe("on")
+    expect(ruleState(rules["piratical-hero"], "yriel", "piratical-hero", { ...o, off: { "yriel:piratical-hero": true } })).toBe("off")
+    expect(ruleState(rules["assassins-eye"], "x", "assassins-eye", o)).toBe("idle")
+    expect(ruleState(rules["assassins-eye"], "x", "assassins-eye", { ...o, flags: { char: true } })).toBe("on")
+    expect(ruleState(rules["fury-void"], "kharseth", "fury-void", o)).toBe("mark-off")
+    expect(ruleState(rules["voidstone"], "x", "voidstone", o)).toBe("note")
+  })
+})
+
+describe("weapon keywords", () => {
+  it("parses roster and Wahapedia ability lists alike", () => {
+    expect(parseWeaponKeywords("assault, melta 3")).toEqual({ melta: 3 })
+    expect(parseWeaponKeywords("Anti-Infantry 2+, Psychic")).toEqual({ anti: ["INFANTRY", 2], psychic: 1 })
+    expect(parseWeaponKeywords("LETHAL HITS: non-MONSTER/VEHICLE, Rapid Fire 1")).toEqual({
+      lethal: 1,
+      rf: 1,
+      when: { lethal: { not: ["MONSTER", "VEHICLE"] } }
+    })
+    expect(parseWeaponKeywords("Blast 2, Cleave D3, close-quarters, c'tan power")).toEqual({ blast: 2, cleave: 2, pistol: 1, other: ["c'tan power"] })
+    expect(parseWeaponKeywords("-")).toEqual({})
+  })
+
+  it("round-trips the compact form used in the loadout editor", () => {
+    const kw = parseWeaponKeywords("Lethal Hits, Sustained Hits 1, Melta 2, Anti-Infantry 2+, Twin-linked")
+    expect(keywordsToInput(kw)).toBe("lethal tl sus1 melta2 anti-infantry2")
+    expect(keywordsFromInput(keywordsToInput(kw))).toEqual(kw)
+    expect(keywordText({ kw })).toBe("Lethal Hits, Sustained 1, Twin-linked, Melta 2, Anti-infantry 2+")
+  })
+})
+
+describe("rule effects in words", () => {
+  it("describes clauses and whole rules", () => {
+    expect(describeFx({ phase: "ranged", vs: { only: ["MONSTER", "VEHICLE"] }, rrHit: "all", rrWound: "all", rrDmg: true })).toBe(
+      "ranged, vs monster/vehicle: re-roll hits, re-roll wounds, re-roll damage"
+    )
+    expect(describeRule(rules["piratical-hero"])).toBe("+1 to hit, Sustained Hits 1")
+    expect(describeRule(rules["voidstone"])).toBe("No effect on damage")
+  })
+})

@@ -1,0 +1,62 @@
+STRIKE FORCE COPHASTA
+White Scars · Spearpoint Task Force · Assault Brethren
+Mission: Reconnaissance
+1990/2000 pts
+
+ATTACHED UNIT A [340 pts]
+  Kor’sarro Khan [80 pts]
+    Anzuq + Bolt Pistol + Moonfang
+  Bladeguard Ancient [80 pts]
+    Enhancement: Imperium’s Sword (+20 pts)
+    Heavy Bolt Pistol + Relics of Battle
+  Bladeguard Veteran Squad [180 pts] (6 models)
+    Enhancement: Furious Assault (Upgrade) (+10 pts)
+    5× Heavy Bolt Pistol / 6× Master-crafted Power Sword / Plasma Pistol
+
+ATTACHED UNIT B [190 pts]
+  Suboden Khan [105 pts] - Warlord
+    Heavy Bolt Pistol + Onslaught gatling cannon + Power Sword + Stormtooth
+  Outrider Squad [85 pts] (3 models)
+    2× Chainsword / 2× Heavy Bolt Pistol / 3× Twin Bolt Rifle / Power Weapon / Plasma Pistol
+
+ATTACHED UNIT C [195 pts]
+  Captain on Bike [110 pts]
+    Twin Bolt Rifle / Plasma Pistol / Master-crafted Power Weapon
+  Outrider Squad [85 pts] (3 models)
+    3× Heavy Bolt Pistol / 3× Twin Bolt Rifle / 3× Chainsword
+
+ATTACHED UNIT D [265 pts]
+  Chaplain on Bike [105 pts]
+    Enhancement: Spearpoint Paragon (+25 pts)
+    Absolvor Bolt Pistol + Crozius Arcanum + Twin Bolt Rifle
+  Outrider Squad [160 pts] (6 models)
+    5× Chainsword / 4× Heavy Bolt Pistol / 6× Twin Bolt Rifle / Thunder Hammer / 2× Plasma Pistol
+
+ATTACHED UNIT E [295 pts]
+  Lieutenant [75 pts]
+    Enhancement: Hunter's Eye (+25 pts)
+    Bolt Pistol + Plasma Pistol + Power Fist
+  Hellblaster Squad [220 pts] (10 models)
+    9× Bolt Pistol + Ceramite Fists + Plasma Incinerator / Ceramite Fists + Plasma Incinerator / Plasma Pistol
+
+BATTLELINE [100 pts]
+  Assault Intercessor Squad [100 pts] (5 models)
+    Enhancement: Furious Assault (Upgrade) (+10 pts)
+    5× Chainsword / 5× Heavy Bolt Pistol
+
+DEDICATED TRANSPORTS [70 pts]
+  Rhino [70 pts]
+    Armoured Tracks + Hunter-killer Missile + Storm Bolter
+
+VEHICLES, MONSTERS [535 pts]
+  Brutalis Dreadnought [160 pts]
+    Twin Icarus Ironhail Heavy Stubber / Bolt Rifles + Brutalis Fists / Twin Heavy Bolter
+  Land Speeder [110 pts]
+    Armoured Impact + Multi-melta + Stormfury Missile Launcher / Pyrecannon
+  Storm Speeder Hailstrike [110 pts]
+    Armoured Impact + Fragstorm Grenade Launchers + Ironhail Heavy Stubber Array + Onslaught Gatling Cannon
+  Storm Speeder Thunderstrike [155 pts]
+    Armoured Impact + Stormfury Missile Launcher + Thunderstrike Icarus Rocket Pod + Thunderstrike Las-talon
+
+Exported from 40k.app, view the full list here:
+https://www.40k.app/lists/clSMsdr28T

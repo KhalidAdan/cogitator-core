@@ -1,0 +1,1893 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kill Ledger</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Sans+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ECEBF0; --surface:#F7F6FA; --surface-2:#E2E0EA; --line:#CFCBDB; --ink:#1C1932; --muted:#625C7E;
+  --jade:#0B7A68; --jade-ink:#06493F; --gold:#C8922A; --gold-ink:#3B2905; --void:#3A2F6B; --warn:#A23B4A;
+  --serif:"Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans:"IBM Plex Sans Condensed", "Arial Narrow", "Roboto Condensed", "Helvetica Neue", Arial, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14112A; --surface:#1C1838; --surface-2:#252046; --line:#342E5C; --ink:#ECE6D6; --muted:#A29BC2;
+    --jade:#45C3AA; --jade-ink:#D9FFF6; --gold:#E2B453; --gold-ink:#2A1C02; --void:#B9A8FF; --warn:#F08A9A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14112A; --surface:#1C1838; --surface-2:#252046; --line:#342E5C; --ink:#ECE6D6; --muted:#A29BC2;
+  --jade:#45C3AA; --jade-ink:#D9FFF6; --gold:#E2B453; --gold-ink:#2A1C02; --void:#B9A8FF; --warn:#F08A9A;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{margin:0}
+body{background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.45; -webkit-font-smoothing:antialiased; font-variant-numeric:tabular-nums}
+a{color:inherit}
+button,input,select{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--jade); outline-offset:2px}
+.wrap{max-width:1360px; margin:0 auto; padding:20px clamp(14px,3vw,36px) 48px}
+
+/* masthead */
+.mast{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px 24px; padding-bottom:14px; border-bottom:1px solid var(--line)}
+.mast h1{font-family:var(--serif); font-weight:600; font-size:clamp(28px,4.2vw,46px); line-height:1.02; margin:0; letter-spacing:.005em}
+.mast h1 a{text-decoration:none}
+.mast .sub{color:var(--muted); margin-top:6px; font-size:15px}
+.mast .tool{font-family:var(--serif); font-style:italic; font-size:18px; color:var(--void)}
+.themebtn{border:1px solid var(--line); background:transparent; border-radius:999px; padding:4px 12px; cursor:pointer; color:var(--muted); font-size:13px}
+
+/* controls */
+.controls{display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; padding:14px 0 6px}
+.seg{display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface)}
+.seg button{border:0; background:transparent; padding:6px 12px; cursor:pointer; font-size:14px; color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink); color:var(--bg)}
+.seglabel{font-size:13px; color:var(--muted); margin-right:6px}
+details.assume{flex-basis:100%; border-top:1px dashed var(--line); padding-top:8px}
+details.assume summary{cursor:pointer; color:var(--muted); font-size:14px; list-style:none}
+details.assume summary::-webkit-details-marker{display:none}
+details.assume summary::before{content:"+ "; color:var(--jade); font-weight:600}
+details.assume[open] summary::before{content:"− "}
+.assume-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px 28px; padding:12px 0 4px}
+.assume-grid h3{font-size:14px; margin:0 0 6px; font-weight:600}
+.tog{display:flex; gap:10px; align-items:flex-start; padding:4px 0; cursor:pointer; font-size:14px}
+.tog input{margin-top:3px; accent-color:var(--jade)}
+.tog small{display:block; color:var(--muted); font-size:12.5px; line-height:1.35}
+.presets{display:flex; gap:8px; flex-wrap:wrap; padding:6px 0 4px}
+.btn{border:1px solid var(--line); background:var(--surface); border-radius:8px; padding:6px 12px; cursor:pointer; font-size:14px}
+.btn:hover{border-color:var(--jade)}
+.btn.primary{background:var(--jade); border-color:var(--jade); color:var(--bg)}
+
+/* formula strip */
+.legend{display:flex; flex-wrap:wrap; gap:8px 28px; align-items:baseline; padding:14px 0 10px}
+.legend .eq{font-family:var(--serif); font-size:clamp(19px,2.2vw,24px); font-weight:600}
+.legend .eq em{font-style:italic; font-weight:500; color:var(--muted)}
+.keyrow{display:flex; gap:14px; flex-wrap:wrap; font-size:13px; color:var(--muted)}
+.sw{display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:-2px; margin-right:5px; border:1px solid var(--line)}
+
+/* matrix */
+.mx-scroll{overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--surface)}
+table.mx{border-collapse:separate; border-spacing:0; width:max-content; min-width:100%; font-size:13.5px}
+.mx th,.mx td{padding:0; border-bottom:1px solid var(--line)}
+.mx thead th{position:sticky; top:0; background:var(--surface); z-index:2; vertical-align:bottom}
+.mx .grp th{font-weight:500; font-size:12.5px; color:var(--muted); text-align:left; padding:8px 8px 4px; border-bottom:0}
+.mx .grp th.inf{border-left:2px solid var(--jade)}
+.mx .grp th.veh{border-left:2px solid var(--void)}
+.mx th.tg{width:62px; min-width:62px; text-align:left; font-weight:500}
+.mx th.tg a{display:block; padding:6px 6px 8px; text-decoration:none; line-height:1.15; min-height:76px}
+.mx th.tg a:hover .tn{text-decoration:underline}
+.mx th.tg .tn{display:block; font-size:12.5px}
+.mx th.tg .tm{display:block; color:var(--muted); font-size:11.5px; margin-top:3px}
+.mx th.tg.first-veh, .mx td.first-veh{border-left:2px solid var(--void)}
+.mx th.tg.first-inf, .mx td.first-inf{border-left:2px solid var(--jade)}
+.mx th.rowh, .mx td.rowh{position:sticky; left:0; z-index:1; background:var(--surface); text-align:left; min-width:190px; max-width:230px; border-right:1px solid var(--line)}
+.mx thead th.rowh{z-index:3}
+.mx td.rowh a{display:block; padding:7px 10px; text-decoration:none}
+.mx td.rowh a:hover .un{text-decoration:underline}
+.mx .un{font-weight:600; display:block; line-height:1.2}
+.mx .um{color:var(--muted); font-size:12px}
+.mx td.c a{display:flex; align-items:center; justify-content:center; height:40px; text-decoration:none; font-variant-numeric:tabular-nums}
+.mx td.c a:hover{outline:2px solid var(--ink); outline-offset:-2px}
+.mx td.c.eff a{font-weight:600}
+.mx td.agg{text-align:center; font-weight:600; padding:0 10px; color:var(--muted); background:var(--surface)}
+.mx td.agg.best{font-weight:500; text-align:left; font-size:12.5px; max-width:120px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.mx tr.sec td{background:var(--surface-2); font-size:12.5px; color:var(--muted); padding:5px 10px; position:sticky; left:0}
+.mx tr.cov td{font-size:12.5px; color:var(--muted); text-align:center; padding:8px 0; border-bottom:0}
+.mx tr.cov td.rowh{padding:8px 10px; text-align:left}
+.mx tr.cov td.zero{color:var(--warn); font-weight:600}
+
+/* findings */
+.findings{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px 28px; margin:22px 0 4px; padding:0; list-style:none}
+.findings li{border-left:3px solid var(--jade); padding:2px 0 2px 12px; font-size:15px}
+.findings li.alert{border-left-color:var(--warn)}
+.findings li.gold{border-left-color:var(--gold)}
+.findings b{font-weight:600}
+.findings a{color:var(--jade)}
+
+/* dossier */
+.crumbs{font-size:14px; padding:14px 0 0}
+.crumbs a{color:var(--jade); text-decoration:none}
+.crumbs a:hover{text-decoration:underline}
+.dhead{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:10px 24px; padding:8px 0 14px; border-bottom:1px solid var(--line)}
+.dhead h2{font-family:var(--serif); font-weight:600; font-size:clamp(32px,5vw,58px); line-height:1; margin:0}
+.dhead .meta{color:var(--muted); margin-top:8px; font-size:15px}
+.dhead .ptsbig{font-family:var(--serif); font-size:clamp(28px,3.6vw,40px); font-weight:600; text-align:right; line-height:1}
+.dhead .ptsbig small{display:block; font-family:var(--sans); font-size:13px; font-weight:400; color:var(--muted); margin-top:4px}
+.dgrid{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:28px; padding-top:18px}
+@media (max-width: 900px){ .dgrid{grid-template-columns:minmax(0,1fr)} }
+.dgrid > section{min-width:0}
+@media (max-width: 560px){
+  .mx th.rowh, .mx td.rowh{min-width:132px; max-width:150px}
+  .mx td.rowh a{padding:6px 8px}
+  .mx .un{font-size:13px}
+  .mx .um{font-size:11px}
+  .dhead .ptsbig{text-align:left}
+  .bars li{grid-template-columns:minmax(96px,128px) 1fr 44px; gap:8px}
+}
+.dgrid h3{font-size:15px; font-weight:600; margin:0 0 10px}
+.dgrid h3 span{font-weight:400; color:var(--muted)}
+
+.bars{list-style:none; margin:0; padding:0}
+.bars li{display:grid; grid-template-columns:minmax(110px,150px) 1fr 52px; gap:10px; align-items:center; padding:3px 0}
+.bars a.bn{font-size:13.5px; text-decoration:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.bars a.bn:hover{text-decoration:underline}
+.bars li.sel a.bn{font-weight:600}
+.track{position:relative; height:18px; background:var(--surface-2); border-radius:4px; overflow:hidden; cursor:pointer}
+.track .fill{position:absolute; inset:0 auto 0 0; border-radius:4px}
+.track .mk{position:absolute; top:0; bottom:0; width:1px; background:var(--ink); opacity:.35}
+.track .mk.m100{opacity:.6}
+.bars .bv{text-align:right; font-weight:600; font-size:14px}
+.bars li.sel .track{outline:2px solid var(--ink); outline-offset:1px}
+.bars .cls{font-size:12px; color:var(--muted); padding:10px 0 2px; display:block}
+
+.tbl-scroll{overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--surface)}
+table.dt{border-collapse:collapse; width:100%; font-size:13.5px; min-width:640px}
+.dt th{text-align:right; font-weight:500; color:var(--muted); padding:8px 8px; border-bottom:1px solid var(--line); font-size:12.5px; white-space:nowrap}
+.dt th:first-child,.dt td:first-child{text-align:left}
+.dt td{text-align:right; padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top}
+.dt tr:last-child td{border-bottom:0}
+.dt .wn{font-weight:600}
+.dt .wnotes{display:block; font-size:12px; color:var(--jade); font-weight:400}
+.dt tr.skip td{color:var(--muted)}
+.dt tr.skip .wnotes{color:var(--muted)}
+.dt td.dealt{font-weight:600}
+.dt .sub{display:block; font-size:11.5px; color:var(--jade); white-space:nowrap}
+.dt input{width:52px; padding:3px 5px; border:1px solid var(--line); border-radius:5px; background:var(--bg); text-align:right}
+.dt input.kwin{width:150px; text-align:left}
+.dt input.nmin{width:100%; min-width:150px; text-align:left}
+
+/* the sigma */
+.sigma{margin-top:16px; padding:18px 18px 16px; border-radius:12px; background:var(--surface); border:1px solid var(--line); position:relative}
+.sigma .line{display:flex; flex-wrap:wrap; align-items:flex-end; gap:6px 12px; font-family:var(--serif); font-weight:600; font-size:clamp(22px,2.7vw,36px); line-height:1}
+.sigma .term{display:inline-flex; flex-direction:column; align-items:center}
+.sigma .term small{font-family:var(--sans); font-weight:400; font-size:12px; color:var(--muted); margin-top:6px; white-space:nowrap}
+.sigma .op{color:var(--muted); font-weight:500}
+.sigma .res{color:var(--jade)}
+.sigma .res.hi{color:var(--gold)}
+.sigma .res.lo{color:var(--warn)}
+.sigma p{margin:14px 0 0; font-size:15px; max-width:70ch}
+.sigma p.alt{color:var(--muted); font-size:14px; margin-top:6px}
+.empty{color:var(--muted); padding:22px; border:1px dashed var(--line); border-radius:10px; text-align:center}
+
+.tprof{display:flex; flex-wrap:wrap; gap:8px 22px; padding:12px 0 4px; font-size:15px}
+.tprof label{display:flex; flex-direction:column; font-size:12px; color:var(--muted); gap:3px}
+.tprof input{width:70px; padding:5px 7px; border:1px solid var(--line); border-radius:6px; background:var(--surface); font-size:15px; color:var(--ink)}
+.tprof input.wide{width:120px}
+.tprof .ro{font-size:20px; color:var(--ink); font-weight:600}
+
+
+
+/* modifier bar */
+.modwrap{flex-basis:100%; border-top:1px dashed var(--line); padding-top:8px}
+.modwrap > summary{cursor:pointer; color:var(--muted); font-size:14px; list-style:none}
+.modwrap > summary::-webkit-details-marker{display:none}
+.modwrap > summary::before{content:"+ "; color:var(--jade); font-weight:600}
+.modwrap[open] > summary::before{content:"− "}
+.mbreak{flex-basis:100%; height:0}
+.mcluster.c3{border-left:0; padding-left:0}
+.modbar{display:flex; flex-wrap:wrap; align-items:flex-start; gap:14px 0; padding:12px 0 2px}
+.mcluster{display:flex; flex-wrap:wrap; align-items:flex-start; gap:12px 16px; padding:0 20px; border-left:1px solid var(--line)}
+.mcluster:first-child{padding-left:0; border-left:0}
+.mg{display:flex; flex-direction:column; gap:5px; min-width:0; max-width:100%}
+.mcluster{min-width:0; max-width:100%}
+.ml{font-size:12.5px; color:var(--muted)}
+.mnote{font-size:11.5px; color:var(--muted); max-width:190px; line-height:1.3}
+.seg{max-width:100%; flex-wrap:wrap}
+.seg.sm button{padding:4px 10px; font-size:13px}
+.seg.sm button[aria-pressed="true"]:not([data-mval="0"]):not([data-mval="false"]):not([data-mval="off"]):not([data-mval="both"]){background:var(--jade); color:var(--bg)}
+#modscope{box-sizing:border-box; padding:5px 8px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink); min-width:210px; max-width:270px; font-size:14px}
+.btn.ghost{background:transparent; align-self:flex-end; margin-left:20px; font-size:13px}
+.modsum{flex-basis:100%; margin:6px 0 0; font-size:13px; color:var(--muted); max-width:110ch}
+.modsum b{color:var(--ink); font-weight:600}
+.modtag{display:inline-block; margin-left:6px; font-size:10.5px; font-weight:600; padding:1px 6px; border-radius:999px; background:color-mix(in oklab, var(--gold) 38%, var(--surface)); color:var(--ink); vertical-align:2px}
+@media (max-width: 760px){
+  .mcluster{border-left:0; padding:0; flex-basis:100%}
+  .modbar{gap:12px}
+  .btn.ghost{margin-left:0}
+  #modscope{min-width:0; width:100%; max-width:none}
+  .mcluster:first-child .mg:first-child{flex-basis:100%}
+}
+
+
+/* lists and import */
+.mastctl{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+#listpick{box-sizing:border-box; padding:5px 8px; border:1px solid var(--line); border-radius:999px; background:var(--surface); color:var(--ink); font-size:13px; max-width:340px}
+.chip.todo{background:transparent; border:1px dashed var(--warn); color:var(--ink)}
+.chip.todo::before{content:"!\00a0"; color:var(--warn); font-weight:700}
+.impform{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.4fr); gap:16px 24px; padding:18px 0 6px; align-items:start}
+@media (max-width: 760px){ .impform{grid-template-columns:minmax(0,1fr)} }
+.impform label{display:flex; flex-direction:column; gap:6px; font-size:14px; font-weight:600}
+.impform .drop{border:1px dashed var(--line); border-radius:12px; padding:16px; background:var(--surface)}
+.impform .drop input{font-weight:400}
+.impform textarea{box-sizing:border-box; width:100%; padding:10px; border:1px solid var(--line); border-radius:10px; background:var(--surface); color:var(--ink); font:400 13px/1.4 var(--sans); resize:vertical}
+.impform .presets{grid-column:1/-1}
+.btn[disabled]{opacity:.5; cursor:not-allowed}
+.btn.danger{color:var(--warn)}
+.err{grid-column:1/-1; color:var(--warn); margin:0}
+.warns{margin:6px 0 12px; padding-left:18px; color:var(--muted); font-size:13.5px}
+.warns li{margin:2px 0}
+.impname{display:flex; flex-direction:column; gap:4px; font-size:13px; color:var(--muted); max-width:420px; margin-bottom:8px}
+.impname input{box-sizing:border-box; padding:7px 9px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink); font:600 16px var(--sans)}
+.ptsmini{box-sizing:border-box; width:64px; padding:3px 6px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--ink); text-align:right}
+table.dt.imp td .um{display:block; color:var(--muted); font-size:12px}
+.imp-review, .mylists{margin-top:22px}
+
+/* tabs */
+.tabs{display:flex; gap:22px; padding:14px 0 0; border-bottom:1px solid var(--line)}
+.tabs a{text-decoration:none; color:var(--muted); padding:6px 0 9px; font-size:15px; border-bottom:2px solid transparent; margin-bottom:-1px}
+.tabs a[aria-current="page"]{color:var(--ink); border-bottom-color:var(--jade); font-weight:600}
+.tabs a:hover{color:var(--ink)}
+.hint{color:var(--muted); font-size:13px; font-weight:400}
+small.hint{display:block; margin-top:6px}
+.by{color:var(--muted); font-size:12.5px}
+.assume-grid h3 .hint{font-size:12px; margin-left:4px}
+h3.sh{font-size:15px; font-weight:600; margin:26px 0 10px}
+section > h3.sh:first-child{margin-top:0}
+h3.sh span{font-weight:400; color:var(--muted)}
+.mx th.corner{text-align:left; padding:6px 10px; font-weight:500; color:var(--muted); font-size:12.5px}
+.mx th.aggh{text-align:center; padding:6px; color:var(--muted); font-weight:500}
+.mx th.aggh.l{text-align:left}
+.dt td.l, .dt th.l{text-align:left}
+.emptyrow{text-align:center !important; color:var(--muted)}
+.editbar{display:flex; gap:10px; margin:0 0 10px; flex-wrap:wrap; align-items:center; font-size:14px}
+.editbar label{display:flex; gap:6px; align-items:center}
+.ptsin{width:70px; padding:5px; border:1px solid var(--line); border-radius:6px; background:var(--bg)}
+.lede{margin:8px 0 0; color:var(--muted); font-size:14.5px; flex-basis:100%; max-width:75ch}
+
+/* chips */
+.chip{display:inline-block; white-space:nowrap; font:inherit; font-size:12.5px; line-height:1.2; padding:4px 9px; margin:2px 4px 2px 0; border-radius:999px; cursor:pointer; border:1px solid transparent; text-align:left}
+.chip.on{background:color-mix(in oklab, var(--jade) 22%, var(--surface)); border-color:color-mix(in oklab, var(--jade) 55%, var(--surface)); color:var(--ink)}
+.chip.on::before{content:"\2713\00a0"; color:var(--jade); font-weight:700}
+.chip.idle{background:transparent; border:1px dashed color-mix(in oklab, var(--jade) 60%, var(--surface)); color:var(--muted)}
+.chip.idle::before{content:"\25CB\00a0"; color:var(--jade)}
+.chip.off{background:transparent; border-color:color-mix(in oklab, var(--jade) 45%, var(--surface)); color:var(--muted); text-decoration:line-through}
+.chip.mark-off{background:transparent; border:1px dashed var(--gold); color:var(--ink)}
+.chip.mark-on{background:color-mix(in oklab, var(--gold) 40%, var(--surface)); border-color:var(--gold); color:var(--ink)}
+.chip.mark-on::before{content:"\25C6\00a0"; color:var(--gold-ink)}
+.chip.note{background:var(--surface-2); color:var(--muted); border-color:transparent}
+.chip.sel{outline:2px solid var(--ink); outline-offset:1px}
+.chip.demo{cursor:default; margin-right:4px}
+.chips{display:flex; flex-wrap:wrap; gap:2px}
+
+/* rules matrix */
+.armyrules{margin:6px 0 16px}
+.armyrules h3{font-size:14px; font-weight:600; margin:0 0 6px}
+.armygrid{display:flex; flex-wrap:wrap; gap:6px 22px}
+.armyrule{display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted)}
+table.rx{border-collapse:separate; border-spacing:0; width:100%; min-width:980px; font-size:13.5px}
+.rx th{position:sticky; top:0; background:var(--surface); z-index:2; text-align:left; font-weight:500; color:var(--muted); font-size:12.5px; padding:8px 10px; border-bottom:1px solid var(--line)}
+.rx td{vertical-align:top; padding:7px 10px; border-bottom:1px solid var(--line)}
+.rx th.rowh, .rx td.rowh{position:sticky; left:0; z-index:1; background:var(--surface); min-width:180px; border-right:1px solid var(--line)}
+.rx thead th.rowh{z-index:3}
+.rx td.rowh a{text-decoration:none; display:block}
+.rx td.rowh a:hover .un{text-decoration:underline}
+.rx .un{font-weight:600; display:block}
+.rx .um{color:var(--muted); font-size:12px}
+.rx tr.sec td{background:var(--surface-2); font-size:12.5px; color:var(--muted); padding:5px 10px; position:sticky; left:0}
+.none{color:var(--muted); font-size:12.5px}
+
+/* rule drawer */
+.drawer{position:fixed; left:0; right:0; bottom:0; z-index:20; padding:0 12px calc(12px + env(safe-area-inset-bottom,0px)); pointer-events:none}
+.dr-in{pointer-events:auto; max-width:640px; margin:0 auto; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px; box-shadow:0 10px 40px color-mix(in oklab, var(--ink) 22%, transparent)}
+.dr-head{display:flex; justify-content:space-between; gap:12px; align-items:flex-start}
+.dr-src{font-size:12.5px; color:var(--muted)}
+.dr-in h4{font-family:var(--serif); font-size:26px; font-weight:600; margin:2px 0 0; line-height:1.1}
+.dr-in p{margin:8px 0 6px; font-size:14.5px; max-width:68ch}
+.x{border:1px solid var(--line); background:transparent; border-radius:999px; width:32px; height:32px; cursor:pointer; font-size:18px; line-height:1; color:var(--muted); flex:none}
+.tog.big{font-size:15px; padding-top:6px}
+@media (prefers-reduced-motion: no-preference){ .dr-in{animation:rise .18s ease-out} @keyframes rise{from{transform:translateY(12px); opacity:0} to{transform:none; opacity:1}} }
+.wrap{padding-bottom:180px}
+
+.foot{margin-top:36px; padding-top:14px; border-top:1px solid var(--line); color:var(--muted); font-size:13.5px; display:flex; flex-wrap:wrap; gap:8px 24px; justify-content:space-between}
+.foot p{margin:0; max-width:80ch}
+.check{color:var(--jade); font-weight:600}
+.linkbtn{background:none; border:0; color:var(--jade); cursor:pointer; padding:0; text-decoration:underline; font-size:13.5px}
+@media (prefers-reduced-motion: no-preference){
+  .track .fill{transition:width .35s ease}
+  .sigma.flash{animation:flash .5s ease}
+  @keyframes flash{from{box-shadow:0 0 0 3px var(--jade)} to{box-shadow:0 0 0 0 transparent}}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div>
+      <div class="tool">Kill ledger</div>
+      <h1><a href="#/" id="listname">Kill Ledger</a></h1>
+      <div class="sub" id="listsub"></div>
+    </div>
+    <div class="mastctl"><select id="listpick" aria-label="Choose a list"></select><button class="themebtn" id="themebtn" type="button">Theme</button></div>
+  </header>
+  <section id="controls"></section>
+  <main id="view"></main>
+  <footer class="foot" id="foot"></footer>
+  <aside id="drawer" class="drawer" hidden aria-live="polite"></aside>
+</div>
+<script>
+// ===== Data: "The Burning One and the Exile" =====
+// Weapon keys: A, sk (BS/WS, 0 for torrent), S, AP (positive), D. kw flags as in the engine.
+// alt: weapons sharing an alt id are one weapon with several profiles; the engine fires the better one.
+// off: carried but not used (pistol rule etc.)
+
+const BUILTIN_META = {
+  name: 'The Burning One and the Exile',
+  sub: '2,000 pts, Corsair Coterie and Path of the Outcast, Priority Assets. 11th edition faction pack profiles.',
+};
+
+// ---------- Rules library ----------
+// dmg: true = changes damage dealt, so the engine models it (fx), false = shown in the rules matrix only.
+// scope: 'unit' = applies to every model in the attached unit (leader and bodyguard), 'self' = this datasheet only.
+// mark: rules that mark an enemy unit; their switch lives with the target marks.
+const BASE_RULES = {
+  // army and detachments
+  'battle-focus':   {nm:'Battle Focus', src:'Army rule', dmg:false, txt:'Spend Battle Focus tokens for Agile Manoeuvres: extra move, longer pile-ins, Fade Back and similar repositioning.'},
+  'relentless':     {nm:'Relentless Raiders', src:'Corsair Coterie', dmg:false, txt:'While you control an objective, an enemy unit that ends a Normal, Advance, Fall Back or Charge move on it takes D3 mortal wounds on a 2+. Triggered by enemy movement, not by your attacks, so it sits outside the matrix.'},
+  'void-thieves':   {nm:'Void Thieves', src:'Corsair Coterie', dmg:false, txt:'Anhrathe units keep an objective under your control after they leave it, until the opponent’s level of control is higher at the end of a phase.'},
+  'veterans':       {nm:'Veterans of the Void', src:'Corsair Coterie', dmg:false, txt:'Each Anhrathe unit may take one unique Corsair Enhancement for points.'},
+  'far-reaching':   {nm:'Far-Reaching Doom', src:'Path of the Outcast', dmg:false, txt:'When Rangers or Shroud Runners shoot, enemy units have +6" detection range until they have shot.'},
+  // enhancements
+  'archraider':     {nm:'Archraider', src:'Enhancement', dmg:false, txt:'Lord of Deceit (Aura): once per turn, an enemy Stratagem used on a unit within 12" costs 1CP more.'},
+  'voidstone':      {nm:'Voidstone', src:'Enhancement', dmg:false, txt:'Models in the unit have a 5+ invulnerable save.'},
+  'assassins-eye':  {nm:'Assassins’ Eye', src:'Enhancement', dmg:true, def:true, cond:'char', condNm:'Target is a Character unit', txt:'Ranged attacks that target a Character unit get +1 AP. None of the 19 benchmark targets is a Character, so it sits idle until you switch on “Target is a Character unit”. With that on, every target is treated as a unit with a Character in it.', fx:{apRanged:1}},
+  'camo-snipers':   {nm:'Camouflaged Snipers', src:'Enhancement', dmg:false, txt:'This unit’s ranged attacks don’t stop it from being hidden.'},
+  // leader abilities
+  'burning-lance':  {nm:'Burning Lance', src:'Leader', scope:'unit', dmg:false, txt:'While leading, Melta weapons in the unit get +6" range. That makes the “within half range” switch realistic for the Dragons; it doesn’t change the dice.'},
+  'unquenchable':   {nm:'Unquenchable Resolve', src:'Datasheet', dmg:false, txt:'The first time Fuegan is destroyed, he stands back up with full wounds on a 2+.'},
+  'fury-void':      {nm:'Fury of the Void', src:'Datasheet', dmg:true, mark:'riven', txt:'After Kharseth’s unit shoots, an enemy unit hit by Dread of the Deep Void is riven: every Aeldari attack against it gets +1 Strength until end of turn.'},
+  'aethersense':    {nm:'Aethersense', src:'Datasheet', dmg:false, txt:'Enemy units arriving from Reserves can’t be set up within 12" of Kharseth.'},
+  'whispering-web': {nm:'Whispering Web', src:'Datasheet', dmg:true, mark:'web', txt:'After Lhykhis shoots, an enemy unit she hit is webbed: Aeldari attacks against it score critical hits on unmodified 5+.'},
+  'empyric-ambush': {nm:'Empyric Ambush', src:'Leader', scope:'unit', dmg:false, txt:'While leading, the Warp Spiders can charge after using Flickerjump.'},
+  'piratical-hero': {nm:'Piratical Hero', src:'Leader', scope:'unit', dmg:true, def:true, txt:'While Yriel leads a unit, every attack made by a model in it (Yriel included) has Sustained Hits 1 and adds 1 to the hit roll. On a 2+ weapon the +1 changes nothing, because an unmodified 1 always misses; the Sustained Hits still adds an extra hit on every 6.', fx:{hit:1, sus:1}},
+  'prince-corsairs':{nm:'Prince of Corsairs', src:'Datasheet', dmg:false, txt:'After deployment, redeploy up to three Aeldari units, into Strategic Reserves if you like.'},
+  // unit abilities
+  'assured':        {nm:'Assured Destruction', src:'Datasheet', scope:'unit', dmg:true, def:true, txt:'In the Shooting phase, ranged attacks against Monster or Vehicle units can re-roll the hit, the wound and the damage roll. Fuegan benefits while he leads them.', fx:{assured:1}},
+  'reavers':        {nm:'Reavers of the Void', src:'Datasheet', scope:'unit', dmg:true, def:true, txt:'Re-roll hit rolls of 1; re-roll any hit roll if the target is within range of an objective (switch “Target is on an objective”). Kharseth benefits while he leads them.', fx:{reavers:1}},
+  'raiders':        {nm:'Piratical Raiders', src:'Datasheet', scope:'unit', dmg:true, mark:'quarry', txt:'Pick one enemy unit at the start of the battle. Weapons in this unit have Lethal Hits and Precision against it. Yriel benefits while he leads them.'},
+  'flickerjump':    {nm:'Flickerjump', src:'Datasheet', dmg:false, txt:'Normal move becomes 24", no charge that turn, mortal wound on each 1 rolled per model.'},
+  'guide':          {nm:'Guide', src:'Datasheet', dmg:true, mark:'guide', txt:'End of your Movement phase: pick an enemy unit within 18". Every Aeldari attack against it gets +1 to hit.'},
+  'branching':      {nm:'Branching Fates', src:'Leader', dmg:false, txt:'While leading, once per phase turn one hit, wound or damage roll into a 6. Your Farseer isn’t leading anything here, so it’s idle.'},
+  'spirit-mark':    {nm:'Spirit Mark', src:'Datasheet', dmg:true, mark:'spiritmark', grants:{kw:'WRAITH CONSTRUCT', rule:'spirit-marked'}, txt:'Pick a Wraith Construct unit within 6" and an enemy unit: that Wraith unit gets Sustained Hits 1 against it.'},
+  'spirit-marked':  {nm:'Spirit Mark (from Spiritseer)', src:'Received', dmg:true, mark:'spiritmark', txt:'When the Spiritseer marks the target, the Wraithblades get Sustained Hits 1 against it.', fx:{spiritRecipient:1}},
+  'tears-isha':     {nm:'Tears of Isha', src:'Datasheet', dmg:false, txt:'Command phase: a nearby Wraith Construct unit returns a model or heals D3.'},
+  'spiritseer-lo':  {nm:'Spiritseer', src:'Datasheet', dmg:false, txt:'Lone Operative while within 3" of a Wraith Construct unit.'},
+  'psyguide':       {nm:'Psychic Guidance', src:'Datasheet', dmg:true, def:true, txt:'Within 12" of a friendly Aeldari Psyker: Leadership 6+ and +1 to hit. On by default since the Farseer and Spiritseer run with them.', fx:{hit:1}},
+  'malevolent':     {nm:'Malevolent Souls', src:'Datasheet', dmg:false, txt:'A Wraithblade killed in melee before it fights gets to fight anyway on a 3+.'},
+  'target-acq':     {nm:'Target Acquisition', src:'Datasheet', dmg:false, txt:'After shooting, an enemy unit hit by the long rifles loses the benefit of cover for the rest of the phase. In practice: switch “Target has cover” off for anyone shooting after them.'},
+  'path-outcast':   {nm:'Path of the Outcast', src:'Datasheet', dmg:false, txt:'When an enemy ends a move within 8", the Rangers can make a D6" Normal move.'},
+  'raid-run':       {nm:'Raid and Run', src:'Datasheet', dmg:false, txt:'End of the Fight phase: move or fall back D3+3".'},
+  'serpent-shield': {nm:'Wave Serpent Shield', src:'Datasheet', dmg:false, txt:'Ranged attacks with Strength higher than its Toughness get −1 to wound.'},
+  'hallucinogen':   {nm:'Hallucinogen Grenades', src:'Datasheet', dmg:false, txt:'Start of the opponent’s Shooting phase: give an Aeldari Infantry unit within 36" Stealth.'},
+  // wargear
+  'mistshield':     {nm:'Mistshield', src:'Wargear', dmg:false, txt:'The Felarch has a 4+ invulnerable save.'},
+  'channeller':     {nm:'Channeller Stones', src:'Wargear', dmg:false, txt:'Once per turn the first failed save in the unit has its damage set to 0.'},
+  'faolchu':        {nm:'Faolchú', src:'Wargear', scope:'unit', dmg:true, def:true, txt:'Ranged weapons in the bearer’s unit have Ignores Cover. Only matters when “Target has cover” is on.', fx:{ic:1}},
+  'forceshield':    {nm:'Forceshield', src:'Wargear', dmg:false, txt:'4+ invulnerable save.'},
+  'shrine-token':   {nm:'Aspect Shrine token', src:'Wargear', dmg:false, txt:'Once per battle, turn one hit or wound roll by a non-Character model into an unmodified 6. Too small and one-off to price into an average.'},
+};
+
+
+// ---------- Space Marines / White Scars (11th edition codex), added from an imported roster ----------
+Object.assign(BASE_RULES, {
+  'combat-doctrines':   {nm:'Combat Doctrines', src:'Army rule', dmg:false, txt:'Once per battle each, switch the army (or a unit) into a doctrine: Assault lets units advance and still charge, Devastator gives ranged attacks Assault, Tactical lets units fall back and still shoot or charge. All movement, so the matrix leaves it out.'},
+  'full-throttle':      {nm:'Full-throttle Assault', src:'Datasheet', scope:'unit', dmg:true, def:true, cond:'charged', condNm:'Charged this turn', txt:'After charging, Thunder Hammers get +1 to hit and Sustained Hits 1, and every other melee weapon gets +1 Damage and Sustained Hits 1. The whole attached unit benefits.',
+                         fx:[{phase:'melee', when:'charged', weapon:'thunder hammer', hit:1, grant:{sus:1}}, {phase:'melee', when:'charged', weaponNot:'thunder hammer', d:1, grant:{sus:1}}]},
+  'shattered-defences': {nm:'Shattered Defences', src:'Datasheet', dmg:true, mark:'shattered', global:true, txt:'After the Thunderstrike shoots, a Monster or Vehicle it hit is marked: friendly Adeptus Astartes ranged attacks against it get +1 AP.', fx:{phase:'ranged', vs:{only:['MONSTER','VEHICLE']}, ap:1}},
+  'thunderstrike':      {nm:'Thunderstrike', src:'Datasheet', dmg:true, def:true, txt:'Ranged attacks against Monster or Vehicle units get +1 to wound.', fx:{phase:'ranged', vs:{only:['MONSTER','VEHICLE']}, wound:1}},
+  'damaged':            {nm:'Damaged', src:'Datasheet', dmg:false, txt:'While at or below the listed wounds, the model’s attacks get −1 to hit. The matrix assumes it’s healthy; set −1 Hit for it in the modifier bar if it isn’t.'},
+  'bladeguard':         {nm:'Bladeguard', src:'Datasheet', scope:'unit', dmg:true, def:true, txt:'Once per turn in the Fight phase, pick +1 to hit for the unit’s melee attacks, or −1 to be hit. The matrix assumes you take the attack bonus.', fx:{phase:'melee', hit:1}},
+  'furious-assault':    {nm:'Furious Assault', src:'Enhancement', scope:'unit', dmg:true, def:true, txt:'Melee attacks gain Sustained Hits 1 against anything that isn’t a Monster or Vehicle.', fx:{phase:'melee', vs:{not:['MONSTER','VEHICLE']}, grant:{sus:1}}},
+  'spear-chogoris':     {nm:'Spear of Chogoris', src:'Leader', scope:'unit', dmg:false, txt:'Ranged attacks gain Assault, and advancing doesn’t stop the unit charging. Movement only.'},
+  'trophy-taker':       {nm:'Trophy Taker', src:'Leader', scope:'unit', dmg:true, def:true, cond:'char', condNm:'Target is a Character unit', txt:'Against Character units, re-roll hit rolls of 1 and wound rolls of 1. The whole attached unit benefits.', fx:{rrHit:'ones', rrWound:'ones', when:'char'}},
+  'for-the-khan':       {nm:'For the Khan!', src:'Leader', scope:'unit', dmg:true, def:true, txt:'Ranged attacks gain Assault and melee attacks gain Lance, so the unit gets +1 to wound on the charge.', fx:{phase:'melee', grant:{lance:1}}},
+  'tactical-precision': {nm:'Tactical Precision', src:'Leader', scope:'unit', dmg:true, def:true, txt:'The unit’s attacks gain Lethal Hits against anything that isn’t a Monster or Vehicle.', fx:{vs:{not:['MONSTER','VEHICLE']}, grant:{lethal:1}}},
+  'hunters-eye':        {nm:'Hunter’s Eye', src:'Enhancement', scope:'unit', dmg:true, def:true, txt:'The unit’s ranged attacks gain Ignores Cover and Sustained Hits 1.', fx:{phase:'ranged', grant:{sus:1, ic:1}}},
+  'deeds-of-legend':    {nm:'Deeds of Legend', src:'Leader', scope:'unit', dmg:true, def:true, cond:'selfObj', condNm:'Your unit is on an objective', txt:'While the unit is within range of an objective, its melee attacks get +1 Attack.', fx:{phase:'melee', when:'selfObj', a:1}},
+  'imperiums-sword':    {nm:'Imperium’s Sword', src:'Enhancement', dmg:false, txt:'Gives the bearer an extra weapon. Its profile comes in with the roster file, so it’s already in the loadout.'},
+  'litany-of-hate':     {nm:'Litany of Hate', src:'Leader', scope:'unit', dmg:true, def:true, txt:'Melee attacks gain Lance, so the unit gets +1 to wound on the charge.', fx:{phase:'melee', grant:{lance:1}}},
+  'catechism-of-fire':  {nm:'Catechism of Fire', src:'Leader', scope:'unit', dmg:true, def:true, txt:'When the unit shoots, pick a visible enemy: ranged attacks against it gain Devastating Wounds. The matrix assumes you pick the unit you’re shooting.', fx:{phase:'ranged', grant:{dev:1}}},
+  'spearpoint-paragon': {nm:'Spearpoint Paragon', src:'Enhancement', scope:'self', dmg:true, def:true, txt:'The bearer’s own melee attacks get +1 Strength and +1 AP, or +2 of each if it charged this turn.', fx:[{phase:'melee', whenNot:'charged', s:1, ap:1}, {phase:'melee', when:'charged', s:2, ap:2}]},
+  'hailstrike':         {nm:'Hailstrike', src:'Datasheet', dmg:true, mark:'hailstrike', global:true, txt:'After the Hailstrike shoots, a unit it hit is marked: friendly Adeptus Astartes ranged attacks against it ignore cover.', fx:{phase:'ranged', grant:{ic:1}}},
+  'into-the-fray':      {nm:'Into the Fray', src:'Leader', scope:'unit', dmg:true, def:true, cond:'charged', condNm:'Charged this turn', txt:'After charging, melee attacks gain Cleave 1: +1 attack for every five models in the target unit.', fx:{phase:'melee', when:'charged', grant:{cleave:1}}},
+  'spearpoint-tf':      {nm:'Spearpoint Task Force', src:'Detachment', dmg:false, txt:'Detachment rule: select the Assault or Tactical Doctrine one extra time per battle; friendly Mounted and Speeder units get +1 to Advance rolls; Suboden Khan’s unit gains Wrath of the First Khan. White Scars only. Movement only, so the matrix leaves it out.'},
+  'assault-brethren':   {nm:'Assault Brethren', src:'Detachment', dmg:false, txt:'Detachment rule: select the Assault Doctrine one extra time per battle. With Spearpoint Task Force as well, you have enough doctrine uses to keep one active every battle round.'},
+  'wrath-first-khan':   {nm:'Wrath of the First Khan', src:'Detachment', scope:'unit', dmg:false, txt:'From Spearpoint Task Force. At the end of the Fight phase, if Suboden’s unit was eligible to fight, it can make a Normal move if unengaged or Fall Back if engaged. That frees it to charge again next turn, which is when its charge bonuses (Full-throttle Assault, Lance) apply.'},
+  'targeted-intercession': {nm:'Targeted Intercession', src:'Datasheet', scope:'unit', dmg:true, def:true, cond:'charged', condNm:'Charged this turn', txt:'After charging, melee attacks get +1 Strength and +1 AP.', fx:{phase:'melee', when:'charged', s:1, ap:1}},
+});
+
+const BUILTIN_ARMY_RULES = ['battle-focus','relentless','void-thieves','veterans','far-reaching'];
+// army rules by faction and detachment, used when importing a roster
+const FACTION_ARMY_RULES = {aeldari:['battle-focus'], asuryani:['battle-focus'],
+  'space marines':['combat-doctrines'], 'adeptus astartes':['combat-doctrines'], 'white scars':['combat-doctrines'], 'ultramarines':['combat-doctrines'], 'imperial fists':['combat-doctrines'],
+  'iron hands':['combat-doctrines'], 'raven guard':['combat-doctrines'], 'salamanders':['combat-doctrines'], 'blood angels':['combat-doctrines'], 'dark angels':['combat-doctrines'], 'space wolves':['combat-doctrines']};
+const DETACHMENT_RULES = {'corsair coterie':['relentless','void-thieves','veterans'], 'path of the outcast':['far-reaching'],
+  'spearpoint task force':['spearpoint-tf'], 'assault brethren':['assault-brethren']};
+const DETACHMENT_UNIT_GRANTS = {'spearpoint-tf':[{name:'suboden khan', rule:'wrath-first-khan'}]};
+const ARMY_RULE_SCOPE = {'combat-doctrines':'Every unit, once per doctrine','spearpoint-tf':'Every unit','assault-brethren':'Every unit','battle-focus':'Every unit','relentless':'Objectives you control','void-thieves':'Anhrathe units','veterans':'Anhrathe units','far-reaching':'Rangers and Shroud Runners'};
+
+// ---------- Units ----------
+const DEFAULT_UNITS = [
+  { id:'fuegan', nm:'Fuegan', pts:130, grp:'A', role:'Leader', models:1, kw:['ASPECT WARRIOR','CHARACTER'],
+    rules:['burning-lance','unquenchable'],
+    w:[
+      {nm:'Searsong – beam', t:'r', n:1, A:3, sk:2, S:8, AP:3, D:2, kw:{melta:1, sus:2}, alt:'searsong'},
+      {nm:'Searsong – lance', t:'r', n:1, A:1, sk:2, S:14, AP:4, D:'D6', kw:{melta:6}, alt:'searsong'},
+      {nm:'Fire Axe', t:'m', n:1, A:6, sk:2, S:5, AP:4, D:3, kw:{}},
+    ]},
+  { id:'fire-dragons', nm:'Fire Dragons', pts:110, grp:'A', role:'Bodyguard', models:5, kw:['ASPECT WARRIORS'],
+    rules:['assured','shrine-token'],
+    w:[
+      {nm:'Exarch’s Dragon fusion gun', t:'r', n:1, A:1, sk:3, S:9, AP:4, D:'D6', kw:{melta:6}},
+      {nm:'Dragon fusion gun', t:'r', n:4, A:1, sk:3, S:9, AP:4, D:'D6', kw:{melta:3}},
+      {nm:'Close combat weapon', t:'m', n:5, A:2, sk:3, S:3, AP:0, D:1, kw:{}},
+    ]},
+  { id:'kharseth', nm:'Kharseth', pts:115, enh:{id:'archraider', nm:'Archraider', pts:35}, grp:'B', role:'Leader', models:1, kw:['ANHRATHE','PSYKER','CHARACTER'],
+    rules:['fury-void','aethersense','void-thieves'],
+    w:[
+      {nm:'Dread of the Deep Void', t:'r', n:1, A:'D6+2', sk:3, S:3, AP:2, D:1, kw:{anti:['INFANTRY',2], blast:1, ic:1, psychic:1}},
+      {nm:'Waystave', t:'m', n:1, A:3, sk:2, S:3, AP:0, D:3, kw:{anti:['INFANTRY',2], psychic:1}},
+    ]},
+  { id:'voidreavers-b', nm:'Corsair Voidreavers', sub:'with Kharseth', pts:65, grp:'B', role:'Bodyguard', models:5, kw:['ANHRATHE','BATTLELINE'],
+    rules:['reavers','void-thieves','mistshield'],
+    w:[
+      {nm:'Blaster', t:'r', n:1, A:1, sk:3, S:8, AP:4, D:'D6+1', kw:{}},
+      {nm:'Shuriken pistol', t:'r', n:3, A:1, sk:3, S:4, AP:1, D:1, kw:{pistol:1}},
+      {nm:'Neuro disruptor (Felarch)', t:'r', n:1, A:1, sk:3, S:4, AP:2, D:1, kw:{anti:['INFANTRY',2], pistol:1}},
+      {nm:'Power sword', t:'m', n:5, A:2, sk:3, S:4, AP:2, D:1, kw:{}},
+    ]},
+  { id:'lhykhis', nm:'Lhykhis', pts:135, grp:'C', role:'Leader', models:1, kw:['ASPECT WARRIOR','CHARACTER'],
+    rules:['whispering-web','empyric-ambush'],
+    w:[
+      {nm:'Brood Twain', t:'r', n:1, A:'D6+3', sk:0, S:6, AP:2, D:1, kw:{torrent:1, tl:1, ic:1}},
+      {nm:'Weaverender', t:'m', n:1, A:5, sk:2, S:6, AP:2, D:2, kw:{lethal:1}},
+      {nm:'Spider’s Fangs', t:'m', n:1, A:5, sk:2, S:4, AP:2, D:1, kw:{lethal:1, extra:1}},
+    ]},
+  { id:'warp-spiders', nm:'Warp Spiders', pts:105, grp:'C', role:'Bodyguard', models:5, kw:['ASPECT WARRIORS'],
+    rules:['flickerjump','shrine-token'],
+    w:[
+      {nm:'Death spinner', t:'r', n:4, A:'D6', sk:0, S:4, AP:1, D:1, kw:{torrent:1, ic:1}},
+      {nm:'Powerblade array (Exarch)', t:'m', n:1, A:10, sk:3, S:4, AP:2, D:1, kw:{lethal:1, tl:1}},
+      {nm:'Close combat weapon', t:'m', n:4, A:2, sk:3, S:3, AP:0, D:1, kw:{}},
+    ]},
+  { id:'yriel', nm:'Prince Yriel', pts:95, grp:'D', role:'Leader', models:1, kw:['ANHRATHE','CHARACTER'],
+    rules:['piratical-hero','prince-corsairs','void-thieves'],
+    w:[
+      {nm:'Eye of Wrath', t:'r', n:1, A:3, sk:2, S:6, AP:2, D:2, kw:{pistol:1}},
+      {nm:'Shuriken pistol', t:'r', n:1, A:1, sk:2, S:4, AP:1, D:1, kw:{pistol:1}},
+      {nm:'Spear of Twilight', t:'m', n:1, A:5, sk:2, S:7, AP:3, D:3, kw:{lance:1}},
+    ]},
+  { id:'voidscarred', nm:'Corsair Voidscarred', pts:155, enh:{id:'voidstone', nm:'Voidstone', pts:15}, grp:'D', role:'Bodyguard', models:10, kw:['ANHRATHE','PSYKER'],
+    rules:['raiders','void-thieves','faolchu','channeller','mistshield'],
+    w:[
+      {nm:'Wraithcannon', t:'r', n:1, A:1, sk:3, S:14, AP:4, D:'D6+1', kw:{}},
+      {nm:'Blaster', t:'r', n:2, A:1, sk:3, S:8, AP:4, D:'D6+1', kw:{}},
+      {nm:'Executioner (Way Seeker)', t:'r', n:1, A:3, sk:3, S:6, AP:2, D:'D3', kw:{anti:['INFANTRY',2], psychic:1}},
+      {nm:'Long rifle', t:'r', n:1, A:1, sk:3, S:4, AP:1, D:2, kw:{heavy:1, precision:1}},
+      {nm:'Fusion pistol', t:'r', n:1, A:1, sk:3, S:8, AP:4, D:'D6', kw:{melta:2, pistol:1}},
+      {nm:'Neuro disruptor (Felarch)', t:'r', n:1, A:1, sk:3, S:4, AP:2, D:1, kw:{anti:['INFANTRY',2], pistol:1}},
+      {nm:'Shuriken pistol', t:'r', n:4, A:1, sk:3, S:4, AP:1, D:1, kw:{pistol:1}},
+      {nm:'Shuriken pistol (Way Seeker)', t:'r', n:1, A:1, sk:3, S:4, AP:1, D:1, kw:{pistol:1}, off:'Fires the Executioner instead (pistol rule)'},
+      {nm:'Power sword', t:'m', n:8, A:3, sk:3, S:4, AP:2, D:1, kw:{}},
+      {nm:'Paired Hekatarii blades (Shade Runner)', t:'m', n:1, A:4, sk:2, S:3, AP:2, D:1, kw:{tl:1}},
+      {nm:'Witch staff (Way Seeker)', t:'m', n:1, A:2, sk:2, S:3, AP:0, D:'D3', kw:{anti:['INFANTRY',2], psychic:1}},
+    ]},
+  { id:'farseer', nm:'Farseer', pts:60, grp:null, cat:'Characters', models:1, kw:['PSYKER','CHARACTER'],
+    rules:['guide','branching'],
+    w:[
+      {nm:'Eldritch Storm', t:'r', n:1, A:'D6', sk:3, S:6, AP:2, D:'D3', kw:{blast:1, psychic:1}},
+      {nm:'Shuriken pistol', t:'r', n:1, A:1, sk:2, S:4, AP:1, D:1, kw:{pistol:1}, off:'Casts Eldritch Storm instead (pistol rule)'},
+      {nm:'Witchblade', t:'m', n:1, A:2, sk:2, S:3, AP:0, D:2, kw:{anti:['INFANTRY',2], psychic:1}},
+    ]},
+  { id:'spiritseer', nm:'Spiritseer', pts:50, grp:null, cat:'Characters', models:1, kw:['PSYKER','CHARACTER'],
+    rules:['spirit-mark','tears-isha','spiritseer-lo'],
+    w:[
+      {nm:'Shuriken pistol', t:'r', n:1, A:1, sk:2, S:4, AP:1, D:1, kw:{pistol:1}},
+      {nm:'Witch staff', t:'m', n:1, A:2, sk:2, S:3, AP:0, D:'D3', kw:{anti:['INFANTRY',2], psychic:1}},
+    ]},
+  { id:'voidreavers-a', nm:'Corsair Voidreavers', sub:'unattached', pts:65, grp:null, cat:'Battleline', models:5, kw:['ANHRATHE','BATTLELINE'],
+    rules:['reavers','void-thieves','mistshield'],
+    w:[
+      {nm:'Blaster', t:'r', n:1, A:1, sk:3, S:8, AP:4, D:'D6+1', kw:{}},
+      {nm:'Shuriken pistol', t:'r', n:3, A:1, sk:3, S:4, AP:1, D:1, kw:{pistol:1}},
+      {nm:'Neuro disruptor (Felarch)', t:'r', n:1, A:1, sk:3, S:4, AP:2, D:1, kw:{anti:['INFANTRY',2], pistol:1}},
+      {nm:'Power sword', t:'m', n:5, A:2, sk:3, S:4, AP:2, D:1, kw:{}},
+    ]},
+  { id:'shroud-runners', nm:'Shroud Runners', pts:180, enh:{id:'assassins-eye', nm:'Assassins’ Eye', pts:15}, grp:null, cat:'Mounted', models:6, kw:['MOUNTED'],
+    rules:['target-acq','far-reaching'],
+    w:[
+      {nm:'Scatter laser', t:'r', n:6, A:6, sk:3, S:5, AP:0, D:1, kw:{sus:1}},
+      {nm:'Long rifle', t:'r', n:6, A:1, sk:2, S:4, AP:1, D:2, kw:{precision:1}},
+      {nm:'Shuriken pistol', t:'r', n:6, A:1, sk:2, S:4, AP:1, D:1, kw:{pistol:1}, off:'Fire rifles and lasers instead (pistol rule)'},
+      {nm:'Close combat weapon', t:'m', n:6, A:1, sk:3, S:3, AP:0, D:1, kw:{}},
+    ]},
+  { id:'skyreavers-a', nm:'Corsair Skyreavers', sub:'10 models', pts:140, grp:null, cat:'Infantry', models:10, kw:['ANHRATHE'],
+    rules:['raid-run','void-thieves'],
+    w:[
+      {nm:'Fusion gun', t:'r', n:2, A:1, sk:3, S:8, AP:4, D:'D6', kw:{melta:2}},
+      {nm:'Blaster', t:'r', n:2, A:1, sk:3, S:8, AP:4, D:'D6+1', kw:{}},
+      {nm:'Blast pistol (Felarch)', t:'r', n:1, A:1, sk:3, S:8, AP:3, D:'D3', kw:{pistol:1}},
+      {nm:'Shuriken pistol', t:'r', n:5, A:1, sk:3, S:4, AP:1, D:1, kw:{pistol:1}},
+      {nm:'Corsair blade', t:'m', n:10, A:3, sk:3, S:4, AP:2, D:1, kw:{}},
+    ]},
+  { id:'skyreavers-b', nm:'Corsair Skyreavers', sub:'5 models', pts:75, grp:null, cat:'Infantry', models:5, kw:['ANHRATHE'],
+    rules:['raid-run','void-thieves'],
+    w:[
+      {nm:'Fusion gun', t:'r', n:1, A:1, sk:3, S:8, AP:4, D:'D6', kw:{melta:2}},
+      {nm:'Blaster', t:'r', n:1, A:1, sk:3, S:8, AP:4, D:'D6+1', kw:{}},
+      {nm:'Blast pistol (Felarch)', t:'r', n:1, A:1, sk:3, S:8, AP:3, D:'D3', kw:{pistol:1}},
+      {nm:'Shuriken pistol', t:'r', n:2, A:1, sk:3, S:4, AP:1, D:1, kw:{pistol:1}},
+      {nm:'Corsair blade', t:'m', n:5, A:3, sk:3, S:4, AP:2, D:1, kw:{}},
+    ]},
+  { id:'rangers-a', nm:'Rangers', sub:'5 models', pts:70, enh:{id:'camo-snipers', nm:'Camouflaged Snipers', pts:10}, grp:null, cat:'Infantry', models:5, kw:['INFANTRY'],
+    rules:['path-outcast','far-reaching'],
+    w:[
+      {nm:'Long rifle', t:'r', n:5, A:1, sk:3, S:4, AP:1, D:2, kw:{heavy:1, precision:1}},
+      {nm:'Shuriken pistol', t:'r', n:5, A:1, sk:2, S:4, AP:1, D:1, kw:{pistol:1}, off:'Fire long rifles instead (pistol rule)'},
+      {nm:'Close combat weapon', t:'m', n:5, A:1, sk:3, S:3, AP:0, D:1, kw:{}},
+    ]},
+  { id:'rangers-b', nm:'Rangers', sub:'10 models', pts:125, enh:{id:'assassins-eye', nm:'Assassins’ Eye', pts:15}, grp:null, cat:'Infantry', models:10, kw:['INFANTRY'],
+    rules:['path-outcast','far-reaching'],
+    w:[
+      {nm:'Long rifle', t:'r', n:10, A:1, sk:3, S:4, AP:1, D:2, kw:{heavy:1, precision:1}},
+      {nm:'Shuriken pistol', t:'r', n:10, A:1, sk:2, S:4, AP:1, D:1, kw:{pistol:1}, off:'Fire long rifles instead (pistol rule)'},
+      {nm:'Close combat weapon', t:'m', n:10, A:1, sk:3, S:3, AP:0, D:1, kw:{}},
+    ]},
+  { id:'wraithblades', nm:'Wraithblades', pts:140, grp:null, cat:'Infantry', models:5, kw:['WRAITH CONSTRUCT'],
+    rules:['psyguide','spirit-marked','malevolent','forceshield'],
+    w:[
+      {nm:'Ghostaxe', t:'m', n:5, A:3, sk:4, S:7, AP:2, D:2, kw:{}},
+    ]},
+  { id:'wave-serpent', nm:'Wave Serpent', pts:115, grp:null, cat:'Dedicated transport', models:1, kw:['VEHICLE'],
+    rules:['serpent-shield'],
+    w:[
+      {nm:'Twin shuriken cannon', t:'r', n:1, A:3, sk:3, S:6, AP:1, D:2, kw:{lethal:1, tl:1}},
+      {nm:'Twin shuriken catapult', t:'r', n:1, A:2, sk:3, S:4, AP:1, D:1, kw:{tl:1}},
+      {nm:'Wraithbone hull', t:'m', n:1, A:3, sk:4, S:6, AP:0, D:1, kw:{}},
+    ]},
+  { id:'starfangs', nm:'Starfangs', pts:70, grp:null, cat:'Vehicles', models:1, kw:['ANHRATHE','VEHICLE'],
+    rules:['hallucinogen','void-thieves'],
+    w:[
+      {nm:'Disintegrator cannon', t:'r', n:1, A:3, sk:3, S:6, AP:3, D:2, kw:{}},
+      {nm:'Starfang grenade launcher', t:'r', n:1, A:'D3', sk:3, S:6, AP:3, D:2, kw:{blast:1}},
+      {nm:'Wraithbone hull', t:'m', n:1, A:3, sk:4, S:6, AP:0, D:1, kw:{}},
+    ]},
+];
+// enhancement rule ids are added to rules automatically
+DEFAULT_UNITS.forEach(u=>{ if (u.enh && !u.rules.includes(u.enh.id)) u.rules.unshift(u.enh.id); });
+
+const BUILTIN_GROUPS = {
+  A:{nm:'Attached unit A', short:'Fuegan + Fire Dragons'},
+  B:{nm:'Attached unit B', short:'Kharseth + Voidreavers'},
+  C:{nm:'Attached unit C', short:'Lhykhis + Warp Spiders'},
+  D:{nm:'Attached unit D', short:'Yriel + Voidscarred'},
+};
+
+// Benchmark targets, calibrated so Prince Yriel's row reproduces the Cogitator's published row.
+const DEFAULT_TARGETS = [
+  {id:'cadians', nm:'Cadian Shock Troops', pts:70, T:3, Sv:5, inv:0, W:1, N:10, fnp:0, dr:0, kw:'INFANTRY', cls:'inf'},
+  {id:'warp-spiders', nm:'Warp Spiders', pts:105, T:3, Sv:3, inv:5, W:1, N:5, fnp:0, dr:0, kw:'INFANTRY', cls:'inf'},
+  {id:'genestealers', nm:'Genestealers', pts:75, T:4, Sv:5, inv:5, W:2, N:5, fnp:0, dr:0, kw:'INFANTRY', cls:'inf'},
+  {id:'boyz', nm:'Boyz', pts:85, T:5, Sv:5, inv:0, W:1, N:10, fnp:0, dr:0, kw:'INFANTRY', cls:'inf'},
+  {id:'intercessors', nm:'Intercessor Squad', pts:95, T:5, Sv:3, inv:0, W:2, N:5, fnp:0, dr:0, kw:'INFANTRY', cls:'inf'},
+  {id:'strike-squad', nm:'Strike Squad', pts:125, T:5, Sv:2, inv:0, W:2, N:5, fnp:0, dr:0, kw:'INFANTRY', cls:'inf'},
+  {id:'wraithblades', nm:'Wraithblades', pts:140, T:6, Sv:2, inv:0, W:3, N:5, fnp:0, dr:0, kw:'INFANTRY', cls:'inf'},
+  {id:'terminators', nm:'Terminator Squad', pts:195, T:6, Sv:2, inv:4, W:3, N:5, fnp:0, dr:0, kw:'INFANTRY', cls:'inf'},
+  {id:'canoptek-wraiths', nm:'Canoptek Wraiths', pts:95, T:6, Sv:3, inv:4, W:4, N:3, fnp:0, dr:0, kw:'BEASTS', cls:'inf'},
+  {id:'scout-sentinels', nm:'Scout Sentinels', pts:55, T:7, Sv:3, inv:0, W:7, N:1, fnp:0, dr:0, kw:'VEHICLE', cls:'veh'},
+  {id:'rhino', nm:'Rhino', pts:70, T:9, Sv:3, inv:0, W:10, N:1, fnp:0, dr:0, kw:'VEHICLE', cls:'veh'},
+  {id:'doomsday-ark', nm:'Doomsday Ark', pts:200, T:9, Sv:3, inv:4, W:14, N:1, fnp:0, dr:0, kw:'VEHICLE FLY', cls:'veh'},
+  {id:'dreadknight', nm:'Nemesis Dreadknight', pts:205, T:9, Sv:2, inv:4, W:13, N:1, fnp:0, dr:0, kw:'VEHICLE', cls:'veh'},
+  {id:'predator', nm:'Predator Annihilator', pts:135, T:10, Sv:3, inv:0, W:11, N:1, fnp:0, dr:0, kw:'VEHICLE', cls:'veh'},
+  {id:'mutalith', nm:'Mutalith Vortex Beast', pts:170, T:10, Sv:4, inv:5, W:13, N:1, fnp:5, dr:0, kw:'MONSTER', cls:'veh'},
+  {id:'vindicator', nm:'Vindicator', pts:185, T:11, Sv:2, inv:0, W:11, N:1, fnp:0, dr:0, kw:'VEHICLE', cls:'veh'},
+  {id:'defiler', nm:'Defiler', pts:300, T:11, Sv:3, inv:5, W:18, N:1, fnp:6, dr:0, kw:'VEHICLE', cls:'veh'},
+  {id:'ctan', nm:"Transcendent C'tan", pts:340, T:11, Sv:3, inv:4, W:16, N:1, fnp:5, dr:1, kw:'MONSTER', cls:'veh'},
+  {id:'land-raider', nm:'Land Raider', pts:245, T:12, Sv:2, inv:0, W:16, N:1, fnp:0, dr:0, kw:'VEHICLE', cls:'veh'},
+];
+
+const DEFAULT_OPTS = {
+  phase:'all', combine:true, enh:true, cap:false,
+  // situation
+  charged:true, stationary:false, objective:false, char:false,
+  // target marks (set by a unit's ability during the turn)
+  riven:false, web:false, guide:false, quarry:false, spiritmark:false, shattered:false, hailstrike:false,
+  selfObj:false,
+  // modifier bar: per scope ('all', a unit id, or 'grp-X')
+  mods:{},
+};
+const COGITATOR_OPTS = Object.assign({}, DEFAULT_OPTS, {combine:false});
+// per-rule switches that the Cogitator appears not to apply
+const COGITATOR_RULES_OFF = ['piratical-hero','reavers','assured'];
+
+// the active list's metadata, groups, army rules and rules library (swapped when you change list)
+let LIST_META = BUILTIN_META, GROUPS = BUILTIN_GROUPS, ARMY_RULES = BUILTIN_ARMY_RULES, RULES = Object.assign({}, BASE_RULES);
+
+
+const EXTRA_BUILTIN_LISTS = [{"id":"builtin-burning-v2","meta":{"name":"The Burning One and the Exile v2","faction":"Asuryani","detachments":["Path of the Outcast","Corsair Coterie"],"mission":"Priority Assets","sub":"Aeldari, Path of the Outcast and Corsair Coterie, Priority Assets. Built in from your Oct 2 roster and text export."},"groups":{"A":{"nm":"Attached unit A","short":"Fuegan + Fire Dragons"},"B":{"nm":"Attached unit B","short":"Kharseth + Voidreavers B"},"C":{"nm":"Attached unit C","short":"Lhykhis + Warp Spiders"},"D":{"nm":"Attached unit D","short":"Yriel + Voidscarred"}},"armyRules":["battle-focus","far-reaching","relentless","void-thieves","veterans"],"rules":{"imp-scouts-7":{"nm":"Scouts 7\"","src":"Core","dmg":false,"txt":"This ability always takes the form Scouts X\". In the Resolve Pre-battle Abilities step, if every model in a unit has this ability, you can do one of the following: If that unit is in strategic reserves, you can set up that unit anywhere that is wholly within your deployment zone.If that unit is wholly within your deployment zone, it can make a scout move (24.32).If that unit is embarked within a DEDICATED TRANSPORT that is wholly within your deployment zone, and if every model embarked within that DEDICATED TRANSPORT has the Scouts ability, that DEDICATED TRANSPORT can make a scout move.","imported":true,"scope":null,"todo":false},"imp-deep-strike":{"nm":"Deep Strike","src":"Core","dmg":false,"txt":"Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8\" horizontally from all enemy units, even if that is within your opponent’s deployment zone.","imported":true,"scope":null,"todo":false},"imp-deadly-demise-d3":{"nm":"Deadly Demise D3","src":"Core","dmg":false,"txt":"This ability always takes the form Deadly Demise X. Each time a model with this ability is destroyed, after the units embarked within it (if any) have made their emergency disembark moves, roll one D6. On a 6, that model suffers a deadly demise; each unit within 6\" of that model suffers a number of mortal wounds denoted by X (if this is a random number, roll separately for each unit within 6\").","imported":true,"scope":null,"todo":false},"imp-deadly-demise-1":{"nm":"Deadly Demise 1","src":"Core","dmg":false,"txt":"This ability always takes the form Deadly Demise X. Each time a model with this ability is destroyed, after the units embarked within it (if any) have made their emergency disembark moves, roll one D6. On a 6, that model suffers a deadly demise; each unit within 6\" of that model suffers a number of mortal wounds denoted by X (if this is a random number, roll separately for each unit within 6\").","imported":true,"scope":null,"todo":false},"imp-stealth":{"nm":"Stealth","src":"Core","dmg":false,"txt":"If every model in a unit has this ability, each time a ranged attack targets that unit, that unit has the benefit of cover against that attack (13.08).","imported":true,"scope":null,"todo":false},"imp-scouts-9":{"nm":"Scouts 9\"","src":"Core","dmg":false,"txt":"This ability always takes the form Scouts X\". In the Resolve Pre-battle Abilities step, if every model in a unit has this ability, you can do one of the following: If that unit is in strategic reserves, you can set up that unit anywhere that is wholly within your deployment zone.If that unit is wholly within your deployment zone, it can make a scout move (24.32).If that unit is embarked within a DEDICATED TRANSPORT that is wholly within your deployment zone, and if every model embarked within that DEDICATED TRANSPORT has the Scouts ability, that DEDICATED TRANSPORT can make a scout move.","imported":true,"scope":null,"todo":false},"imp-infiltrators":{"nm":"Infiltrators","src":"Core","dmg":false,"txt":"During deployment, if every model in a unit has this ability, it can be set up anywhere on the battlefield that is more than 8\" horizontally from your opponent’s deployment zone and all enemy units.","imported":true,"scope":null,"todo":false}},"units":[{"id":"fuegan","nm":"Fuegan","pts":130,"models":1,"kw":["AELDARI","FUEGAN","EPIC HERO","ASPECT WARRIOR","CHARACTER","PHOENIX LORD","GRENADES","INFANTRY"],"rules":["burning-lance","unquenchable"],"w":[{"nm":"Searsong - beam","t":"r","n":1,"A":3,"sk":2,"S":8,"AP":3,"D":2,"kw":{"melta":1,"sus":2},"alt":"p0:searsong"},{"nm":"Searsong - lance","t":"r","n":1,"A":1,"sk":2,"S":14,"AP":4,"D":"D6","kw":{"melta":6},"alt":"p0:searsong"},{"nm":"Fire Axe","t":"m","n":1,"A":6,"sk":2,"S":5,"AP":4,"D":3,"kw":{}}],"grp":"A","role":"Leader","cat":"Characters","stats":{"T":3,"Sv":2,"W":5,"M":"7\"","Ld":"6+","OC":"1","inv":4,"invRangedOnly":false}},{"id":"fire-dragons","nm":"Fire Dragons","pts":110,"models":5,"kw":["GRENADES","FIRE DRAGONS","INFANTRY","ASPECT WARRIORS","AELDARI"],"rules":["assured","shrine-token"],"w":[{"nm":"Dragon fusion gun","t":"r","n":4,"A":1,"sk":3,"S":9,"AP":4,"D":"D6","kw":{"melta":3}},{"nm":"Exarch’s Dragon fusion gun","t":"r","n":1,"A":1,"sk":3,"S":9,"AP":4,"D":"D6","kw":{"melta":6}},{"nm":"Close combat weapon","t":"m","n":5,"A":2,"sk":3,"S":3,"AP":0,"D":1,"kw":{}}],"grp":"A","role":"Bodyguard","cat":"Infantry","stats":{"T":3,"Sv":3,"W":1,"M":"7\"","Ld":"6+","OC":"1","inv":5,"invRangedOnly":false}},{"id":"kharseth","nm":"Kharseth","pts":115,"models":1,"kw":["CHARACTER","KHARSETH","AELDARI","ANHRATHE","PSYKER","INFANTRY","EPIC HERO"],"rules":["imp-scouts-7","aethersense","fury-void","archraider"],"w":[{"nm":"Dread of the Deep Void","t":"r","n":1,"A":"D6+2","sk":3,"S":3,"AP":2,"D":1,"kw":{"anti":["INFANTRY",2],"blast":1,"hazardous":1,"ic":1,"psychic":1}},{"nm":"Waystave","t":"m","n":1,"A":3,"sk":2,"S":3,"AP":0,"D":3,"kw":{"anti":["INFANTRY",2],"psychic":1}}],"grp":"B","role":"Leader","cat":"Characters","stats":{"T":3,"Sv":6,"W":4,"M":"7\"","Ld":"6+","OC":"1","inv":4,"invRangedOnly":false},"enh":{"id":"archraider","nm":"Archraider","pts":35}},{"id":"corsair-voidreavers-b","nm":"Corsair Voidreavers B","pts":65,"models":5,"kw":["CORSAIR VOIDREAVERS","GRENADES","INFANTRY","BATTLELINE","AELDARI","ANHRATHE"],"rules":["imp-scouts-7","reavers","mistshield"],"w":[{"nm":"Shuriken pistol","t":"r","n":3,"A":1,"sk":3,"S":4,"AP":1,"D":1,"kw":{"pistol":1}},{"nm":"Blaster","t":"r","n":1,"A":1,"sk":3,"S":8,"AP":4,"D":"D6+1","kw":{}},{"nm":"Neuro disruptor","t":"r","n":1,"A":1,"sk":3,"S":4,"AP":2,"D":1,"kw":{"anti":["INFANTRY",2],"pistol":1}},{"nm":"Shuriken pistol","t":"r","n":1,"A":1,"sk":3,"S":4,"AP":1,"D":1,"kw":{"pistol":1},"off":"Fires its other guns instead (pistol rule)"},{"nm":"Power sword","t":"m","n":5,"A":2,"sk":3,"S":4,"AP":2,"D":1,"kw":{}}],"grp":"B","role":"Bodyguard","cat":"Battleline","stats":{"T":3,"Sv":4,"W":1,"M":"7\"","Ld":"7+","OC":"2","inv":0,"invRangedOnly":false}},{"id":"lhykhis","nm":"Lhykhis","pts":135,"models":1,"kw":["INFANTRY","JUMP PACK","EPIC HERO","AELDARI","CHARACTER","ASPECT WARRIOR","FLY","PHOENIX LORD","LHYKHIS"],"rules":["imp-deep-strike","empyric-ambush","whispering-web"],"w":[{"nm":"Brood Twain","t":"r","n":1,"A":"D6+3","sk":0,"S":6,"AP":2,"D":1,"kw":{"ic":1,"torrent":1,"tl":1}},{"nm":"Weaverender","t":"m","n":1,"A":5,"sk":2,"S":6,"AP":2,"D":2,"kw":{"lethal":1}},{"nm":"Spider’s Fangs","t":"m","n":1,"A":5,"sk":2,"S":4,"AP":2,"D":1,"kw":{"extra":1,"lethal":1}}],"grp":"C","role":"Leader","cat":"Characters","stats":{"T":3,"Sv":2,"W":5,"M":"12\"","Ld":"6+","OC":"1","inv":4,"invRangedOnly":false}},{"id":"warp-spiders","nm":"Warp Spiders","pts":105,"models":5,"kw":["WARP SPIDERS","JUMP PACK","FLY","INFANTRY","AELDARI","ASPECT WARRIORS"],"rules":["imp-deep-strike","flickerjump","shrine-token"],"w":[{"nm":"Death spinner","t":"r","n":4,"A":"D6","sk":0,"S":4,"AP":1,"D":1,"kw":{"ic":1,"torrent":1}},{"nm":"Powerblade array","t":"m","n":1,"A":10,"sk":3,"S":4,"AP":2,"D":1,"kw":{"lethal":1,"tl":1}},{"nm":"Close combat weapon","t":"m","n":4,"A":2,"sk":3,"S":3,"AP":0,"D":1,"kw":{}}],"grp":"C","role":"Bodyguard","cat":"Infantry","stats":{"T":3,"Sv":3,"W":2,"M":"12\"","Ld":"6+","OC":"1","inv":5,"invRangedOnly":false}},{"id":"prince-yriel","nm":"Prince Yriel","pts":95,"models":1,"kw":["ANHRATHE","PRINCE YRIEL","EPIC HERO","AELDARI","CHARACTER","INFANTRY"],"rules":["imp-scouts-7","piratical-hero","prince-corsairs"],"w":[{"nm":"Eye of Wrath","t":"r","n":1,"A":3,"sk":2,"S":6,"AP":2,"D":2,"kw":{"pistol":1}},{"nm":"Shuriken pistol","t":"r","n":1,"A":1,"sk":2,"S":4,"AP":1,"D":1,"kw":{"pistol":1}},{"nm":"Spear of Twilight","t":"m","n":1,"A":5,"sk":2,"S":7,"AP":3,"D":3,"kw":{"lance":1}}],"grp":"D","role":"Leader","cat":"Characters","stats":{"T":3,"Sv":3,"W":5,"M":"7\"","Ld":"6+","OC":"1","inv":4,"invRangedOnly":false},"warlord":true},{"id":"corsair-voidscarred","nm":"Corsair Voidscarred","pts":155,"models":10,"kw":["CORSAIR VOIDSCARRED","INFANTRY","PSYKER","ANHRATHE","AELDARI","GRENADES"],"rules":["imp-scouts-7","raiders","voidstone","mistshield","channeller","faolchu"],"w":[{"nm":"Executioner","t":"r","n":1,"A":3,"sk":3,"S":6,"AP":2,"D":"D3","kw":{"anti":["INFANTRY",2],"psychic":1}},{"nm":"Shuriken pistol","t":"r","n":4,"A":1,"sk":3,"S":4,"AP":1,"D":1,"kw":{"pistol":1}},{"nm":"Neuro disruptor","t":"r","n":1,"A":1,"sk":3,"S":4,"AP":2,"D":1,"kw":{"anti":["INFANTRY",2],"pistol":1}},{"nm":"Long rifle","t":"r","n":1,"A":1,"sk":3,"S":4,"AP":1,"D":2,"kw":{"heavy":1,"precision":1}},{"nm":"Wraithcannon","t":"r","n":1,"A":1,"sk":3,"S":14,"AP":4,"D":"D6+1","kw":{}},{"nm":"Fusion pistol","t":"r","n":1,"A":1,"sk":3,"S":8,"AP":4,"D":"D6","kw":{"melta":2,"pistol":1}},{"nm":"Blaster","t":"r","n":2,"A":1,"sk":3,"S":8,"AP":4,"D":"D6+1","kw":{}},{"nm":"Shuriken pistol","t":"r","n":5,"A":1,"sk":3,"S":4,"AP":1,"D":1,"kw":{"pistol":1},"off":"Fires its other guns instead (pistol rule)"},{"nm":"Witch staff","t":"m","n":1,"A":2,"sk":2,"S":3,"AP":0,"D":"D3","kw":{"anti":["INFANTRY",2],"psychic":1}},{"nm":"Paired Hekatarii blades","t":"m","n":1,"A":4,"sk":2,"S":3,"AP":2,"D":1,"kw":{"tl":1}},{"nm":"Power sword","t":"m","n":8,"A":3,"sk":3,"S":4,"AP":2,"D":1,"kw":{}}],"grp":"D","role":"Bodyguard","cat":"Infantry","stats":{"T":3,"Sv":4,"W":1,"M":"7\"","Ld":"7+","OC":"1","inv":0,"invRangedOnly":false},"enh":{"id":"voidstone","nm":"Voidstone","pts":15}},{"id":"farseer","nm":"Farseer","pts":60,"models":1,"kw":["INFANTRY","CHARACTER","FARSEER","PSYKER","AELDARI"],"rules":["branching","guide"],"w":[{"nm":"Eldritch Storm","t":"r","n":1,"A":"D6","sk":3,"S":6,"AP":2,"D":"D3","kw":{"blast":1,"psychic":1}},{"nm":"Shuriken pistol","t":"r","n":1,"A":1,"sk":2,"S":4,"AP":1,"D":1,"kw":{"pistol":1},"off":"Fires its other guns instead (pistol rule)"},{"nm":"Witchblade","t":"m","n":1,"A":2,"sk":2,"S":3,"AP":0,"D":2,"kw":{"anti":["INFANTRY",2],"psychic":1}}],"grp":null,"role":null,"cat":"Characters","stats":{"T":3,"Sv":6,"W":4,"M":"7\"","Ld":"6+","OC":"1","inv":4,"invRangedOnly":false}},{"id":"spiritseer","nm":"Spiritseer","pts":50,"models":1,"kw":["SPIRITSEER","AELDARI","CHARACTER","INFANTRY","PSYKER"],"rules":["imp-stealth","spiritseer-lo","spirit-mark","tears-isha"],"w":[{"nm":"Shuriken pistol","t":"r","n":1,"A":1,"sk":2,"S":4,"AP":1,"D":1,"kw":{"pistol":1}},{"nm":"Witch staff","t":"m","n":1,"A":2,"sk":2,"S":3,"AP":0,"D":"D3","kw":{"anti":["INFANTRY",2],"psychic":1}}],"grp":null,"role":null,"cat":"Characters","stats":{"T":3,"Sv":6,"W":3,"M":"7\"","Ld":"6+","OC":"1","inv":4,"invRangedOnly":false}},{"id":"corsair-voidreavers-a","nm":"Corsair Voidreavers A","pts":65,"models":5,"kw":["CORSAIR VOIDREAVERS","GRENADES","INFANTRY","BATTLELINE","AELDARI","ANHRATHE"],"rules":["imp-scouts-7","reavers","mistshield"],"w":[{"nm":"Shuriken pistol","t":"r","n":3,"A":1,"sk":3,"S":4,"AP":1,"D":1,"kw":{"pistol":1}},{"nm":"Blaster","t":"r","n":1,"A":1,"sk":3,"S":8,"AP":4,"D":"D6+1","kw":{}},{"nm":"Neuro disruptor","t":"r","n":1,"A":1,"sk":3,"S":4,"AP":2,"D":1,"kw":{"anti":["INFANTRY",2],"pistol":1}},{"nm":"Shuriken pistol","t":"r","n":1,"A":1,"sk":3,"S":4,"AP":1,"D":1,"kw":{"pistol":1},"off":"Fires its other guns instead (pistol rule)"},{"nm":"Power sword","t":"m","n":5,"A":2,"sk":3,"S":4,"AP":2,"D":1,"kw":{}}],"grp":null,"role":null,"cat":"Battleline","stats":{"T":3,"Sv":4,"W":1,"M":"7\"","Ld":"7+","OC":"2","inv":0,"invRangedOnly":false}},{"id":"wave-serpent","nm":"Wave Serpent","pts":115,"models":1,"kw":["FRAME","WAVE SERPENT","FLY","TRANSPORT","VEHICLE","DEDICATED TRANSPORT","AELDARI"],"rules":["imp-deadly-demise-d3","serpent-shield"],"w":[{"nm":"Twin shuriken cannon","t":"r","n":1,"A":3,"sk":3,"S":6,"AP":1,"D":2,"kw":{"lethal":1,"tl":1}},{"nm":"Twin shuriken catapult","t":"r","n":1,"A":2,"sk":3,"S":4,"AP":1,"D":1,"kw":{"tl":1}},{"nm":"Wraithbone hull","t":"m","n":1,"A":3,"sk":4,"S":6,"AP":0,"D":1,"kw":{}}],"grp":null,"role":null,"cat":"Dedicated transport","stats":{"T":9,"Sv":3,"W":13,"M":"14\"","Ld":"7+","OC":"2","inv":5,"invRangedOnly":false}},{"id":"corsair-skyreavers-a","nm":"Corsair Skyreavers A","pts":140,"models":10,"kw":["JUMP PACK","ANHRATHE","FLY","INFANTRY","AELDARI","CORSAIR SKYREAVERS","GRENADES"],"rules":["imp-deep-strike","imp-scouts-7","raid-run"],"w":[{"nm":"Shuriken pistol","t":"r","n":5,"A":1,"sk":3,"S":4,"AP":1,"D":1,"kw":{"pistol":1}},{"nm":"Fusion gun","t":"r","n":2,"A":1,"sk":3,"S":8,"AP":4,"D":"D6","kw":{"melta":2}},{"nm":"Blaster","t":"r","n":2,"A":1,"sk":3,"S":8,"AP":4,"D":"D6+1","kw":{}},{"nm":"Blast pistol","t":"r","n":1,"A":1,"sk":3,"S":8,"AP":3,"D":"D3","kw":{"pistol":1}},{"nm":"Shuriken pistol","t":"r","n":4,"A":1,"sk":3,"S":4,"AP":1,"D":1,"kw":{"pistol":1},"off":"Fires its other guns instead (pistol rule)"},{"nm":"Corsair blade","t":"m","n":10,"A":3,"sk":3,"S":4,"AP":2,"D":1,"kw":{}}],"grp":null,"role":null,"cat":"Infantry","stats":{"T":3,"Sv":5,"W":1,"M":"12\"","Ld":"7+","OC":"1","inv":0,"invRangedOnly":false}},{"id":"corsair-skyreavers-b","nm":"Corsair Skyreavers B","pts":75,"models":5,"kw":["JUMP PACK","ANHRATHE","FLY","INFANTRY","AELDARI","CORSAIR SKYREAVERS","GRENADES"],"rules":["imp-deep-strike","imp-scouts-7","raid-run"],"w":[{"nm":"Shuriken pistol","t":"r","n":2,"A":1,"sk":3,"S":4,"AP":1,"D":1,"kw":{"pistol":1}},{"nm":"Fusion gun","t":"r","n":1,"A":1,"sk":3,"S":8,"AP":4,"D":"D6","kw":{"melta":2}},{"nm":"Blaster","t":"r","n":1,"A":1,"sk":3,"S":8,"AP":4,"D":"D6+1","kw":{}},{"nm":"Blast pistol","t":"r","n":1,"A":1,"sk":3,"S":8,"AP":3,"D":"D3","kw":{"pistol":1}},{"nm":"Shuriken pistol","t":"r","n":2,"A":1,"sk":3,"S":4,"AP":1,"D":1,"kw":{"pistol":1},"off":"Fires its other guns instead (pistol rule)"},{"nm":"Corsair blade","t":"m","n":5,"A":3,"sk":3,"S":4,"AP":2,"D":1,"kw":{}}],"grp":null,"role":null,"cat":"Infantry","stats":{"T":3,"Sv":5,"W":1,"M":"12\"","Ld":"7+","OC":"1","inv":0,"invRangedOnly":false}},{"id":"corsair-skyreavers-c","nm":"Corsair Skyreavers C","pts":75,"models":5,"kw":["JUMP PACK","ANHRATHE","FLY","INFANTRY","AELDARI","CORSAIR SKYREAVERS","GRENADES"],"rules":["imp-deep-strike","imp-scouts-7","raid-run"],"w":[{"nm":"Shuriken pistol","t":"r","n":2,"A":1,"sk":3,"S":4,"AP":1,"D":1,"kw":{"pistol":1}},{"nm":"Fusion gun","t":"r","n":1,"A":1,"sk":3,"S":8,"AP":4,"D":"D6","kw":{"melta":2}},{"nm":"Blaster","t":"r","n":1,"A":1,"sk":3,"S":8,"AP":4,"D":"D6+1","kw":{}},{"nm":"Blast pistol","t":"r","n":1,"A":1,"sk":3,"S":8,"AP":3,"D":"D3","kw":{"pistol":1}},{"nm":"Shuriken pistol","t":"r","n":2,"A":1,"sk":3,"S":4,"AP":1,"D":1,"kw":{"pistol":1},"off":"Fires its other guns instead (pistol rule)"},{"nm":"Corsair blade","t":"m","n":5,"A":3,"sk":3,"S":4,"AP":2,"D":1,"kw":{}}],"grp":null,"role":null,"cat":"Infantry","stats":{"T":3,"Sv":5,"W":1,"M":"12\"","Ld":"7+","OC":"1","inv":0,"invRangedOnly":false}},{"id":"rangers-a","nm":"Rangers A","pts":60,"models":5,"kw":["AELDARI","RANGERS","INFANTRY"],"rules":["imp-infiltrators","imp-stealth","path-outcast"],"w":[{"nm":"Long rifle","t":"r","n":5,"A":1,"sk":3,"S":4,"AP":1,"D":2,"kw":{"heavy":1,"precision":1}},{"nm":"Shuriken pistol","t":"r","n":5,"A":1,"sk":2,"S":4,"AP":1,"D":1,"kw":{"pistol":1},"off":"Fires its other guns instead (pistol rule)"},{"nm":"Close combat weapon","t":"m","n":5,"A":1,"sk":3,"S":3,"AP":0,"D":1,"kw":{}}],"grp":null,"role":null,"cat":"Infantry","stats":{"T":3,"Sv":5,"W":1,"M":"7\"","Ld":"7+","OC":"1","inv":5,"invRangedOnly":true}},{"id":"rangers-b","nm":"Rangers B","pts":60,"models":5,"kw":["AELDARI","RANGERS","INFANTRY"],"rules":["imp-infiltrators","imp-stealth","path-outcast"],"w":[{"nm":"Long rifle","t":"r","n":5,"A":1,"sk":3,"S":4,"AP":1,"D":2,"kw":{"heavy":1,"precision":1}},{"nm":"Shuriken pistol","t":"r","n":5,"A":1,"sk":2,"S":4,"AP":1,"D":1,"kw":{"pistol":1},"off":"Fires its other guns instead (pistol rule)"},{"nm":"Close combat weapon","t":"m","n":5,"A":1,"sk":3,"S":3,"AP":0,"D":1,"kw":{}}],"grp":null,"role":null,"cat":"Infantry","stats":{"T":3,"Sv":5,"W":1,"M":"7\"","Ld":"7+","OC":"1","inv":5,"invRangedOnly":true}},{"id":"wraithblades","nm":"Wraithblades","pts":140,"models":5,"kw":["INFANTRY","AELDARI","WRAITHBLADES","WRAITH CONSTRUCT"],"rules":["malevolent","psyguide","forceshield","spirit-marked"],"w":[{"nm":"Ghostaxe","t":"m","n":5,"A":3,"sk":4,"S":7,"AP":2,"D":2,"kw":{}}],"grp":null,"role":null,"cat":"Infantry","stats":{"T":6,"Sv":2,"W":3,"M":"6\"","Ld":"8+","OC":"1","inv":0,"invRangedOnly":false}},{"id":"shroud-runners","nm":"Shroud Runners","pts":180,"models":6,"kw":["AELDARI","SHROUD RUNNERS","FLY","MOUNTED"],"rules":["imp-scouts-9","imp-stealth","target-acq","assassins-eye"],"w":[{"nm":"Scatter laser","t":"r","n":6,"A":6,"sk":3,"S":5,"AP":0,"D":1,"kw":{"sus":1}},{"nm":"Long rifle","t":"r","n":6,"A":1,"sk":2,"S":4,"AP":1,"D":2,"kw":{"precision":1}},{"nm":"Shuriken pistol","t":"r","n":6,"A":1,"sk":2,"S":4,"AP":1,"D":1,"kw":{"pistol":1},"off":"Fires its other guns instead (pistol rule)"},{"nm":"Close combat weapon","t":"m","n":6,"A":1,"sk":3,"S":3,"AP":0,"D":1,"kw":{}}],"grp":null,"role":null,"cat":"Mounted","stats":{"T":4,"Sv":5,"W":3,"M":"14\"","Ld":"7+","OC":"2","inv":5,"invRangedOnly":true},"enh":{"id":"assassins-eye","nm":"Assassins' Eye (Upgrade)","pts":15}},{"id":"starfangs","nm":"Starfangs","pts":70,"models":1,"kw":["VEHICLE","SMOKE","STARFANG","FLY","ANHRATHE","GRENADES","AELDARI"],"rules":["imp-deadly-demise-1","imp-scouts-7","hallucinogen"],"w":[{"nm":"Disintegrator cannon","t":"r","n":1,"A":3,"sk":3,"S":6,"AP":3,"D":2,"kw":{}},{"nm":"Starfang grenade launcher","t":"r","n":1,"A":"D3","sk":3,"S":6,"AP":3,"D":2,"kw":{"blast":1}},{"nm":"Wraithbone hull","t":"m","n":1,"A":3,"sk":4,"S":6,"AP":0,"D":1,"kw":{}}],"grp":null,"role":null,"cat":"Vehicles and monsters","stats":{"T":6,"Sv":3,"W":6,"M":"14\"","Ld":"7+","OC":"2","inv":0,"invRangedOnly":false}}]},{"id":"builtin-cophasta","meta":{"name":"Strike Force Cophasta","faction":"White Scars","detachments":["Spearpoint Task Force","Assault Brethren"],"mission":"Reconnaissance","sub":"White Scars, Spearpoint Task Force and Assault Brethren, Reconnaissance. Built in from your roster file."},"groups":{"A":{"nm":"Attached unit A","short":"Kor’sarro Khan + Bladeguard Ancient + Bladeguard Veteran Squad"},"B":{"nm":"Attached unit B","short":"Suboden Khan + Outrider Squad B"},"C":{"nm":"Attached unit C","short":"Captain on Bike + Outrider Squad C"},"D":{"nm":"Attached unit D","short":"Chaplain on Bike + Outrider Squad A"},"E":{"nm":"Attached unit E","short":"Lieutenant + Hellblaster Squad"}},"armyRules":["combat-doctrines","spearpoint-tf","assault-brethren"],"rules":{"imp-deadly-demise-d3":{"nm":"Deadly Demise D3","src":"Core","dmg":false,"txt":"This ability always takes the form Deadly Demise X. Each time a model with this ability is destroyed, after the units embarked within it (if any) have made their emergency disembark moves, roll one D6. On a 6, that model suffers a deadly demise; each unit within 6\" of that model suffers a number of mortal wounds denoted by X (if this is a random number, roll separately for each unit within 6\").","imported":true,"scope":null,"todo":false},"imp-deep-strike":{"nm":"Deep Strike","src":"Core","dmg":false,"txt":"Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8\" horizontally from all enemy units, even if that is within your opponent’s deployment zone.","imported":true,"scope":null,"todo":false},"imp-brutalis-charge-once-per-phase-per-unit":{"nm":"Brutalis Charge (Once per phase, per unit)","src":"Datasheet","dmg":false,"txt":"You can target this unit with the Crushing Impact stratagem, regardless of any other uses of that stratagem this phase. If you do: That use is -1 CP. That use does not prevent any uses of that stratagem on other units this phase.","imported":true,"scope":null,"todo":false},"imp-rites-of-thermal-appeasement":{"nm":"Rites of Thermal Appeasement","src":"Datasheet","dmg":false,"txt":"This unit has +1 to hazard rolls made for its Plasma Incinerator and Plasma Pistol weapons.","imported":true,"scope":null,"todo":false},"imp-transhuman-strategist":{"nm":"Transhuman Strategist","src":"Datasheet","dmg":false,"txt":"(no text in the roster file)","imported":true,"scope":null,"todo":false},"imp-skilled-riders":{"nm":"Skilled Riders","src":"Datasheet","dmg":false,"txt":"This unit has Mobile.","imported":true,"scope":null,"todo":false},"imp-demi-company-commander-once-per-turn-per-unit":{"nm":"Demi-company Commander (Once per turn, per unit)","src":"Datasheet","dmg":false,"txt":"When a friendly Captain unit uses its Strategic Acumen ability, you can use this ability. If you do, the selected combat doctrine is active for this unit until the start of your next Command phase.","imported":true,"scope":null,"todo":false},"imp-raise-the-banner":{"nm":"Raise the Banner","src":"Datasheet","dmg":false,"txt":"At the end of your Movement phase, if this unit is controlling an objective, that objective is secured.","imported":true,"scope":null,"todo":false},"imp-veiling-smoke-once-per-phase-per-unit":{"nm":"Veiling Smoke (Once per phase, per unit)","src":"Datasheet","dmg":false,"txt":"You can target this unit with the Smokescreen stratagem, regardless of any other uses of that stratagem this phase. If you do: That use is -1 CP. That use does not prevent any uses of that stratagem on other units this phase.","imported":true,"scope":null,"todo":false},"imp-firing-deck-2":{"nm":"Firing Deck 2","src":"Core","dmg":false,"txt":"This ability always takes the form Firing Deck X. In your Shooting phase, each time this TRANSPORT is selected to shoot, if one or more units are embarked within it, resolve the following sequence: 1. Select up to X models embarked within this TRANSPORT (excluding models whose units have already been selected to shoot this phase). 2. For each selected model, select one of its ranged weapons (excluding [ONE SHOT] weapons). 3. Until this TRANSPORT has resolved all of its attacks, it has all of those selected weapons in addition to its other weapons. 4. Until the end of the turn, units embarked within this TRANSPORT are not eligible to shoot.","imported":true,"scope":null,"todo":false},"imp-purgation-run":{"nm":"Purgation Run","src":"Datasheet","dmg":false,"txt":"In your Shooting phase, when this unit has shot, you can use this ability. If you do: This unit can make a normal move of up to D6\". This unit is not eligible to declare a charge until the end of the turn.","imported":true,"scope":null,"todo":false},"imp-strategic-acumen":{"nm":"Strategic Acumen","src":"Datasheet","dmg":false,"txt":"In your Command phase, you can use this ability. If you do, select one combat doctrine to be active for this unit until the start of your next Command phase.","imported":true,"scope":null,"todo":false}},"units":[{"id":"korsarro-khan","nm":"Kor’sarro Khan","pts":80,"models":1,"kw":["CAPTAIN","CHARACTER","EPIC HERO","EXPLOSIVES","IMPERIUM","INFANTRY","TACTICUS"],"rules":["trophy-taker","imp-transhuman-strategist","for-the-khan"],"w":[{"nm":"Anzuq","t":"r","n":1,"A":2,"sk":3,"S":4,"AP":1,"D":2,"kw":{"anti":["INFANTRY",4],"pistol":1,"dev":1,"when":{"dev":{"only":["INFANTRY"]}}}},{"nm":"Bolt Pistol","t":"r","n":1,"A":1,"sk":2,"S":5,"AP":1,"D":1,"kw":{"pistol":1}},{"nm":"Moonfang","t":"m","n":1,"A":6,"sk":2,"S":6,"AP":3,"D":2,"kw":{"anti":["CHARACTER",5],"dev":1,"precision":1}}],"grp":"A","role":"Leader","cat":"Characters","stats":{"T":5,"Sv":3,"W":5,"M":"6\"","Ld":"6+","OC":"1","inv":4,"invRangedOnly":false}},{"id":"bladeguard-ancient","nm":"Bladeguard Ancient","pts":80,"models":1,"kw":["ANCIENT","CHARACTER","EXPLOSIVES","IMPERIUM","INFANTRY","TACTICUS"],"rules":["deeds-of-legend","imp-raise-the-banner","imperiums-sword"],"w":[{"nm":"Heavy Bolt Pistol","t":"r","n":1,"A":1,"sk":3,"S":5,"AP":1,"D":1,"kw":{"pistol":1}},{"nm":"Relics of Battle","t":"m","n":1,"A":4,"sk":3,"S":5,"AP":2,"D":2,"kw":{}}],"grp":"A","role":"Support","cat":"Characters","stats":{"T":5,"Sv":3,"W":4,"M":"6\"","Ld":"6+","OC":"3","inv":4,"invRangedOnly":false},"enh":{"id":"imperiums-sword","nm":"Imperium’s Sword","pts":20}},{"id":"bladeguard-veteran-squad","nm":"Bladeguard Veteran Squad","pts":180,"models":6,"kw":["EXPLOSIVES","IMPERIUM","INFANTRY","TACTICUS"],"rules":["bladeguard","furious-assault"],"w":[{"nm":"Plasma Pistol - Standard","t":"r","n":1,"A":1,"sk":3,"S":7,"AP":2,"D":1,"kw":{"pistol":1},"alt":"p0:plasma-pistol"},{"nm":"Plasma Pistol - Supercharge","t":"r","n":1,"A":1,"sk":3,"S":8,"AP":3,"D":2,"kw":{"pistol":1,"hazardous":1},"alt":"p0:plasma-pistol"},{"nm":"Heavy Bolt Pistol","t":"r","n":5,"A":1,"sk":3,"S":5,"AP":1,"D":1,"kw":{"pistol":1}},{"nm":"Master-crafted Power Sword","t":"m","n":6,"A":4,"sk":3,"S":5,"AP":2,"D":2,"kw":{}}],"grp":"A","role":"Bodyguard","cat":"Infantry","stats":{"T":5,"Sv":3,"W":3,"M":"6\"","Ld":"6+","OC":"1","inv":4,"invRangedOnly":false},"enh":{"id":"furious-assault","nm":"Furious Assault (Upgrade)","pts":10}},{"id":"suboden-khan","nm":"Suboden Khan","pts":105,"models":1,"kw":["CAPTAIN","CHARACTER","EPIC HERO","EXPLOSIVES","IMPERIUM","MOUNTED"],"rules":["spear-chogoris","imp-transhuman-strategist","imp-skilled-riders","wrath-first-khan"],"w":[{"nm":"Onslaught gatling cannon","t":"r","n":1,"A":8,"sk":2,"S":5,"AP":0,"D":1,"kw":{"dev":1}},{"nm":"Heavy Bolt Pistol","t":"r","n":1,"A":1,"sk":2,"S":5,"AP":1,"D":1,"kw":{"pistol":1},"off":"Fires its other guns instead (pistol rule)"},{"nm":"Power Sword","t":"m","n":1,"A":3,"sk":2,"S":5,"AP":2,"D":1,"kw":{"extra":1,"sus":1,"when":{"sus":{"not":["MONSTER","VEHICLE"]}}}},{"nm":"Stormtooth","t":"m","n":1,"A":6,"sk":2,"S":7,"AP":3,"D":2,"kw":{"anti":["MONSTER/VEHICLE",4],"lance":1}}],"grp":"B","role":"Leader","cat":"Characters","stats":{"T":6,"Sv":3,"W":8,"M":"12\"","Ld":"6+","OC":"2","inv":4,"invRangedOnly":false},"warlord":true},{"id":"outrider-squad-b","nm":"Outrider Squad B","pts":85,"models":3,"kw":["EXPLOSIVES","IMPERIUM","MOUNTED"],"rules":["full-throttle"],"w":[{"nm":"Twin Bolt Rifle","t":"r","n":3,"A":2,"sk":2,"S":5,"AP":1,"D":1,"kw":{"rf":2,"tl":1}},{"nm":"Heavy Bolt Pistol","t":"r","n":3,"A":1,"sk":3,"S":5,"AP":1,"D":1,"kw":{"pistol":1},"off":"Fires its other guns instead (pistol rule)"},{"nm":"Plasma Pistol - Standard","t":"r","n":1,"A":1,"sk":3,"S":7,"AP":2,"D":1,"kw":{"pistol":1},"alt":"p1:plasma-pistol","off":"Fires its other guns instead (pistol rule)"},{"nm":"Plasma Pistol - Supercharge","t":"r","n":1,"A":1,"sk":3,"S":8,"AP":3,"D":2,"kw":{"pistol":1,"hazardous":1},"alt":"p1:plasma-pistol","off":"Fires its other guns instead (pistol rule)"},{"nm":"Chainsword","t":"m","n":2,"A":4,"sk":3,"S":5,"AP":1,"D":1,"kw":{}},{"nm":"Power Weapon","t":"m","n":1,"A":3,"sk":3,"S":5,"AP":2,"D":1,"kw":{}}],"grp":"B","role":"Bodyguard","cat":"Mounted","stats":{"T":6,"Sv":3,"W":4,"M":"12\"","Ld":"6+","OC":"2","inv":0,"invRangedOnly":false}},{"id":"captain-on-bike","nm":"Captain on Bike","pts":110,"models":1,"kw":["CAPTAIN","CHARACTER","EXPLOSIVES","IMPERIUM","MOUNTED"],"rules":["into-the-fray","imp-strategic-acumen","imp-transhuman-strategist"],"w":[{"nm":"Twin Bolt Rifle","t":"r","n":1,"A":2,"sk":2,"S":5,"AP":1,"D":1,"kw":{"rf":2,"tl":1}},{"nm":"Plasma Pistol - Standard","t":"r","n":1,"A":1,"sk":2,"S":7,"AP":2,"D":1,"kw":{"pistol":1},"alt":"p0:plasma-pistol","off":"Fires its other guns instead (pistol rule)"},{"nm":"Plasma Pistol - Supercharge","t":"r","n":1,"A":1,"sk":2,"S":8,"AP":3,"D":2,"kw":{"pistol":1,"hazardous":1},"alt":"p0:plasma-pistol","off":"Fires its other guns instead (pistol rule)"},{"nm":"Master-crafted Power Weapon","t":"m","n":1,"A":6,"sk":2,"S":6,"AP":2,"D":2,"kw":{}}],"grp":"C","role":"Leader","cat":"Characters","stats":{"T":6,"Sv":3,"W":6,"M":"12\"","Ld":"6+","OC":"2","inv":4,"invRangedOnly":false}},{"id":"outrider-squad-c","nm":"Outrider Squad C","pts":85,"models":3,"kw":["EXPLOSIVES","IMPERIUM","MOUNTED"],"rules":["full-throttle"],"w":[{"nm":"Twin Bolt Rifle","t":"r","n":3,"A":2,"sk":2,"S":5,"AP":1,"D":1,"kw":{"rf":2,"tl":1}},{"nm":"Heavy Bolt Pistol","t":"r","n":3,"A":1,"sk":3,"S":5,"AP":1,"D":1,"kw":{"pistol":1},"off":"Fires its other guns instead (pistol rule)"},{"nm":"Chainsword","t":"m","n":3,"A":4,"sk":3,"S":5,"AP":1,"D":1,"kw":{}}],"grp":"C","role":"Bodyguard","cat":"Mounted","stats":{"T":6,"Sv":3,"W":4,"M":"12\"","Ld":"6+","OC":"2","inv":0,"invRangedOnly":false}},{"id":"chaplain-on-bike","nm":"Chaplain on Bike","pts":105,"models":1,"kw":["CHAPLAIN","CHARACTER","EXPLOSIVES","IMPERIUM","MOUNTED"],"rules":["litany-of-hate","catechism-of-fire","spearpoint-paragon"],"w":[{"nm":"Twin Bolt Rifle","t":"r","n":1,"A":2,"sk":3,"S":5,"AP":1,"D":1,"kw":{"rf":2,"tl":1}},{"nm":"Absolvor Bolt Pistol","t":"r","n":1,"A":1,"sk":3,"S":5,"AP":2,"D":2,"kw":{"pistol":1},"off":"Fires its other guns instead (pistol rule)"},{"nm":"Crozius Arcanum","t":"m","n":1,"A":5,"sk":2,"S":6,"AP":1,"D":2,"kw":{"cleave":1}}],"grp":"D","role":"Leader","cat":"Characters","stats":{"T":6,"Sv":3,"W":5,"M":"12\"","Ld":"5+","OC":"2","inv":4,"invRangedOnly":false},"enh":{"id":"spearpoint-paragon","nm":"Spearpoint Paragon","pts":25}},{"id":"outrider-squad-a","nm":"Outrider Squad A","pts":160,"models":6,"kw":["EXPLOSIVES","IMPERIUM","MOUNTED"],"rules":["full-throttle"],"w":[{"nm":"Twin Bolt Rifle","t":"r","n":6,"A":2,"sk":2,"S":5,"AP":1,"D":1,"kw":{"rf":2,"tl":1}},{"nm":"Heavy Bolt Pistol","t":"r","n":6,"A":1,"sk":3,"S":5,"AP":1,"D":1,"kw":{"pistol":1},"off":"Fires its other guns instead (pistol rule)"},{"nm":"Plasma Pistol - Standard","t":"r","n":2,"A":1,"sk":3,"S":7,"AP":2,"D":1,"kw":{"pistol":1},"alt":"p1:plasma-pistol","off":"Fires its other guns instead (pistol rule)"},{"nm":"Plasma Pistol - Supercharge","t":"r","n":2,"A":1,"sk":3,"S":8,"AP":3,"D":2,"kw":{"pistol":1,"hazardous":1},"alt":"p1:plasma-pistol","off":"Fires its other guns instead (pistol rule)"},{"nm":"Chainsword","t":"m","n":5,"A":4,"sk":3,"S":5,"AP":1,"D":1,"kw":{}},{"nm":"Thunder Hammer","t":"m","n":1,"A":3,"sk":4,"S":8,"AP":2,"D":3,"kw":{"dev":1}}],"grp":"D","role":"Bodyguard","cat":"Mounted","stats":{"T":6,"Sv":3,"W":4,"M":"12\"","Ld":"6+","OC":"2","inv":0,"invRangedOnly":false}},{"id":"lieutenant","nm":"Lieutenant","pts":75,"models":1,"kw":["CHARACTER","EXPLOSIVES","IMPERIUM","INFANTRY","TACTICUS"],"rules":["tactical-precision","imp-demi-company-commander-once-per-turn-per-unit","hunters-eye"],"w":[{"nm":"Bolt Pistol","t":"r","n":1,"A":1,"sk":2,"S":5,"AP":1,"D":1,"kw":{"pistol":1}},{"nm":"Plasma Pistol - Standard","t":"r","n":1,"A":1,"sk":2,"S":7,"AP":2,"D":1,"kw":{"pistol":1},"alt":"p0:plasma-pistol"},{"nm":"Plasma Pistol - Supercharge","t":"r","n":1,"A":1,"sk":2,"S":8,"AP":3,"D":2,"kw":{"pistol":1,"hazardous":1},"alt":"p0:plasma-pistol"},{"nm":"Power Fist","t":"m","n":1,"A":4,"sk":2,"S":8,"AP":2,"D":2,"kw":{}}],"grp":"E","role":"Support","cat":"Characters","stats":{"T":5,"Sv":3,"W":4,"M":"6\"","Ld":"6+","OC":"1","inv":0,"invRangedOnly":false},"enh":{"id":"hunters-eye","nm":"Hunter's Eye","pts":25}},{"id":"hellblaster-squad","nm":"Hellblaster Squad","pts":220,"models":10,"kw":["EXPLOSIVES","IMPERIUM","INFANTRY","TACTICUS"],"rules":["imp-rites-of-thermal-appeasement"],"w":[{"nm":"Plasma Incinerator - Standard","t":"r","n":1,"A":2,"sk":3,"S":7,"AP":2,"D":2,"kw":{"rf":1},"alt":"p0:plasma-incinerator"},{"nm":"Plasma Incinerator - Supercharge","t":"r","n":1,"A":2,"sk":3,"S":8,"AP":3,"D":2,"kw":{"hazardous":1,"rf":1},"alt":"p0:plasma-incinerator"},{"nm":"Plasma Incinerator - Standard","t":"r","n":9,"A":2,"sk":3,"S":7,"AP":2,"D":2,"kw":{"rf":1},"alt":"p1:plasma-incinerator"},{"nm":"Plasma Incinerator - Supercharge","t":"r","n":9,"A":2,"sk":3,"S":8,"AP":3,"D":2,"kw":{"hazardous":1,"rf":1},"alt":"p1:plasma-incinerator"},{"nm":"Plasma Pistol - Standard","t":"r","n":1,"A":1,"sk":3,"S":7,"AP":2,"D":1,"kw":{"pistol":1},"alt":"p0:plasma-pistol","off":"Fires its other guns instead (pistol rule)"},{"nm":"Plasma Pistol - Supercharge","t":"r","n":1,"A":1,"sk":3,"S":8,"AP":3,"D":2,"kw":{"pistol":1,"hazardous":1},"alt":"p0:plasma-pistol","off":"Fires its other guns instead (pistol rule)"},{"nm":"Bolt Pistol","t":"r","n":9,"A":1,"sk":3,"S":5,"AP":1,"D":1,"kw":{"pistol":1},"off":"Fires its other guns instead (pistol rule)"},{"nm":"Ceramite Fists","t":"m","n":10,"A":3,"sk":3,"S":5,"AP":0,"D":1,"kw":{}}],"grp":"E","role":"Bodyguard","cat":"Infantry","stats":{"T":5,"Sv":3,"W":2,"M":"6\"","Ld":"6+","OC":"1","inv":0,"invRangedOnly":false}},{"id":"assault-intercessor-squad","nm":"Assault Intercessor Squad","pts":100,"models":5,"kw":["BATTLELINE","EXPLOSIVES","IMPERIUM","INFANTRY","TACTICUS"],"rules":["targeted-intercession","furious-assault"],"w":[{"nm":"Heavy Bolt Pistol","t":"r","n":5,"A":1,"sk":3,"S":5,"AP":1,"D":1,"kw":{"pistol":1}},{"nm":"Chainsword","t":"m","n":5,"A":4,"sk":3,"S":5,"AP":1,"D":1,"kw":{}}],"grp":null,"role":null,"cat":"Battleline","stats":{"T":5,"Sv":3,"W":2,"M":"6\"","Ld":"6+","OC":"2","inv":0,"invRangedOnly":false},"enh":{"id":"furious-assault","nm":"Furious Assault (Upgrade)","pts":10}},{"id":"rhino","nm":"Rhino","pts":70,"models":1,"kw":["DEDICATED TRANSPORT","FRAME","IMPERIUM","SMOKE","TRANSPORT","VEHICLE"],"rules":["imp-veiling-smoke-once-per-phase-per-unit","imp-firing-deck-2","imp-deadly-demise-d3"],"w":[{"nm":"Hunter-killer Missile","t":"r","n":1,"A":1,"sk":2,"S":14,"AP":3,"D":"D3+3","kw":{"oneshot":1}},{"nm":"Storm Bolter","t":"r","n":1,"A":2,"sk":3,"S":5,"AP":1,"D":1,"kw":{"rf":2}},{"nm":"Armoured Tracks","t":"m","n":1,"A":3,"sk":4,"S":6,"AP":0,"D":1,"kw":{}}],"grp":null,"role":null,"cat":"Dedicated transport","stats":{"T":9,"Sv":3,"W":10,"M":"12\"","Ld":"6+","OC":"2","inv":0,"invRangedOnly":false}},{"id":"brutalis-dreadnought","nm":"Brutalis Dreadnought","pts":160,"models":1,"kw":["DREADNOUGHT","IMPERIUM","VEHICLE","WALKER"],"rules":["imp-brutalis-charge-once-per-phase-per-unit","imp-deadly-demise-d3","damaged"],"w":[{"nm":"Twin Icarus Ironhail Heavy Stubber","t":"r","n":1,"A":3,"sk":3,"S":4,"AP":1,"D":1,"kw":{"anti":["FLY",3],"rf":3,"tl":1}},{"nm":"Bolt Rifles","t":"r","n":1,"A":4,"sk":3,"S":5,"AP":1,"D":1,"kw":{"tl":1}},{"nm":"Twin Heavy Bolter","t":"r","n":1,"A":3,"sk":3,"S":5,"AP":1,"D":2,"kw":{"rf":2,"sus":1,"tl":1}},{"nm":"Brutalis Fists","t":"m","n":1,"A":6,"sk":3,"S":12,"AP":3,"D":"D3+3","kw":{"tl":1}}],"grp":null,"role":null,"cat":"Vehicles and monsters","stats":{"T":10,"Sv":2,"W":12,"M":"10\"","Ld":"6+","OC":"4","inv":0,"invRangedOnly":false}},{"id":"land-speeder","nm":"Land Speeder","pts":110,"models":1,"kw":["FLY","FRAME","IMPERIUM","SPEEDER","VEHICLE"],"rules":["imp-purgation-run","imp-deep-strike"],"w":[{"nm":"Multi-melta","t":"r","n":1,"A":2,"sk":3,"S":10,"AP":3,"D":"D3+2","kw":{"melta":3}},{"nm":"Stormfury Missile Launcher","t":"r","n":1,"A":1,"sk":3,"S":10,"AP":3,"D":"D3+3","kw":{}},{"nm":"Pyrecannon","t":"r","n":1,"A":4,"sk":0,"S":6,"AP":1,"D":1,"kw":{"blast":2,"torrent":1}},{"nm":"Armoured Impact","t":"m","n":1,"A":3,"sk":4,"S":6,"AP":0,"D":1,"kw":{}}],"grp":null,"role":null,"cat":"Vehicles and monsters","stats":{"T":8,"Sv":3,"W":9,"M":"14\"","Ld":"6+","OC":"3","inv":0,"invRangedOnly":false}},{"id":"storm-speeder-hailstrike","nm":"Storm Speeder Hailstrike","pts":110,"models":1,"kw":["FLY","FRAME","IMPERIUM","SPEEDER","VEHICLE"],"rules":["hailstrike","imp-deep-strike","imp-deadly-demise-d3"],"w":[{"nm":"Fragstorm Grenade Launchers","t":"r","n":1,"A":6,"sk":3,"S":4,"AP":1,"D":1,"kw":{"blast":2,"ic":1}},{"nm":"Ironhail Heavy Stubber Array","t":"r","n":1,"A":6,"sk":3,"S":4,"AP":1,"D":1,"kw":{"ic":1,"rf":6}},{"nm":"Onslaught Gatling Cannon","t":"r","n":1,"A":8,"sk":3,"S":5,"AP":1,"D":1,"kw":{"dev":1,"when":{"dev":{"not":["MONSTER","VEHICLE"]}},"ic":1}},{"nm":"Armoured Impact","t":"m","n":1,"A":3,"sk":4,"S":6,"AP":0,"D":1,"kw":{}}],"grp":null,"role":null,"cat":"Vehicles and monsters","stats":{"T":9,"Sv":3,"W":11,"M":"14\"","Ld":"6+","OC":"3","inv":0,"invRangedOnly":false}},{"id":"storm-speeder-thunderstrike","nm":"Storm Speeder Thunderstrike","pts":155,"models":1,"kw":["FLY","FRAME","IMPERIUM","SPEEDER","VEHICLE"],"rules":["shattered-defences","imp-deadly-demise-d3","thunderstrike","imp-deep-strike"],"w":[{"nm":"Stormfury Missile Launcher","t":"r","n":1,"A":2,"sk":3,"S":10,"AP":3,"D":"D3+3","kw":{}},{"nm":"Thunderstrike Icarus Rocket Pod","t":"r","n":1,"A":6,"sk":3,"S":6,"AP":1,"D":2,"kw":{"anti":["FLY",2]}},{"nm":"Thunderstrike Las-talon","t":"r","n":1,"A":2,"sk":3,"S":10,"AP":3,"D":"D3+3","kw":{}},{"nm":"Armoured Impact","t":"m","n":1,"A":3,"sk":4,"S":6,"AP":0,"D":1,"kw":{}}],"grp":null,"role":null,"cat":"Vehicles and monsters","stats":{"T":9,"Sv":3,"W":11,"M":"14\"","Ld":"6+","OC":"3","inv":0,"invRangedOnly":false}}]}];
+
+// ===== Engine v2 =====
+function avgDice(x){
+  if (typeof x === 'number') return x;
+  const m = String(x).trim().toUpperCase().match(/^(\d*)D(\d+)(?:\+(\d+))?$/);
+  if (m){ const k = m[1] ? +m[1] : 1, f = +m[2], add = m[3] ? +m[3] : 0; return k*(f+1)/2 + add; }
+  const n = parseFloat(x); return isNaN(n) ? 0 : n;
+}
+function diceDist(x){
+  if (typeof x === 'number') return [[x,1]];
+  const m = String(x).trim().toUpperCase().match(/^(\d*)D(\d+)(?:\+(\d+))?$/);
+  if (!m){ const n = parseFloat(x); return [[isNaN(n)?0:n,1]]; }
+  const k = m[1] ? +m[1] : 1, f = +m[2], add = m[3] ? +m[3] : 0;
+  let dist = new Map([[0,1]]);
+  for (let i=0;i<k;i++){ const nd = new Map(); for (const [v,p] of dist) for (let r=1;r<=f;r++) nd.set(v+r,(nd.get(v+r)||0)+p/f); dist = nd; }
+  return [...dist].map(([v,p])=>[v+add,p]);
+}
+function woundNeed(S,T){ if (S>=2*T) return 2; if (S>T) return 3; if (S===T) return 4; if (2*S<=T) return 6; return 5; }
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const ruleKey = (owner,id)=>owner+':'+id;
+
+// ----- modifier bar -----
+const MOD0 = {apply:'both', hit:0, wound:0, ap:0, sus:false, lethal:false, rrHit:'off', rrWound:'off', cover:false, half:false, rf:0};
+const RR_RANK = {off:0, '1s':1, full:2};
+function modIsSet(m){ return !!m && Object.keys(MOD0).some(k=>k!=='apply' && m[k]!==undefined && m[k]!==MOD0[k]); }
+function modScopes(unit, w){
+  const s = ['all', unit.id];
+  if (!unit.combined && unit.grp) s.push('grp-'+unit.grp);
+  if (unit.combined && w && w._owner) s.push(w._owner);
+  return [...new Set(s)];
+}
+function modsFor(unit, w, opts){
+  const mods = opts.mods || {};
+  const out = {hit:0, wound:0, ap:0, sus:false, lethal:false, rrHit:'off', rrWound:'off', cover:false, half:false, rf:0};
+  for (const sc of modScopes(unit, w)){
+    const m = mods[sc]; if (!modIsSet(m)) continue;
+    if (m.cover) out.cover = true;
+    if (m.half) out.half = true;
+    const ok = !m.apply || m.apply==='both' || (m.apply==='ranged') === (w.t==='r');
+    if (!ok) continue;
+    out.hit += m.hit||0; out.wound += m.wound||0; out.ap += m.ap||0;
+    if ((m.rf||0) > out.rf) out.rf = m.rf;
+    if (m.sus) out.sus = true; if (m.lethal) out.lethal = true;
+    if (RR_RANK[m.rrHit||'off'] > RR_RANK[out.rrHit]) out.rrHit = m.rrHit;
+    if (RR_RANK[m.rrWound||'off'] > RR_RANK[out.rrWound]) out.rrWound = m.rrWound;
+  }
+  return out;
+}
+
+// Rules that change damage and apply to this attacker (own + attached-unit propagation)
+function effectiveRules(unit, allUnits){
+  const out = [];
+  const add = (owner, id) => { const r = RULES[id]; if (r && r.dmg && !out.some(x=>x.id===id && x.owner===owner)) out.push({id, owner, r}); };
+  if (unit.combined){
+    for (const mid of unit.members){ const m = allUnits.find(x=>x.id===mid); if (m) m.rules.forEach(id=>add(m.id,id)); }
+  } else {
+    (unit.rules||[]).forEach(id=>add(unit.id,id));
+    if (unit.grp) for (const m of allUnits) if (m.grp===unit.grp && m.id!==unit.id) (m.rules||[]).forEach(id=>{ if (RULES[id] && RULES[id].scope==='unit') add(m.id,id); });
+  }
+  return out;
+}
+function ruleActive(er, opts){
+  if (er.r.mark) return !!opts[er.r.mark];
+  return !(opts.off && opts.off[ruleKey(er.owner, er.id)]);
+}
+
+function unitPts(unit, opts){ const e = unit.enh ? unit.enh.pts : 0; return opts.enh ? unit.pts : unit.pts - e; }
+
+// rules the engine handles by name (calibrated before the generic effect system existed)
+const LEGACY_FX = new Set(['piratical-hero','psyguide','raiders','spirit-marked','reavers','assured','faolchu','assassins-eye']);
+// does a target match a keyword condition like {only:['MONSTER','VEHICLE']} or {not:[...]}?
+function kwCond(c, tKw){
+  if (!c) return true;
+  const has = k => tKw.split(/[\s,]+/).includes(k) || tKw.includes(k);
+  if (c.only && !c.only.some(has)) return false;
+  if (c.not && c.not.some(has)) return false;
+  return true;
+}
+function targetKw(tgt, opts){ let k = String(tgt.kw||'').toUpperCase(); if (opts.char && !/CHARACTER/.test(k)) k += ' CHARACTER'; return k; }
+
+function attackUnit(unit, tgt, opts, allUnits, phase){
+  phase = phase || opts.phase;
+  allUnits = allUnits || [];
+  const er = effectiveRules(unit, allUnits).filter(x=>ruleActive(x, opts));
+  // target marks with a generic effect apply to every attacker in the list
+  const marks = [];
+  for (const [id, r] of Object.entries(RULES)) if (r.mark && r.global && r.fx && opts[r.mark]) marks.push({id, owner:'mark', r});
+  let rows = [];
+  for (const w of unit.w){
+    if (phase==='ranged' && w.t!=='r') continue;
+    if (phase==='melee' && w.t!=='m') continue;
+    if (w.off){ rows.push({w, skipped:w.off}); continue; }
+    // in a combined unit, a rule that isn't shared only covers its own datasheet's weapons
+    const mine = er.filter(x=>!unit.combined || x.r.scope==='unit' || !w._owner || w._owner===x.owner).concat(marks);
+    const has = id => mine.find(x=>x.id===id);
+    rows.push(Object.assign({w}, attackWeapon(w, tgt, opts, has, modsFor(unit, w, opts), mine)));
+  }
+  // one profile per multi-profile weapon, one melee weapon per model
+  const alts = {};
+  rows.forEach(r=>{ if (r.w.alt && !r.skipped){ (alts[r.w.alt] = alts[r.w.alt]||[]).push(r); } });
+  for (const k in alts){
+    const g = alts[k]; const best = g.reduce((a,b)=>b.dealt>a.dealt?b:a);
+    g.forEach(r=>{ if (r!==best){ r.skipped = /(^|:)m\d*:/.test(r.w.alt) ? 'This model fights with a better weapon here' : 'The other profile does more damage here'; r.dealt = 0; } });
+  }
+  let total = rows.reduce((s,r)=>s+(r.skipped?0:(r.dealt||0)),0);
+  const pool = tgt.W*tgt.N;
+  const capped = opts.cap && total > pool;
+  if (opts.cap) total = Math.min(total, pool);
+  const pts = unitPts(unit, opts);
+  const ppw = tgt.pts/pool;
+  return {rows, total, pts, ppw, roi: pts>0 ? total/pts*ppw*100 : 0, pool, capped, rules: er};
+}
+
+function attackWeapon(w, tgt, opts, has, md, ruleList){
+  const notes = [];
+  md = md || {hit:0, wound:0, ap:0, sus:false, lethal:false, rrHit:'off', rrWound:'off', cover:false, half:false, rf:0};
+  const ranged = w.t==='r';
+  const tKw = targetKw(tgt, opts);
+  const vehMon = /VEHICLE|MONSTER/.test(tKw);
+  // weapon abilities, minus any whose keyword condition the target doesn't meet
+  const kw = Object.assign({}, w.kw || {});
+  if (kw.when) for (const k of Object.keys(kw.when)) if (!kwCond(kw.when[k], tKw)) delete kw[k];
+
+  const mn = [];
+  if (md.hit) mn.push(`${md.hit>0?'+':'−'}${Math.abs(md.hit)} hit`);
+  if (md.wound) mn.push(`${md.wound>0?'+':'−'}${Math.abs(md.wound)} wound`);
+  if (md.ap) mn.push(`${md.ap>0?'+':'−'}${Math.abs(md.ap)} AP`);
+  if (md.sus) mn.push('Sustained 1'); if (md.lethal) mn.push('Lethal');
+  if (md.rrHit!=='off') mn.push(`re-roll hits ${md.rrHit==='1s'?'of 1':'(full)'}`);
+  if (md.rrWound!=='off') mn.push(`re-roll wounds ${md.rrWound==='1s'?'of 1':'(full)'}`);
+  if (md.rf && ranged && md.rf > (kw.rf||0) && !md.half) mn.push(`Rapid Fire ${md.rf} (idle: not within half range)`);
+  if (mn.length) notes.push('Modifier: '+mn.join(', '));
+
+  // generic rule effects (fx) from the rules library
+  const fx = {hit:0, wound:0, s:0, ap:0, a:0, d:0, rrHit:null, rrWound:null};
+  const RR = {null:0, ones:1, all:2};
+  const bare = String(w.nm||'').replace(/^[^:]*:\s*/,'').toLowerCase();
+  for (const x of (ruleList||[])){
+    if (LEGACY_FX.has(x.id) || !x.r.fx) continue;
+    let used = false;
+    for (const e of [].concat(x.r.fx)){
+      if (e.phase==='melee' && ranged) continue;
+      if (e.phase==='ranged' && !ranged) continue;
+      if (e.when && !opts[e.when]) continue;
+      if (e.whenNot && opts[e.whenNot]) continue;
+      if (e.vs && !kwCond(e.vs, tKw)) continue;
+      if (e.weapon && !bare.includes(e.weapon)) continue;
+      if (e.weaponNot && bare.includes(e.weaponNot)) continue;
+      fx.hit += e.hit||0; fx.wound += e.wound||0; fx.s += e.s||0; fx.ap += e.ap||0; fx.a += e.a||0; fx.d += e.d||0;
+      if (e.rrHit && RR[e.rrHit] > RR[fx.rrHit]) fx.rrHit = e.rrHit;
+      if (e.rrWound && RR[e.rrWound] > RR[fx.rrWound]) fx.rrWound = e.rrWound;
+      if (e.grant) for (const [k,v] of Object.entries(e.grant)){ if (typeof v==='number' && typeof kw[k]==='number') kw[k] = Math.max(kw[k], v); else if (!kw[k]) kw[k] = v; }
+      used = true;
+    }
+    if (used) notes.push(x.r.nm);
+  }
+
+  // attacks
+  let perModel = avgDice(w.A) + fx.a;
+  if (fx.a) notes.push(`+${fx.a} A`);
+  if (kw.blast){ const b = Math.floor(tgt.N/5) * (+kw.blast||1); if (b){ perModel += b; notes.push(`Blast +${b}`); } }
+  if (kw.cleave && !ranged){ const b = Math.floor(tgt.N/5) * (+kw.cleave||1); if (b){ perModel += b; notes.push(`Cleave +${b}`); } }
+  const rf = ranged ? Math.max(kw.rf||0, md.rf||0) : 0;
+  if (rf && md.half){ perModel += rf; notes.push(`Rapid Fire +${rf}`); }
+  const attacks = w.n * perModel;
+
+  // modifiers
+  let hitMod = md.hit + fx.hit, sus = Math.max(kw.sus || 0, md.sus ? 1 : 0), lethal = !!kw.lethal || md.lethal, rrHit = null, rrWound = kw.tl ? 'all' : null, rrDmg = false, ic = !!kw.ic, apB = md.ap + fx.ap, sB = fx.s, critOn = 6;
+  if (has('piratical-hero')){ hitMod += 1; sus = Math.max(sus,1); notes.push('Piratical Hero'); }
+  if (has('psyguide')){ hitMod += 1; notes.push('Psychic Guidance'); }
+  if (opts.guide){ hitMod += 1; notes.push('Guide'); }
+  if (kw.heavy && opts.stationary && ranged){ hitMod += 1; notes.push('Heavy'); }
+  hitMod = clamp(hitMod,-1,1);
+  if (has('raiders') && opts.quarry){ lethal = true; notes.push('Piratical Raiders'); }
+  if (has('spirit-marked') && opts.spiritmark){ sus = Math.max(sus,1); notes.push('Spirit Mark'); }
+  if (has('reavers')){ rrHit = opts.objective ? 'all' : 'ones'; notes.push(opts.objective ? 'Reavers: re-roll hits' : 'Reavers: re-roll 1s'); }
+  if (has('assured') && ranged && vehMon){ rrHit = 'all'; rrWound = 'all'; rrDmg = true; notes.push('Assured Destruction'); }
+  if (fx.rrHit && RR[fx.rrHit] > RR[rrHit]) rrHit = fx.rrHit;
+  if (fx.rrWound && RR[fx.rrWound] > RR[rrWound]) rrWound = fx.rrWound;
+  if (md.rrHit==='full') rrHit = 'all'; else if (md.rrHit==='1s' && !rrHit) rrHit = 'ones';
+  if (md.rrWound==='full') rrWound = 'all'; else if (md.rrWound==='1s' && !rrWound) rrWound = 'ones';
+  if (has('faolchu') && ranged){ ic = true; }
+  if (has('assassins-eye') && ranged && opts.char){ apB += 1; notes.push('Assassins’ Eye +1 AP'); }
+  if (opts.riven){ sB += 1; notes.push('Riven +1 S'); }
+  if (opts.web){ critOn = 5; }
+
+  // hit
+  let pN, pC;
+  if (kw.torrent){ pN = 1; pC = 0; notes.push('Torrent'); }
+  else {
+    let bs = w.sk;
+    if (ranged && md.cover){ if (ic) notes.push('Ignores cover'); else { bs += 1; notes.push('Cover −1 BS'); } }
+    const need = clamp(bs - hitMod, 2, 6);
+    let pS = (7 - Math.min(need, critOn))/6, pc = (7 - critOn)/6;
+    if (rrHit==='all'){ pc = pc + (1-pS)*pc; pS = pS + (1-pS)*pS; }
+    else if (rrHit==='ones'){ pS = pS + pS/6; pc = pc + pc/6; }
+    pN = pS - pc; pC = pc;
+    if (critOn===5) notes.push('Whispering Web');
+  }
+  if (sus && pC) notes.push(`Sustained ${sus}`);
+  if (lethal && pC) notes.push('Lethal Hits');
+  const hitsPerAttack = pN + pC*(1+sus);
+  const toRoll = pN + pC*sus + (lethal ? 0 : pC);
+  const autoW = lethal ? pC : 0;
+
+  // wound
+  let wn = woundNeed(w.S + sB, tgt.T);
+  if (fx.s) notes.push(`+${fx.s} S`);
+  let wMod = md.wound + fx.wound;
+  if (kw.lance && opts.charged && !ranged){ wMod += 1; notes.push('Lance'); }
+  wn = clamp(wn - clamp(wMod,-1,1), 2, 6);
+  let critW = 6;
+  if (kw.anti && String(kw.anti[0]).split('/').some(k=>kwCond({only:[k]}, tKw))){ critW = Math.min(6, kw.anti[1]); notes.push(`Anti-${String(kw.anti[0]).toLowerCase()} ${kw.anti[1]}+`); }
+  let qS = (7 - Math.min(wn, critW))/6, qC = (7 - critW)/6;
+  if (rrWound==='all'){ qC = qC + (1-qS)*qC; qS = qS + (1-qS)*qS; if (kw.tl) notes.push('Twin-linked'); }
+  else if (rrWound==='ones'){ qS = qS + qS/6; qC = qC + qC/6; }
+  const rolledW = toRoll*qS, critWounds = toRoll*qC;
+  const dev = !!kw.dev;
+  const normalW = (dev ? rolledW - critWounds : rolledW) + autoW;
+  const mortalW = dev ? critWounds : 0;
+  if (dev && mortalW) notes.push('Devastating');
+  const woundsPerAttack = rolledW + autoW;
+
+  // save
+  if (fx.ap) notes.push(`+${fx.ap} AP`);
+  const sv = tgt.Sv + Math.max(0, (w.AP||0) + apB);
+  const needS = tgt.inv ? Math.min(sv, tgt.inv) : sv;
+  const pf = needS >= 7 ? 1 : clamp((needS-1)/6, 0, 1);
+
+  // damage
+  const melta = (kw.melta && md.half) ? kw.melta : 0;
+  if (melta) notes.push(`Melta +${melta}`);
+  if (fx.d) notes.push(`+${fx.d} D`);
+  const add = melta + fx.d;
+  const dist = diceDist(w.D);
+  const capN = v => Math.min(tgt.dr ? Math.max(1, v+add-tgt.dr) : v+add, tgt.W);
+  const capM = v => Math.min(v+add, tgt.W);
+  const exp = (f) => { let e = 0; for (const [v,p] of dist) e += f(v)*p; if (rrDmg && dist.length>1){ const e1 = e; e = 0; for (const [v,p] of dist) e += Math.max(f(v), e1)*p; } return e; };
+  const dN = exp(capN), dM = exp(capM);
+  const fnpMul = tgt.fnp ? (tgt.fnp-1)/6 : 1;
+
+  const unsavedPerAttack = normalW*pf + mortalW;
+  const dealt = attacks * (normalW*pf*dN + mortalW*dM) * fnpMul;
+  const wound = hitsPerAttack ? woundsPerAttack/hitsPerAttack : 0;
+  const fail = woundsPerAttack ? unsavedPerAttack/woundsPerAttack : 0;
+  const denom = attacks*hitsPerAttack*wound*fail;
+  const dmg = denom ? dealt/denom : dN*fnpMul;
+  if (kw.oneshot) notes.push('One Shot: once per battle');
+  return {models:w.n, attacks, hit:hitsPerAttack, hitChance:pN+pC, susExtra:pC*sus, lethalShare: hitsPerAttack ? autoW/hitsPerAttack : 0, wound, fail, dmg, dealt, notes};
+}
+
+function attackerList(units, opts){
+  if (!opts.combine) return units;
+  const out = [], seen = new Set();
+  for (const u of units){
+    if (u.grp){ if (seen.has(u.grp)) continue; seen.add(u.grp); out.push(combineUnits(u.grp, units.filter(x=>x.grp===u.grp))); }
+    else out.push(u);
+  }
+  return out;
+}
+function combineUnits(g, members){
+  const short = m => m.nm.replace('Corsair ','').replace('Prince ','');
+  const w = [];
+  for (const m of members) for (const x of m.w) w.push(Object.assign({}, x, {nm:`${short(m)}: ${x.nm}`, alt: x.alt ? m.id+':'+x.alt : undefined, _owner: m.id}));
+  const enhs = members.filter(m=>m.enh);
+  return {
+    id:'grp-'+g, nm: members.map(short).join(' + '), grp:g, combined:true, members: members.map(m=>m.id),
+    pts: members.reduce((s,m)=>s+m.pts,0),
+    enh: enhs.length ? {nm: enhs.map(m=>m.enh.nm).join(', '), pts: enhs.reduce((s,m)=>s+m.enh.pts,0), ids: enhs.map(m=>m.enh.id)} : null,
+    models: members.reduce((s,m)=>s+m.models,0), w, rules:[],
+  };
+}
+
+
+// ===== Roster importer (.ros / .rosz from 40k.app, NewRecruit, BattleScribe) =====
+const IMP = (function(){
+  const kids = (el, name) => el ? [...el.children].filter(c=>c.localName===name) : [];
+  const kid = (el, name) => kids(el, name)[0] || null;
+  const clean = s => String(s||'').replace(/\*\*/g,'').replace(/\u2011|\u2010/g,'-').replace(/\s+/g,' ').trim();
+  const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’'`]/g,'').replace(/\(upgrade\)/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+  const slug = s => norm(s).replace(/ /g,'-') || 'x';
+  const SMALL = new Set(['a','an','and','as','at','but','by','for','in','of','on','or','the','to','vs','with']);
+  // all-caps list names read better in title case; anything already mixed-case is left alone
+  const titleCase = s => s !== s.toUpperCase() ? s : s.toLowerCase().split(' ').map((w,i)=>(i>0 && SMALL.has(w)) ? w : w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+
+  // ---------- weapon profile ----------
+  function parseKw(str){
+    const kw = {}, other = [];
+    for (let t0 of String(str||'').split(',').map(x=>x.trim()).filter(Boolean)){
+      // "SUSTAINED HITS 1: non-MONSTER/VEHICLE" only applies against (or not against) those keywords
+      let t = t0, cond = null;
+      const ci = t0.indexOf(':');
+      if (ci > 0){ t = t0.slice(0,ci).trim(); const c = t0.slice(ci+1).trim(); const neg = /^non-/i.test(c); const list = c.replace(/^non-/i,'').split(/[\/,]/).map(s=>s.trim().toUpperCase()).filter(Boolean); cond = neg ? {not:list} : {only:list}; }
+      const l = t.toLowerCase(); let m;
+      const before = JSON.stringify(kw);
+      if (l==='assault' || l==='-' || l==='–' || l==='—' || l==='none') continue;
+      else if (l==='pistol' || l==='close-quarters' || l==='close quarters') kw.pistol = 1;
+      else if ((m = l.match(/^blast(?: (\d+|d3))?$/))) kw.blast = m[1] ? (m[1]==='d3' ? 2 : +m[1]) : 1;
+      else if ((m = l.match(/^cleave (\d+|d3)/))) kw.cleave = m[1]==='d3' ? 2 : +m[1];
+      else if (l==='one shot') kw.oneshot = 1;
+      else if ((m = l.match(/^rapid fire (\d+)/))) kw.rf = +m[1];
+      else if ((m = l.match(/^sustained hits (\d+|d3)/))) kw.sus = m[1]==='d3' ? 2 : +m[1];
+      else if (l==='lethal hits') kw.lethal = 1;
+      else if (l==='devastating wounds') kw.dev = 1;
+      else if (l==='twin-linked') kw.tl = 1;
+      else if (l==='torrent') kw.torrent = 1;
+      else if ((m = l.match(/^melta (\d+)/))) kw.melta = +m[1];
+      else if (l==='heavy') kw.heavy = 1;
+      else if (l==='lance') kw.lance = 1;
+      else if (l==='ignores cover') kw.ic = 1;
+      else if (l==='precision') kw.precision = 1;
+      else if (l==='psychic') kw.psychic = 1;
+      else if (l==='hazardous') kw.hazardous = 1;
+      else if (l==='extra attacks') kw.extra = 1;
+      else if (l==='indirect fire') kw.indirect = 1;
+      else if ((m = l.match(/^anti-(.+?) (\d)\+$/))) kw.anti = [m[1].toUpperCase(), +m[2]];
+      else other.push(t0);
+      if (cond){ const added = Object.keys(kw).filter(k=>!(k in JSON.parse(before))); if (added.length){ kw.when = kw.when || {}; added.forEach(k=>kw.when[k] = cond); } }
+    }
+    if (other.length) kw.other = other;
+    return kw;
+  }
+  const num = v => { const n = parseInt(String(v).replace(/[^\d-]/g,''),10); return isNaN(n) ? 0 : n; };
+  const dice = v => { const s = String(v||'').trim().toUpperCase(); return /D/.test(s) ? s.replace(/\s+/g,'') : (parseFloat(s)||0); };
+  function weaponFromProfile(p, count){
+    const ch = {}; p.querySelectorAll('characteristic').forEach(c=>ch[c.getAttribute('name')] = (c.textContent||'').trim());
+    const melee = p.getAttribute('typeName')==='Melee Weapons' || /^melee$/i.test(ch.Range||'');
+    const kw = parseKw(ch.Keywords);
+    const skill = ch[melee?'WS':'BS'] || '';
+    return { nm: clean(p.getAttribute('name')), t: melee?'m':'r', n: count, A: dice(ch.A), sk: /n\/a/i.test(skill) || kw.torrent ? 0 : num(skill), S: num(ch.S), AP: Math.abs(num(ch.AP)), D: dice(ch.D), kw, range: ch.Range||'' };
+  }
+  const profKey = w => JSON.stringify([w.nm, w.t, w.A, w.sk, w.S, w.AP, w.D, w.kw]);
+  const avgD = x => typeof x==='number' ? x : (()=>{ const m = String(x).match(/^(\d*)D(\d+)(?:\+(\d+))?$/); return m ? (m[1]?+m[1]:1)*(+m[2]+1)/2 + (m[3]?+m[3]:0) : 0; })();
+  // y is at least as good as x in every number, and has every keyword x has
+  function dominates(y, x){
+    if (avgD(y.A) < avgD(x.A) || y.sk > x.sk || y.S < x.S || y.AP < x.AP || avgD(y.D) < avgD(x.D)) return false;
+    const kx = Object.keys(x.kw||{}).filter(k=>k!=='other'), ky = Object.keys(y.kw||{});
+    return kx.every(k=>ky.includes(k)) && !(x.kw.other||[]).length;
+  }
+
+  // ---------- model groups ----------
+  function collectWeapons(sel, out){
+    for (const s of kids(kid(sel,'selections'),'selection')){
+      if (s.getAttribute('type')==='model') continue;
+      const n = +s.getAttribute('number') || 1;
+      const profs = kids(kid(s,'profiles'),'profile').filter(p=>/Weapons$/.test(p.getAttribute('typeName')||''));
+      profs.forEach(p=>out.push({w: weaponFromProfile(p, n), upg: clean(s.getAttribute('name')), multi: profs.length>1}));
+      collectWeapons(s, out);
+    }
+    return out;
+  }
+  function modelGroups(top){
+    const groups = [];
+    if (top.getAttribute('type')==='model') groups.push({n:+top.getAttribute('number')||1, nm:clean(top.getAttribute('name')), items:collectWeapons(top, []), prof:unitProfile(top)});
+    for (const s of kids(kid(top,'selections'),'selection')){
+      if (s.getAttribute('type')==='model') groups.push({n:+s.getAttribute('number')||1, nm:clean(s.getAttribute('name')), items:collectWeapons(s, []), prof:unitProfile(s)});
+    }
+    if (top.getAttribute('type')!=='model'){ // weapons hanging off the unit itself rather than a model
+      const loose = collectWeapons(top, []);
+      if (loose.length) groups.push({n:0, nm:'unit wargear', items:loose, prof:unitProfile(top)});
+    }
+    return groups;
+  }
+  function unitProfile(sel){
+    const p = kids(kid(sel,'profiles'),'profile').find(p=>p.getAttribute('typeName')==='Unit');
+    if (!p) return null;
+    const ch = {}; p.querySelectorAll('characteristic').forEach(c=>ch[c.getAttribute('name')] = (c.textContent||'').trim());
+    return {T:num(ch.T), Sv:num(ch.SV), W:num(ch.W), M:ch.M, Ld:ch.LD, OC:ch.OC};
+  }
+
+  // ---------- rules ----------
+  const STRUCTURAL = new Set(['attached to','led by','supported by','leader','support','invulnerable save','battle focus']);
+  const CORE = ['scouts','stealth','deep strike','lone operative','infiltrators','deadly demise','fights first','feel no pain','firing deck','hover','leader','scout'];
+  function libraryIndex(){ const m = {}; for (const [id,r] of Object.entries(BASE_RULES)) m[norm(r.nm)] = id; return m; }
+  // "Damaged 4", "Deadly Demise D3", "Scouts 7"" → the name without its number
+  const baseName = k => k.replace(/ (d?\d+|x)$/,'').replace(/ once per .*$/,'').trim();
+  function looksOffensive(txt){
+    const t = txt.toLowerCase();
+    const terms = /hit roll|wound roll|strength characteristic|armour penetration|damage characteristic|re-?roll|\[(lethal|sustained|devastating|anti|twin|ignores|lance|precision|torrent|blast|melta|rapid)|critical (hit|wound)|attacks characteristic|mortal wound/.test(t);
+    const ours = /makes an attack|makes a ranged attack|makes a melee attack|weapons equipped by|attacks? made by/.test(t);
+    const theirs = /an attack targets (this|that) (unit|model)|attack (is )?allocated to|targets this unit|targets this model/.test(t);
+    return terms && ours && !theirs;
+  }
+
+  // ---------- text export (points, enhancements, wargear names, detachments) ----------
+  function parseText(text){
+    const out = {name:'', faction:'', detachments:[], mission:'', units:{}, order:[], entries:[]};
+    if (!text || !text.trim()) return out;
+    const lines = text.replace(/\r/g,'').split('\n');
+    const head = lines.filter(l=>l.trim()).slice(0,4);
+    out.name = (head[0]||'').trim();
+    const parts = (head[1]||'').split(/\s*[·•|]\s*/).map(s=>s.trim()).filter(Boolean);
+    if (parts.length){ out.faction = parts[0]; out.detachments = parts.slice(1); }
+    const mis = lines.find(l=>/^\s*Mission:/i.test(l)); if (mis) out.mission = mis.replace(/^\s*Mission:\s*/i,'').trim();
+    let cur = null, curIndent = 0, section = '';
+    for (const l of lines){
+      const sec = l.match(/^(\S.*?) \[(\d+) pts\]\s*$/);
+      if (sec){ section = sec[1].trim(); cur = null; continue; }
+      const m = l.match(/^(\s+)(.+?) \[(\d+) pts\](?: \((\d+) models?\))?(?:\s*-\s*(.+?))?\s*$/);
+      if (m){ cur = {nm:m[2].trim(), pts:+m[3], models:m[4]?+m[4]:null, enh:null, gear:'', tag:m[5]||'', section, idx:out.entries.length};
+        curIndent = m[1].length; out.entries.push(cur); if (!out.units[norm(cur.nm)]) out.units[norm(cur.nm)] = cur; out.order.push(norm(cur.nm)); continue; }
+      if (cur && /^\s/.test(l) && (l.match(/^\s*/)[0].length > curIndent)){
+        const e = l.match(/Enhancement:\s*(.+?)\s*\(\+(\d+) pts\)/);
+        if (e) cur.enh = {nm:e[1].trim(), pts:+e[2]}; else cur.gear += ' ' + l.trim();
+      } else if (!/^\s/.test(l)) cur = null;
+    }
+    return out;
+  }
+
+  // ---------- main ----------
+  function parse(xmlText, exportText){
+    const doc = new DOMParser().parseFromString(xmlText, 'application/xml');
+    if (doc.querySelector('parsererror')) throw new Error('That file isn’t valid roster XML.');
+    const roster = doc.documentElement;
+    if (roster.localName!=='roster') throw new Error('No <roster> found. Is this a BattleScribe/NewRecruit/40k.app roster?');
+    const txt = parseText(exportText);
+    const lib = libraryIndex();
+    const warnings = [], rules = {}, units = [], armyFound = new Set();
+    const tops = [];
+    for (const f of roster.getElementsByTagNameNS('*','force')) for (const s of kids(kid(f,'selections'),'selection')){
+      const t = s.getAttribute('type');
+      if (t==='unit' || t==='model') tops.push(s);
+    }
+    const ids = new Set();
+    for (const top of tops){
+      const nm = clean(top.getAttribute('name'));
+      let id = slug(nm); while (ids.has(id)) id += '-2'; ids.add(id);
+      const cats = [...top.getElementsByTagNameNS('*','category')].map(c=>c.getAttribute('name')).filter(c=>c && !/^Faction:/i.test(c));
+      const kw = [...new Set(cats.map(c=>c.toUpperCase()))];
+      const isVM = kw.includes('VEHICLE') || kw.includes('MONSTER');
+      // abilities
+      const abil = kids(kid(top,'profiles'),'profile').filter(p=>p.getAttribute('typeName')==='Abilities').map(p=>({nm:clean(p.getAttribute('name')), txt:clean([...p.querySelectorAll('characteristic')].map(c=>c.textContent).join(' '))}));
+      const get = n => abil.find(a=>a.nm.toLowerCase()===n);
+      const unitRules = []; let enh = null;
+      for (const a of abil){
+        let name = a.nm, src = 'Datasheet';
+        if (/^enhancement:/i.test(name)){ name = name.replace(/^enhancement:\s*/i,''); src = 'Enhancement'; }
+        const key = norm(name);
+        if (src!=='Enhancement' && STRUCTURAL.has(key)) continue;
+        let rid = lib[key] || lib[baseName(key)];
+        if (rid && BASE_RULES[rid].src==='Army rule'){ armyFound.add(rid); continue; }
+        if (!rid){
+          rid = 'imp-' + slug(name);
+          if (!rules[rid]){
+            const core = CORE.some(c=>key.startsWith(c));
+            const leader = /while this model is leading a unit/i.test(a.txt);
+            const body = (a.txt && a.txt.trim()!=='-') ? a.txt : '(no text in the roster file)';
+            rules[rid] = {nm:name, src: src==='Enhancement' ? 'Enhancement' : core ? 'Core' : leader ? 'Leader' : 'Datasheet', dmg:false, txt:body, imported:true,
+              scope: /leading a unit|a model in this unit|models in this unit/i.test(a.txt) ? 'unit' : undefined, todo: !core && looksOffensive(a.txt)};
+          }
+        }
+        if (src==='Enhancement') enh = {id:rid, nm:name, pts:0};
+        if (!unitRules.includes(rid)) unitRules.push(rid);
+      }
+      // weapons: per model group, then merge
+      let groups = modelGroups(top).filter(g=>g.items.length || g.prof);
+      // merge groups with identical loadouts
+      const merged = [];
+      for (const g of groups){
+        const sig = JSON.stringify(g.items.map(i=>profKey(i.w)).sort());
+        const same = merged.find(m=>m.sig===sig);
+        if (same){ same.n += g.n; same.items.forEach((it,ix)=>{ const o = g.items.find(x=>profKey(x.w)===profKey(it.w)); if (o) it.w.n += o.w.n; }); }
+        else merged.push(Object.assign({}, g, {sig}));
+      }
+      const w = [];
+      merged.forEach((g, gi)=>{
+        const items = g.items.map(i=>Object.assign({}, i, {w:Object.assign({}, i.w)}));
+        // one weapon with several profiles, or "Name - profile" siblings: pick one per attack
+        const byBase = {};
+        items.forEach(i=>{ const base = i.multi ? i.upg : (i.w.nm.includes(' - ') ? i.w.nm.split(' - ')[0] : null); if (base) (byBase[base] = byBase[base]||[]).push(i); });
+        for (const [base, list] of Object.entries(byBase)) if (list.length>1) list.forEach(i=>i.w.alt = `p${gi}:${slug(base)}`);
+        // pistol rule
+        const ranged = items.filter(i=>i.w.t==='r');
+        if (!isVM && ranged.some(i=>!i.w.kw.pistol) ) ranged.filter(i=>i.w.kw.pistol).forEach(i=>i.w.off = 'Fires its other guns instead (pistol rule)');
+        // melee: drop weapons that another option beats outright, then pick per target
+        let melee = items.filter(i=>i.w.t==='m' && !i.w.kw.extra && !i.w.alt);
+        melee = melee.filter(i=>!melee.some(j=>j!==i && dominates(j.w, i.w) && profKey(j.w)!==profKey(i.w)));
+        if (melee.length>1) melee.forEach(i=>i.w.alt = `m${gi}:melee`);
+        items.forEach(i=>{ if (i.w.t==='m' && !i.w.kw.extra && !i.w.alt && !melee.includes(i)) i.drop = true; });
+        items.filter(i=>!i.drop).forEach(i=>w.push(i.w));
+      });
+      // merge identical rows that aren't choices
+      const rows = [];
+      for (const x of w){
+        const same = !x.alt && rows.find(r=>!r.alt && profKey(r)===profKey(x) && (r.off||'')===(x.off||''));
+        if (same) same.n += x.n; else rows.push(x);
+      }
+      rows.forEach(r=>{ delete r.range; });
+      rows.sort((a,b)=>(a.t===b.t?0:(a.t==='r'?-1:1)) || (a.off?1:0)-(b.off?1:0));
+      const models = groups.reduce((s,g)=>s+g.n,0) || 1;
+      const prof = (groups.find(g=>g.prof)||{}).prof || null;
+      const inv = get('invulnerable save'); 
+      const u = { id, nm, pts:0, models, kw, rules:unitRules, w:rows, grp:null, role:null, cat:null,
+        stats: prof ? Object.assign({}, prof, {inv: inv ? num(inv.txt) : 0, invRangedOnly: inv ? /ranged attacks only/i.test(inv.txt) : false}) : null,
+        _attachedTo: (get('attached to')||{}).txt || null, _ledBy: (get('led by')||get('supported by')||{}).txt || null, _support: !!get('support') && !get('leader') };
+      if (enh) u.enh = enh;
+      units.push(u);
+    }
+
+    // points, enhancement costs and wargear from the text export
+    // match roster units to text-export entries: unique exact names first, then by the attached-unit section
+    // their leader sits in (text exports repeat names like "Outrider Squad"), then by name without an A/B letter
+    const used = new Set(), match = new Map(), fuzzy = new Set();
+    const E = txt.entries || [];
+    const take = (u, e) => { match.set(u, e); used.add(e.idx); };
+    const baseN = s => norm(s).replace(/ [a-z]$/,'');
+    for (const u of units){ const c = E.filter(e=>!used.has(e.idx) && norm(e.nm)===norm(u.nm)); if (c.length===1) take(u, c[0]); }
+    for (const u of units){
+      if (match.has(u)) continue;
+      const partners = [u._ledBy, u._attachedTo].filter(Boolean).map(n=>units.find(x=>norm(x.nm)===norm(n))).filter(Boolean);
+      const lead = units.filter(x=>x._attachedTo && norm(x._attachedTo)===norm(u.nm));
+      const secs = new Set([...partners, ...lead].map(x=>match.get(x)).filter(Boolean).map(e=>e.section));
+      const c = E.filter(e=>!used.has(e.idx) && secs.has(e.section) && baseN(e.nm)===baseN(u.nm));
+      if (c.length) take(u, c.find(e=>e.models===u.models) || c[0]);
+    }
+    for (const u of units){
+      if (match.has(u)) continue;
+      const c = E.filter(e=>!used.has(e.idx) && baseN(e.nm)===baseN(u.nm));
+      const pick = c.find(e=>e.models===u.models) || c[0];
+      if (pick){ take(u, pick); fuzzy.add(u); }
+    }
+    for (const u of units){
+      const t = match.get(u);
+      if (!t){ if (Object.keys(txt.units).length) warnings.push(`${u.nm}: not found in the text export, so it has no points yet.`); continue; }
+      if (fuzzy.has(u)) warnings.push(`${u.nm} matched to “${t.nm}” in the text export (${t.pts} pts) by name only. Check that’s the right one.`);
+      if (/warlord/i.test(t.tag||'')) u.warlord = true;
+      u.pts = t.pts;
+      if (t.enh){ if (u.enh) u.enh.pts = t.enh.pts; else warnings.push(`${u.nm}: the text export lists ${t.enh.nm}, but the roster file doesn’t.`); }
+      const gear = norm(t.gear);
+      for (const [id, r] of Object.entries(BASE_RULES)) if (r.src==='Wargear' && gear.includes(norm(r.nm)) && !u.rules.includes(id)) u.rules.push(id);
+    }
+    const unmatched = E.filter(e=>!used.has(e.idx));
+    if (unmatched.length) warnings.push(`In the text export but not the roster file: ${unmatched.map(e=>e.nm).join(', ')}.`);
+    if (!Object.keys(txt.units).length) warnings.push('No text export, so every unit starts at 0 pts. Add points below before saving.');
+    // rules that grant other rules (e.g. Spirit Mark → Wraith Constructs)
+    const all = new Set(units.flatMap(u=>u.rules));
+    for (const id of all){ const g = (BASE_RULES[id]||{}).grants; if (g) units.forEach(u=>{ if (u.kw.includes(g.kw) && !u.rules.includes(g.rule)) u.rules.push(g.rule); }); }
+
+    // leaders
+    const byName = n => units.find(u=>norm(u.nm)===norm(n));
+    const groups = {}; const order = [];
+    for (const u of units){
+      if (!u._attachedTo) continue;
+      const bg = byName(u._attachedTo);
+      if (!bg){ warnings.push(`${u.nm} is attached to “${u._attachedTo}”, which isn’t in the roster.`); continue; }
+      let key = bg.id;
+      if (!groups[key]){ groups[key] = {bg, leaders:[]}; order.push(key); }
+      groups[key].leaders.push(u);
+    }
+    const pos = u => { const e = match.get(u); return e ? e.idx : 999 + units.indexOf(u); };
+    order.sort((a,b)=>Math.min(...groups[a].leaders.map(pos), pos(groups[a].bg)) - Math.min(...groups[b].leaders.map(pos), pos(groups[b].bg)));
+    const short = n => n.replace(/^Corsair /,'').replace(/^Prince /,'');
+    const G = {};
+    order.forEach((k, i)=>{
+      const L = String.fromCharCode(65+i), g = groups[k];
+      G[L] = {nm:`Attached unit ${L}`, short: [...g.leaders.map(l=>short(l.nm)), short(g.bg.nm)].join(' + ')};
+      g.leaders.forEach(l=>{ l.grp = L; l.role = l._support ? 'Support' : 'Leader'; });
+      g.bg.grp = L; g.bg.role = 'Bodyguard';
+    });
+    // sections for everything else
+    const SEC = ['Characters','Battleline','Dedicated transport','Infantry','Mounted','Beasts and swarms','Vehicles and monsters','Other'];
+    for (const u of units){
+      const k = u.kw;
+      u.cat = k.includes('CHARACTER') ? 'Characters' : k.includes('BATTLELINE') ? 'Battleline' : k.includes('DEDICATED TRANSPORT') ? 'Dedicated transport'
+        : (k.includes('VEHICLE')||k.includes('MONSTER')) ? 'Vehicles and monsters' : k.includes('MOUNTED') ? 'Mounted' : k.includes('INFANTRY') ? 'Infantry' : (k.includes('BEASTS')||k.includes('SWARM')) ? 'Beasts and swarms' : 'Other';
+      if (u.grp && u.role!=='Bodyguard' && !u.kw.includes('CHARACTER')) u.cat = 'Characters';
+      if (u._ledBy && !u.grp) warnings.push(`${u.nm} says it’s led by ${u._ledBy}, but that leader doesn’t point back to it.`);
+      delete u._attachedTo; delete u._ledBy; delete u._support;
+    }
+    units.sort((a,b)=>{
+      if (a.grp || b.grp){ if (!a.grp) return 1; if (!b.grp) return -1; if (a.grp!==b.grp) return a.grp<b.grp?-1:1; const o = {Leader:0, Support:1, Bodyguard:2}; return o[a.role]-o[b.role]; }
+      return SEC.indexOf(a.cat)-SEC.indexOf(b.cat) || pos(a)-pos(b);
+    });
+
+    // army and detachment rules we know about
+    const army = [];
+    const facKey = norm(txt.faction || (roster.querySelector('force')||{getAttribute:()=>''}).getAttribute('catalogueName'));
+    (FACTION_ARMY_RULES[facKey]||[]).forEach(id=>army.push(id));
+    armyFound.forEach(id=>{ if (!army.includes(id)) army.push(id); });
+    const dets = txt.detachments.length ? txt.detachments : [];
+    const unknownDets = [];
+    dets.forEach(d=>{ const r = DETACHMENT_RULES[norm(d)]; if (r) r.forEach(id=>{ if (!army.includes(id)) army.push(id); }); else unknownDets.push(d); });
+
+    const force = roster.getElementsByTagNameNS('*','force')[0];
+    const meta = {
+      name: titleCase(txt.name || clean(roster.getAttribute('name')) || 'Imported list'),
+      faction: txt.faction || (force && force.getAttribute('catalogueName')) || '',
+      detachments: dets, mission: txt.mission,
+    };
+    meta.sub = [meta.faction, dets.join(' and '), meta.mission].filter(Boolean).join(', ') + '. Imported from a roster file.';
+    const stats = {
+      units: units.length, models: units.reduce((s,u)=>s+u.models,0), weapons: units.reduce((s,u)=>s+u.w.length,0),
+      known: [...new Set(units.flatMap(u=>u.rules).concat(army))].filter(id=>BASE_RULES[id]).length,
+      newRules: Object.keys(rules).length, todo: Object.values(rules).filter(r=>r.todo).length, unknownDets,
+    };
+    // detachment rules that hand a named unit an extra ability (e.g. Wrath of the First Khan)
+    army.forEach(id=>(DETACHMENT_UNIT_GRANTS[id]||[]).forEach(g=>units.forEach(u=>{ if (norm(u.nm).includes(g.name) && !u.rules.includes(g.rule)) u.rules.push(g.rule); })));
+    if (unknownDets.length) warnings.push(`No rules library yet for ${unknownDets.join(' or ')}. Its detachment rules won’t show until we add them.`);
+    return {meta, units, groups:G, armyRules:army, rules, warnings, stats, gameSystem: roster.getAttribute('gameSystemName')||''};
+  }
+
+  async function readFile(file){
+    const buf = await file.arrayBuffer();
+    const head = new Uint8Array(buf.slice(0,4));
+    const isZip = head[0]===0x50 && head[1]===0x4b;
+    if (!isZip) return new TextDecoder('utf-8').decode(buf);
+    if (typeof JSZip==='undefined') throw new Error('Couldn’t load the unzip library for .rosz files. Export as .ros instead, or try again online.');
+    const zip = await JSZip.loadAsync(buf);
+    const entry = Object.values(zip.files).find(f=>!f.dir && /\.ros$/i.test(f.name)) || Object.values(zip.files).find(f=>!f.dir);
+    if (!entry) throw new Error('The .rosz archive is empty.');
+    return entry.async('string');
+  }
+  return {parse, readFile, parseText, parseKw};
+})();
+
+// ===== App v2 =====
+const LS_KEY = 'kill-ledger:v3';
+const LS_OLD = 'kill-ledger:burning-one:v2';
+const clone = o => JSON.parse(JSON.stringify(o));
+const freshOpts = () => Object.assign(clone(DEFAULT_OPTS), {off:{}, mods:{}});
+const builtinList = () => ({id:'builtin', builtin:true, meta:BUILTIN_META, groups:BUILTIN_GROUPS, armyRules:BUILTIN_ARMY_RULES, rules:{}, units:clone(DEFAULT_UNITS)});
+const extraList = L => ({id:L.id, builtin:true, meta:L.meta, groups:L.groups, armyRules:L.armyRules, rules:L.rules, base:L.units, units:clone(L.units)});
+const S = { lists:Object.assign({builtin:builtinList()}, ...EXTRA_BUILTIN_LISTS.map(L=>({[L.id]:extraList(L)}))), listId:'builtin-burning-v2', units:null, targets: clone(DEFAULT_TARGETS), opts: freshOpts(), edit:false, rule:null, modScope:'all', pending:null, importErr:null };
+S.units = S.lists.builtin.units;
+(function load(){
+  try {
+    let d = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+    if (!d){ const old = JSON.parse(localStorage.getItem(LS_OLD) || 'null'); if (old) d = {opts:old.opts, targets:old.targets, lists:{builtin:{units:old.units}}, listId:'builtin'}; }
+    if (!d) return;
+    if (d.lists){ for (const [id, L] of Object.entries(d.lists)){ if (S.lists[id] && S.lists[id].builtin){ if (L.units) S.lists[id].units = L.units; } else S.lists[id] = L; } }
+    if (d.listId && S.lists[d.listId]) S.listId = d.listId;
+    if (d.targets) S.targets = d.targets;
+    if (d.opts) S.opts = Object.assign(freshOpts(), d.opts);
+    // older saves kept cover and half range as global switches
+    if (S.opts.cover || S.opts.half){ S.opts.mods.all = Object.assign({}, MOD0, S.opts.mods.all||{}, S.opts.cover?{cover:true}:{}, S.opts.half?{half:true}:{}); }
+    delete S.opts.cover; delete S.opts.half;
+  } catch(e){}
+})();
+function save(){
+  try {
+    const lists = {};
+    for (const [id, L] of Object.entries(S.lists)) lists[id] = L.builtin ? {units:L.units} : L;
+    localStorage.setItem(LS_KEY, JSON.stringify({lists, listId:S.listId, targets:S.targets, opts:S.opts}));
+  } catch(e){}
+}
+function applyList(id){
+  const L = S.lists[id] || S.lists.builtin;
+  S.listId = L.id;
+  LIST_META = L.meta; GROUPS = L.groups || {}; ARMY_RULES = L.armyRules || [];
+  RULES = Object.assign({}, BASE_RULES, L.rules || {});
+  S.units = L.units;
+  S.modScope = 'all'; S.rule = null; S.edit = false;
+  document.title = `Kill Ledger: ${LIST_META.name}`;
+  $('#listname').textContent = LIST_META.name; $('#listsub').textContent = LIST_META.sub || '';
+}
+// target marks only count when a unit in this list can set them
+function availableMarks(){ const m = new Set(); for (const u of S.units) for (const id of (u.rules||[])) if (RULES[id] && RULES[id].mark) m.add(RULES[id].mark); return m; }
+function effOpts(o){
+  o = o || S.opts; const av = availableMarks(); const e = Object.assign({}, o);
+  MARKS.forEach(([k])=>{ if (!av.has(k)) e[k] = false; });
+  return e;
+}
+
+const esc = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const f1 = n => (Math.round(n*10)/10).toFixed(1);
+const f2 = n => (Math.round(n*100)/100).toFixed(2);
+const $ = s => document.querySelector(s);
+const atk = (u,t,o) => attackUnit(u, t, effOpts(o), S.units);
+
+function heat(roi){
+  if (roi >= 100){ const m = Math.min(85, 62 + (roi-100)/4); return {bg:`color-mix(in oklab, var(--gold) ${m}%, var(--surface))`, fg:'var(--gold-ink)', cls:'eff'}; }
+  if (roi >= 65){ const m = 36 + (roi-65)/35*26; return {bg:`color-mix(in oklab, var(--jade) ${m}%, var(--surface))`, fg:'var(--jade-ink)', cls:'eff'}; }
+  if (roi >= 35){ const m = 7 + (roi-35)/30*17; return {bg:`color-mix(in oklab, var(--jade) ${m}%, var(--surface))`, fg:'var(--ink)', cls:''}; }
+  return {bg:'transparent', fg:'var(--muted)', cls:''};
+}
+const barBg = h => h.bg==='transparent' ? 'color-mix(in oklab, var(--muted) 30%, var(--surface))' : h.bg;
+
+function allAttackers(){ return S.units.concat(attackerList(S.units, Object.assign({}, S.opts, {combine:true})).filter(u=>u.combined)); }
+const findUnit = id => allAttackers().find(u=>u.id===id);
+const findTarget = id => S.targets.find(t=>t.id===id);
+const rows = () => attackerList(S.units, S.opts);
+const phaseLabel = p => ({all:'Shooting and melee', ranged:'Shooting only', melee:'Melee only'})[p];
+const unitById = id => S.units.find(u=>u.id===id);
+const shortNm = n => n.replace('Corsair ','').replace('Prince ','');
+
+function unitSub(u){
+  const b = [`${unitPts(u,S.opts)} pts`];
+  if (u.enh) b.push(S.opts.enh ? `incl. ${u.enh.nm}` : `${u.enh.nm} excluded`);
+  if (u.sub) b.push(u.sub);
+  return b.join(', ');
+}
+function sectionOf(u){
+  if (u.combined) return 'Attached units';
+  if (u.grp) return `${GROUPS[u.grp].nm}: ${GROUPS[u.grp].short}`;
+  return u.cat || 'Other';
+}
+
+// ---------- rule state ----------
+function ruleState(owner, id){
+  const r = RULES[id];
+  if (!r) return 'note';
+  if (r.mark) return S.opts[r.mark] ? 'mark-on' : 'mark-off';
+  if (!r.dmg) return r.todo ? 'todo' : 'note';
+  if (S.opts.off[ruleKey(owner,id)]) return 'off';
+  return (r.cond && !S.opts[r.cond]) ? 'idle' : 'on';
+}
+function chip(owner, id, label){
+  const st = ruleState(owner, id), r = RULES[id];
+  const sel = S.rule && S.rule.id===id && S.rule.owner===owner ? ' sel' : '';
+  const title = st==='todo' ? 'Looks like it changes damage, but it isn’t modelled yet' : st==='note' ? 'Real rule, no effect on damage dealt' : st==='idle' ? `Waiting for: ${r.condNm}` : (st.startsWith('mark') ? 'Target mark' : (st==='on'?'Counted in the maths':'Switched off'));
+  return `<button type="button" class="chip ${st}${sel}" data-rule="${id}" data-owner="${owner}" title="${esc(title)}">${esc(label || r.nm)}</button>`;
+}
+
+// ---------- modifier bar ----------
+const MOD_GROUPS = [
+  [['hit','Hit',[[-1,'−1'],[0,'Off'],[1,'+1']],'Net change capped at ±1'], ['wound','Wound',[[-1,'−1'],[0,'Off'],[1,'+1']],'Net change capped at ±1'], ['ap','AP',[[-2,'−2'],[-1,'−1'],[0,'Off'],[1,'+1'],[2,'+2'],[3,'+3']],'Changes the AP characteristic, so it stacks with Assassins’ Eye. −1 is Armour of Contempt']],
+  [['sus','Sustained 1',[[false,'Off'],[true,'On']]], ['lethal','Lethal',[[false,'Off'],[true,'On']]], ['rrHit','Re-roll hit',[['off','Off'],['1s','1s'],['full','Full']]], ['rrWound','Re-roll wound',[['off','Off'],['1s','1s'],['full','Full']]]],
+  [['cover','Cover',[[false,'Off'],[true,'On']],'Ranged only'], ['half','Half range',[[false,'Off'],[true,'On']],'Melta, Rapid Fire'], ['rf','Rapid Fire',[[0,'Off'],[1,'1'],[2,'2'],[3,'3'],[4,'4']],'Extra attacks per gun, only within half range. Takes the higher of this and the weapon’s own']],
+];
+function scopeName(sc){
+  if (sc==='all') return 'All units';
+  const u = findUnit(sc);
+  return u ? `${u.nm}${u.sub?` (${u.sub})`:''}` : sc;
+}
+function modSummary(m){
+  const p = [];
+  if (m.hit) p.push(`${m.hit>0?'+':'−'}1 hit`); if (m.wound) p.push(`${m.wound>0?'+':'−'}1 wound`); if (m.ap) p.push(`${m.ap>0?'+':'−'}${Math.abs(m.ap)} AP`);
+  if (m.sus) p.push('Sustained 1'); if (m.lethal) p.push('Lethal');
+  if (m.rrHit && m.rrHit!=='off') p.push(`re-roll hits ${m.rrHit==='1s'?'of 1':'in full'}`);
+  if (m.rrWound && m.rrWound!=='off') p.push(`re-roll wounds ${m.rrWound==='1s'?'of 1':'in full'}`);
+  if (m.rf) p.push(`Rapid Fire ${m.rf}${m.half?'':' (needs half range)'}`);
+  const scoped = p.length && m.apply && m.apply!=='both' ? `${p.join(', ')} (${m.apply} only)` : p.join(', ');
+  const extra = []; if (m.cover) extra.push('target in cover'); if (m.half) extra.push('half range');
+  return [scoped, extra.join(', ')].filter(Boolean).join('; ');
+}
+function rowModified(u){
+  const sc = new Set([u.id]);
+  if (!u.combined && u.grp) sc.add('grp-'+u.grp);
+  if (u.combined) u.members.forEach(m=>sc.add(m));
+  return [...sc].some(s=>modIsSet(S.opts.mods[s]));
+}
+function renderModBar(){
+  const sc = S.modScope, m = Object.assign({}, MOD0, S.opts.mods[sc]||{});
+  const seg = (key, list) => `<span class="seg sm" role="group" aria-label="${esc(key)}">${list.map(([v,l])=>`<button type="button" data-mod="${key}" data-mval="${String(v)}" aria-pressed="${String(m[key])===String(v)}">${l}</button>`).join('')}</span>`;
+  const combined = attackerList(S.units, Object.assign({}, S.opts, {combine:true})).filter(u=>u.combined);
+  const opt = (id, label) => `<option value="${id}" ${id===sc?'selected':''}>${esc(label)}${modIsSet(S.opts.mods[id])?' •':''}</option>`;
+  const options = opt('all','All units')
+    + `<optgroup label="Attached units">${combined.map(u=>opt(u.id,u.nm)).join('')}</optgroup>`
+    + `<optgroup label="Datasheets">${S.units.map(u=>opt(u.id, u.nm + (u.sub?` (${u.sub})`:''))).join('')}</optgroup>`;
+  const groups = MOD_GROUPS.map((g,gi)=>`<div class="mcluster c${gi+2}">${g.map(([k,l,list,note])=>`<div class="mg"><span class="ml">${l}</span>${seg(k,list)}${note?`<span class="mnote">${note}</span>`:''}</div>`).join('')}</div>${gi===0?'<span class="mbreak" aria-hidden="true"></span>':''}`).join('');
+  const active = Object.keys(S.opts.mods).filter(k=>modIsSet(S.opts.mods[k]));
+  if (S.modOpen === undefined) S.modOpen = window.innerWidth > 760;
+  return `<details class="modwrap" ${S.modOpen?'open':''}><summary>Modifiers: ${active.length ? `${active.length} set` : 'none'}</summary><div class="modbar" role="group" aria-label="Modifiers">
+      <div class="mcluster c1">
+        <div class="mg"><label class="ml" for="modscope">Unit</label><select id="modscope" data-modscope>${options}</select></div>
+        <div class="mg"><span class="ml">Applies to</span>${seg('apply',[['both','Both'],['ranged','Ranged'],['melee','Melee']])}</div>
+      </div>
+      ${groups}
+      ${modIsSet(S.opts.mods[sc]) ? `<button class="btn ghost" type="button" data-act="mod-clear">Clear ${sc==='all'?'all-units':'this unit’s'} modifiers</button>` : ''}
+    </div>
+    <p class="modsum">${active.length ? 'Modifiers in play: ' + active.map(k=>`<b>${esc(scopeName(k))}</b> ${esc(modSummary(S.opts.mods[k]))}`).join('. ') + '.' : 'No modifiers. Pick a unit (or all of them) and set a buff or debuff; it stacks with the list’s own rules, capped at ±1 to hit and wound.'}</p></details>`;
+}
+
+// ---------- controls ----------
+const SITUATION = [
+  ['charged','Charged this turn','Lance weapons add 1 to the wound roll.'],
+  ['stationary','Remained stationary','Heavy weapons add 1 to hit.'],
+  ['objective','Target is on an objective','For rules that upgrade against objective holders, like Reavers of the Void.'],
+  ['char','Target is a Character unit','For rules that only work against Characters, like Assassins’ Eye or Trophy Taker.'],
+  ['selfObj','Your unit is on an objective','For rules that work while your unit holds an objective, like Deeds of Legend.'],
+];
+const MARKS = [
+  ['riven','Riven','kharseth','Fury of the Void: +1 Strength for every attack.'],
+  ['web','Webbed','lhykhis','Whispering Web: critical hits on 5+.'],
+  ['guide','Guided','farseer','Guide: +1 to hit for every attack.'],
+  ['quarry','Raiders’ quarry','voidscarred','Piratical Raiders: Lethal Hits for Yriel and the Voidscarred.'],
+  ['spiritmark','Spirit-marked','spiritseer','Spirit Mark: Sustained Hits 1 for the Wraithblades.'],
+  ['shattered','Shattered','','Shattered Defences: +1 AP for ranged attacks against a marked Monster or Vehicle.'],
+  ['hailstrike','Hailstrike-marked','','Hailstrike: ranged attacks against it ignore cover.'],
+];
+const ACCOUNTING = [
+  ['enh','Count enhancement points','Enhancements raise the cost you divide by.'],
+  ['cap','Stop at the unit’s total wounds','Overkill beyond the target’s wound pool earns nothing.'],
+];
+function renderControls(view){
+  const o = S.opts;
+  const seg = (key, list) => `<span class="seg" role="group">${list.map(([v,l])=>`<button type="button" data-set="${key}" data-val="${v}" aria-pressed="${String(o[key])===String(v)}">${l}</button>`).join('')}</span>`;
+  const openAttr = $('#controls details.assume')?.open ? ' open' : '';
+  const tog = ([k,l,d]) => `<label class="tog"><input type="checkbox" data-opt="${k}" ${o[k]?'checked':''}><span>${l}<small>${d}</small></span></label>`;
+  const av = availableMarks();
+  const marksOn = MARKS.filter(m=>o[m[0]] && av.has(m[0])).map(m=>m[1].toLowerCase());
+  const sitOn = SITUATION.filter(s=>o[s[0]]).map(s=>s[1].toLowerCase());
+  $('#controls').innerHTML = `
+    <nav class="tabs" aria-label="Views">
+      <a href="#/" ${view==='matrix'?'aria-current="page"':''}>Damage matrix</a>
+      <a href="#/rules" ${view==='rules'?'aria-current="page"':''}>Rules matrix</a>
+      <a href="#/import" ${view==='import'?'aria-current="page"':''}>Import a list</a>
+    </nav>
+    <div class="controls">
+      <span><span class="seglabel">Phase</span>${seg('phase',[['all','All'],['ranged','Shooting'],['melee','Melee']])}</span>
+      <span><span class="seglabel">Attached units</span>${seg('combine',[['true','As one unit'],['false','Split']])}</span>
+      ${renderModBar()}
+      <details class="assume"${openAttr}>
+        <summary>Situation: ${sitOn.length?esc(sitOn.join(', ')):'none'}. Target marks: ${marksOn.length?esc(marksOn.join(', ')):'none'}.</summary>
+        <div class="assume-grid">
+          <div><h3>Situation</h3>${SITUATION.map(tog).join('')}</div>
+          ${(()=>{ const av = availableMarks(); const list = MARKS.filter(m=>av.has(m[0])); if (!list.length) return ''; return `<div><h3>Target marks <span class="hint">set by your units during the turn</span></h3>${list.map(([k,l,src,d])=>{ const who = S.units.find(u=>(u.rules||[]).some(id=>RULES[id]&&RULES[id].mark===k&&RULES[id].src!=='Received')); return tog([k,`${l}${who?` <span class="by">by ${esc(who.nm)}</span>`:''}`,d]); }).join('')}</div>`; })()}
+          <div><h3>Accounting</h3>${ACCOUNTING.map(tog).join('')}
+            <div class="presets">
+              <button class="btn" type="button" data-act="preset-table">Table defaults</button>
+              <button class="btn" type="button" data-act="preset-cog">Bare datasheets</button>
+            </div>
+            <small class="hint">Bare datasheets turns off leader buffs and re-rolls, which is how the Cogitator scores units.</small>
+          </div>
+        </div>
+      </details>
+    </div>`;
+}
+
+// ---------- damage matrix ----------
+function renderMatrix(){
+  const R = rows();
+  const M = R.map(u=>({u, cells:S.targets.map(t=>atk(u,t))}));
+  const inf = S.targets.filter(t=>t.cls==='inf'), veh = S.targets.filter(t=>t.cls!=='inf');
+  const ordered = inf.concat(veh), idx = ordered.map(t=>S.targets.indexOf(t));
+  const colCls = t => t.id===veh[0]?.id ? 'first-veh' : (t.id===inf[0]?.id ? 'first-inf' : '');
+  let body = '', last = null;
+  for (const {u,cells} of M){
+    const sec = sectionOf(u);
+    if (sec!==last){ body += `<tr class="sec"><td colspan="${ordered.length+3}">${esc(sec)}</td></tr>`; last = sec; }
+    const vals = cells.map(c=>c.roi), avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+    let bi = 0; vals.forEach((v,i)=>{ if (v>vals[bi]) bi=i; });
+    body += `<tr><td class="rowh"><a href="#/unit/${u.id}"><span class="un">${esc(u.nm)}${rowModified(u)?'<span class="modtag">modified</span>':''}</span><span class="um">${esc(unitSub(u))}</span></a></td>`;
+    ordered.forEach((t,k)=>{ const c = cells[idx[k]], h = heat(c.roi);
+      body += `<td class="c ${h.cls} ${colCls(t)}"><a href="#/unit/${u.id}/vs/${t.id}" style="background:${h.bg};color:${h.fg}" title="${esc(u.nm)} into ${esc(t.nm)}: ${f1(c.roi)}%">${Math.round(c.roi)}</a></td>`; });
+    body += `<td class="agg">${Math.round(avg)}</td><td class="agg best" title="${esc(S.targets[bi].nm)}">${esc(S.targets[bi].nm)}</td></tr>`;
+  }
+  const cov = ordered.map((t,k)=>M.filter(r=>r.cells[idx[k]].roi>=65).length);
+  body += `<tr class="cov"><td class="rowh">Units at 65% or better</td>${cov.map((n,k)=>`<td class="${n===0?'zero':''} ${colCls(ordered[k])}">${n}</td>`).join('')}<td></td><td></td></tr>`;
+  const head = `<tr class="grp"><th class="rowh"></th><th class="inf" colspan="${inf.length}">Infantry and beasts</th><th class="veh" colspan="${veh.length}">Vehicles and monsters</th><th colspan="2"></th></tr>
+    <tr><th class="rowh corner">Your unit, then target</th>${ordered.map(t=>`<th class="tg ${colCls(t)}"><a href="#/target/${t.id}"><span class="tn">${esc(t.nm)}</span><span class="tm">T${t.T}, ${t.pts} pts</span></a></th>`).join('')}
+    <th class="tg aggh">Avg</th><th class="tg aggh l">Best into</th></tr>`;
+  $('#view').innerHTML = `
+    <div class="legend">
+      <div class="eq">Return = <em>wounds dealt</em> ÷ <em>your points</em> × <em>their points per wound</em></div>
+      <div class="keyrow">
+        <span><span class="sw" style="background:${heat(120).bg}"></span>100%+ pays for itself</span>
+        <span><span class="sw" style="background:${heat(80).bg}"></span>65–99% efficient</span>
+        <span><span class="sw" style="background:${heat(50).bg}"></span>35–64% chip damage</span>
+        <span>${esc(phaseLabel(S.opts.phase))}. Every damage rule in the list is applied unless you switch it off in the rules matrix.</span>
+      </div>
+    </div>
+    <div class="mx-scroll"><table class="mx"><thead>${head}</thead><tbody>${body}</tbody></table></div>
+    <ul class="findings">${findings(M, ordered, idx).join('')}</ul>`;
+}
+
+function findings(M, ordered, idx){
+  const out = [];
+  const best = ordered.map((t,k)=>{ let b=null; for (const r of M){ const c=r.cells[idx[k]]; if (!b || c.roi>b.c.roi) b={u:r.u,c}; } return {t,b}; });
+  const weak = best.filter(x=>x.b.c.roi<65).sort((a,b)=>a.b.c.roi-b.b.c.roi);
+  if (weak.length){ const w = weak[0];
+    out.push(`<li class="alert">Nothing here removes <a href="#/target/${w.t.id}">${esc(w.t.nm)}</a> efficiently. Your best answer is <a href="#/unit/${w.b.u.id}/vs/${w.t.id}">${esc(w.b.u.nm)}</a> at <b>${f1(w.b.c.roi)}%</b>${weak.length>1?`, and ${weak.length-1} other target${weak.length>2?'s sit':' sits'} under the 65% line too`:''}.</li>`);
+  } else out.push(`<li>Every benchmark target has at least one answer at 65% or better.</li>`);
+  const counts = M.map(r=>({u:r.u, n:r.cells.filter(c=>c.roi>=65).length, peak:r.cells.reduce((m,c,i)=>c.roi>m.roi?{roi:c.roi,i}:m,{roi:-1,i:0})})).sort((a,b)=>b.n-a.n || b.peak.roi-a.peak.roi);
+  const p = counts[0];
+  out.push(`<li class="gold"><a href="#/unit/${p.u.id}">${esc(p.u.nm)}</a> is your prime trigger: 65% or better into <b>${p.n} of ${ordered.length}</b> targets, peaking at ${f1(p.peak.roi)}% into ${esc(S.targets[p.peak.i].nm)}.</li>`);
+  if (S.opts.enh){
+    const members = u => u.combined ? u.members.map(unitById) : [u];
+    const avg = (u, o) => S.targets.reduce((s,t)=>s+atk(u,t,o).roi,0)/S.targets.length;
+    const taxed = M.filter(r=>r.u.enh).map(r=>{
+      const a = r.cells.reduce((s,c)=>s+c.roi,0)/r.cells.length;
+      const free = avg(r.u, Object.assign({}, S.opts, {enh:false}));
+      const off = Object.assign({}, S.opts.off); members(r.u).forEach(m=>{ if (m && m.enh) off[ruleKey(m.id, m.enh.id)] = true; });
+      const none = avg(r.u, Object.assign({}, S.opts, {enh:false, off}));
+      const adds = members(r.u).some(m=>{ const er = m && m.enh && RULES[m.enh.id]; return er && er.dmg && (!er.cond || S.opts[er.cond]); });
+      return {u:r.u, a, free, none, adds};
+    }).sort((x,y)=>(y.free-y.a)-(x.free-x.a));
+    if (taxed.length){ const r = taxed[0];
+      out.push(r.adds
+        ? `<li><a href="#/unit/${r.u.id}">${esc(r.u.nm)}</a> pays ${r.u.enh.pts} pts for ${esc(r.u.enh.nm)}, the biggest enhancement cost in the list. With it the unit averages <b>${f1(r.a)}%</b>; without it at all, ${f1(r.none)}%. ${Math.abs(r.a - r.none) < 2 ? 'It roughly breaks even on damage alone.' : r.a > r.none ? 'Its damage more than covers its cost.' : 'Its damage doesn’t cover its cost against these targets.'}</li>`
+        : `<li><a href="#/unit/${r.u.id}">${esc(r.u.nm)}</a> pays ${r.u.enh.pts} pts for ${esc(r.u.enh.nm)}, which adds no damage against these targets, so its average return drops from ${f1(r.free)}% to <b>${f1(r.a)}%</b>. That’s the biggest enhancement cost in the list.</li>`);
+    }
+  }
+  return out;
+}
+
+// ---------- rules matrix ----------
+function renderRules(){
+  const army = ARMY_RULES.length ? ARMY_RULES.map(id=>`<div class="armyrule">${chip('army',id)}<span>${esc(ARMY_RULE_SCOPE[id]||'')}</span></div>`).join('') : '<span class="none">None in the library for this list yet.</span>';
+  let body = '', last = null;
+  const none = '<span class="none">none</span>';
+  for (const u of S.units){
+    const sec = u.grp ? `${GROUPS[u.grp].nm}: ${GROUPS[u.grp].short}` : (u.cat||'Other');
+    if (sec!==last){ body += `<tr class="sec"><td colspan="6">${esc(sec)}</td></tr>`; last = sec; }
+    const own = (u.rules||[]).filter(id=>RULES[id]);
+    const enh = u.enh ? chip(u.id, u.enh.id, `${u.enh.nm} (+${u.enh.pts})`) : none;
+    const abil = own.filter(id=>!['Wargear','Enhancement','Received'].includes(RULES[id].src) && !RULES[id].mark && !ARMY_RULES.includes(id)).map(id=>chip(u.id,id)).join('') || none;
+    const gear = own.filter(id=>RULES[id].src==='Wargear').map(id=>chip(u.id,id)).join('') || none;
+    const recv = u.grp ? S.units.filter(m=>m.grp===u.grp && m.id!==u.id).flatMap(m=>(m.rules||[]).filter(id=>RULES[id] && RULES[id].scope==='unit').map(id=>chip(m.id,id,`${RULES[id].nm} ← ${shortNm(m.nm)}`))).join('') : '';
+    const marks = own.filter(id=>RULES[id].mark).map(id=>chip(u.id,id)).join('');
+    body += `<tr><td class="rowh"><a href="#/unit/${u.id}"><span class="un">${esc(u.nm)}</span><span class="um">${esc(unitSub(u))}${u.role?`, ${u.role.toLowerCase()}`:''}</span></a></td>
+      <td>${enh}</td><td>${abil}</td><td>${gear}</td><td>${recv || `<span class="none">${u.grp?'nothing shared':'not attached'}</span>`}</td><td>${marks || none}</td></tr>`;
+  }
+  const dmgCount = Object.values(RULES).filter(r=>r.dmg).length, all = Object.keys(RULES).length;
+  $('#view').innerHTML = `
+    <div class="legend">
+      <div class="eq">Every rule in the list, and whether it moves the numbers</div>
+      <div class="keyrow">
+        <span><span class="chip on demo">Counted</span> changes damage and is in the maths</span>
+        <span><span class="chip idle demo">Idle</span> changes damage, but its condition is off</span>
+        <span><span class="chip off demo">Off</span> changes damage, switched off</span>
+        <span><span class="chip mark-off demo">Mark</span> marks a target; switch it on to apply</span>
+        <span><span class="chip note demo">Noted</span> real rule, no effect on damage dealt</span>
+        <span><span class="chip todo demo">Not modelled</span> looks like it changes damage, not in the maths yet</span>
+      </div>
+      <p class="lede">${(()=>{ const ids = new Set(S.units.flatMap(u=>u.rules||[]).concat(ARMY_RULES)); const list=[...ids].map(id=>RULES[id]).filter(Boolean); const dm=list.filter(r=>r.dmg).length, td=list.filter(r=>r.todo).length; return `${list.length} rules across the army, ${dm} of which change how much damage your units deal${td?`, and ${td} that probably do but aren’t modelled yet`:''}.`; })()} Tap any rule to read it and switch it. Stratagems are left out.</p>
+    </div>
+    <div class="armyrules"><h3>Army and detachments</h3><div class="armygrid">${army}</div></div>
+    <div class="mx-scroll"><table class="rx"><thead><tr><th class="rowh">Unit</th><th>Enhancement</th><th>Abilities</th><th>Wargear</th><th>Shared from its attached unit</th><th>Marks a target</th></tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+function renderDrawer(){
+  const d = $('#drawer');
+  if (!S.rule || !RULES[S.rule.id]){ d.hidden = true; d.innerHTML=''; return; }
+  const {id, owner} = S.rule, r = RULES[id], st = ruleState(owner,id);
+  const ownerU = unitById(owner);
+  const who = owner==='army' ? '' : (r.scope==='unit' && ownerU?.grp ? `${ownerU.nm} and the rest of ${GROUPS[ownerU.grp].short}` : (ownerU?.nm||''));
+  let ctl;
+  if (r.mark){ const m = MARKS.find(x=>x[0]===r.mark); ctl = `<label class="tog big"><input type="checkbox" data-opt="${r.mark}" ${S.opts[r.mark]?'checked':''}><span>Target is ${esc(m?m[1].toLowerCase():r.mark)}<small>Applies to every matchup in the matrix while it’s on.</small></span></label>`; }
+  else if (r.dmg){
+    ctl = `<label class="tog big"><input type="checkbox" data-rulesw="${owner}:${id}" ${st!=='off'?'checked':''}><span>Count it in the damage maths</span></label>`;
+    if (r.cond) ctl += `<label class="tog big"><input type="checkbox" data-opt="${r.cond}" ${S.opts[r.cond]?'checked':''}><span>${esc(r.condNm)}<small>${S.opts[r.cond]?'On: the rule is changing the numbers now.':'Off: the rule is idle in every matchup.'}</small></span></label>`;
+  }
+  else if (r.todo) ctl = `<p class="hint">This reads like it changes damage, but the engine doesn’t model it yet. Approximate it with the modifier bar for now, or paste it to Claude to turn it into a proper rule.</p>`;
+  else ctl = `<p class="hint">Doesn’t change damage dealt, so the matrix leaves it out.</p>`;
+  d.hidden = false;
+  d.innerHTML = `<div class="dr-in"><div class="dr-head"><div><div class="dr-src">${esc(r.src)}${who?`, ${esc(who)}`:''}</div><h4>${esc(r.nm)}</h4></div><button class="x" type="button" data-act="close-rule" aria-label="Close">×</button></div><p>${esc(r.txt)}</p>${ctl}</div>`;
+}
+
+// ---------- unit dossier ----------
+function kwText(w){
+  const k = w.kw||{}, t=[];
+  // conditional abilities read like "Lethal Hits (not vs monster/vehicle)"
+  const cnd = key => { const c = k.when && k.when[key]; if (!c) return ''; return c.not ? ` (not vs ${c.not.join('/').toLowerCase()})` : ` (vs ${c.only.join('/').toLowerCase()})`; };
+  const push = t.push.bind(t);
+  t.push = (s, key) => push(s + (key ? cnd(key) : ''));
+  if (k.torrent) t.push('Torrent'); if (k.lethal) t.push('Lethal Hits','lethal'); if (k.sus) t.push(`Sustained ${k.sus}`,'sus');
+  if (k.tl) t.push('Twin-linked','tl'); if (k.dev) t.push('Devastating','dev'); if (k.lance) t.push('Lance','lance');
+  if (k.blast) t.push(k.blast>1?`Blast ${k.blast}`:'Blast'); if (k.cleave) t.push(`Cleave ${k.cleave}`); if (k.melta) t.push(`Melta ${k.melta}`); if (k.heavy) t.push('Heavy'); if (k.rf) t.push(`Rapid Fire ${k.rf}`);
+  if (k.anti) t.push(`Anti-${String(k.anti[0]).toLowerCase()} ${k.anti[1]}+`); if (k.pistol) t.push('Pistol / close-quarters'); if (k.ic) t.push('Ignores Cover','ic');
+  if (k.precision) t.push('Precision','precision'); if (k.psychic) t.push('Psychic'); if (k.extra) t.push('Extra Attacks'); if (k.oneshot) t.push('One Shot');
+  if (k.hazardous) t.push('Hazardous'); if (k.indirect) t.push('Indirect Fire'); if (k.other) t.push(...k.other);
+  if (w.alt) t.push(/(^|:)m\d*:/.test(w.alt) ? 'one melee weapon per model' : 'pick one profile');
+  return t.join(', ');
+}
+function kwSerialize(k){ k=k||{}; const t=[];
+  ['torrent','lethal','tl','dev','lance','blast','heavy','pistol','ic','precision','psychic','extra'].forEach(x=>{ if(k[x]) t.push(x); });
+  if (k.sus) t.push('sus'+k.sus); if (k.melta) t.push('melta'+k.melta); if (k.rf) t.push('rf'+k.rf); if (k.anti) t.push(`anti-${k.anti[0].toLowerCase()}${k.anti[1]}`);
+  return t.join(' '); }
+function kwParse(s){ const k={};
+  for (let tok of String(s).toLowerCase().split(/[\s,]+/).filter(Boolean)){
+    tok = tok.replace(/twin-?linked/,'tl').replace(/^ignores?-?cover$/,'ic').replace(/^devastating$/,'dev').replace(/\+$/,''); let m;
+    if ((m = tok.match(/^(sus|sustained)(\d)$/))) k.sus=+m[2];
+    else if ((m = tok.match(/^melta(\d)$/))) k.melta=+m[1];
+    else if ((m = tok.match(/^(rf|rapidfire)(\d)$/))) k.rf=+m[2];
+    else if ((m = tok.match(/^anti-([a-z]+?)(\d)$/))) k.anti=[m[1].toUpperCase(), +m[2]];
+    else if (['torrent','lethal','tl','dev','lance','blast','heavy','pistol','ic','precision','psychic','extra'].includes(tok)) k[tok]=1;
+  } return k; }
+
+function rulesInPlay(u){
+  const er = effectiveRules(u, S.units);
+  const members = u.combined ? u.members.map(unitById) : [u];
+  const noteCount = members.reduce((s,m)=>s+(m.rules||[]).filter(id=>RULES[id] && !RULES[id].dmg).length,0);
+  const chips = er.map(x=>chip(x.owner, x.id, (x.owner===u.id || u.combined) ? RULES[x.id].nm : `${RULES[x.id].nm} ← ${shortNm(unitById(x.owner).nm)}`)).join('');
+  return `<h3 class="sh">Rules in play <span>${er.length ? 'tap one to read or switch it' : 'none of this unit’s rules change damage'}</span></h3>
+    ${er.length?`<div class="chips">${chips}</div>`:''}
+    ${noteCount?`<p class="hint">${noteCount} more rule${noteCount>1?'s':''} on ${u.combined?'these datasheets':'this datasheet'} don’t change damage. <a href="#/rules">See them in the rules matrix</a>.</p>`:''}`;
+}
+
+function renderUnit(id, tid){
+  const u = findUnit(id);
+  if (!u){ $('#view').innerHTML = `<p class="empty">That unit isn’t in this list. <a href="#/">Back to the matrix</a>.</p>`; return; }
+  const results = S.targets.map(t=>({t, r:atk(u,t)}));
+  let sel = tid ? results.find(x=>x.t.id===tid) : null;
+  if (!sel) sel = results.reduce((a,b)=>b.r.roi>a.r.roi?b:a);
+  const groupLine = u.combined ? `${GROUPS[u.grp].nm}, ${u.models} models` : (u.grp ? `${GROUPS[u.grp].nm} ${u.role.toLowerCase()}, ${u.models} model${u.models>1?'s':''}` : `${u.cat}, ${u.models} model${u.models>1?'s':''}`);
+  const base = unitPts(u, Object.assign({},S.opts,{enh:false}));
+  const ptsLine = u.enh ? (S.opts.enh ? `${base} + ${u.enh.pts} for ${u.enh.nm}` : `${u.enh.nm} (${u.enh.pts}) excluded`) : 'datasheet cost';
+  const avg = results.reduce((s,x)=>s+x.r.roi,0)/results.length;
+  const vs = sel.t.id;
+  const barList = cls => results.filter(x=>(cls==='inf')===(x.t.cls==='inf')).sort((a,b)=>b.r.roi-a.r.roi).map(({t,r})=>{ const h = heat(r.roi);
+    return `<li class="${t.id===vs?'sel':''}"><a class="bn" href="#/unit/${u.id}/vs/${t.id}">${esc(t.nm)}</a><a class="track" href="#/unit/${u.id}/vs/${t.id}" aria-label="${esc(t.nm)} ${f1(r.roi)}%"><span class="fill" style="width:${Math.min(r.roi,200)/2}%;background:${barBg(h)}"></span><span class="mk" style="left:32.5%"></span><span class="mk m100" style="left:50%"></span></a><span class="bv">${Math.round(r.roi)}%</span></li>`; }).join('');
+  const split = u.combined ? `<p class="hint">Split view: ${u.members.map(mid=>`<a href="#/unit/${mid}/vs/${vs}">${esc(unitById(mid).nm)}</a>`).join(', ')}.</p>`
+    : (u.grp ? `<p class="hint">Part of <a href="#/unit/grp-${u.grp}/vs/${vs}">${esc(GROUPS[u.grp].short)}</a>; the rules they share still apply in this split view.</p>` : '');
+  $('#view').innerHTML = `
+    <div class="crumbs"><a href="#/">Damage matrix</a></div>
+    <div class="dhead">
+      <div><h2>${esc(u.nm)}</h2><div class="meta">${esc(groupLine)}${u.sub?`, ${esc(u.sub)}`:''}. Averages ${f1(avg)}% across ${S.targets.length} targets. ${esc(phaseLabel(S.opts.phase))}.</div>${split}</div>
+      <div class="ptsbig">${unitPts(u,S.opts)} pts<small>${esc(ptsLine)}</small></div>
+    </div>
+    <div class="dgrid">
+      <section>
+        <h3 class="sh">Matchups <span>sorted by return; marks at 65% and 100%</span></h3>
+        <ul class="bars"><li class="cls">Infantry and beasts</li>${barList('inf')}<li class="cls">Vehicles and monsters</li>${barList('veh')}</ul>
+      </section>
+      <section>
+        <h3 class="sh">Attack detail <span>into ${esc(sel.t.nm)}</span></h3>
+        ${detailTable(sel.r)}
+        ${sigma(u, sel.t, sel.r)}
+        ${rulesInPlay(u)}
+        <h3 class="sh">Loadout <span>${u.combined?'edit the members to change these':'what the matrix is built from'}</span></h3>
+        ${loadout(u)}
+      </section>
+    </div>`;
+}
+
+function detailTable(r){
+  const tr = r.rows.map(x=>{
+    if (x.skipped) return `<tr class="skip"><td><span class="wn">${esc(x.w.nm)}</span><span class="wnotes">${esc(x.skipped)}</span></td><td>${x.w.t==='r'?'ranged':'melee'}</td><td>${x.w.n}</td><td colspan="6">not used</td></tr>`;
+    return `<tr><td><span class="wn">${esc(x.w.nm)}</span>${x.notes.length?`<span class="wnotes">${esc(x.notes.join(', '))}</span>`:''}</td><td>${x.w.t==='r'?'ranged':'melee'}</td><td>${x.models}</td><td>${f1(x.attacks)}</td><td>${f1(x.hitChance*100)}%${x.susExtra>0.0005?`<span class="sub">+${f1(x.susExtra*100)} sustained</span>`:''}</td><td>${f1(x.wound*100)}%${x.lethalShare>0.0005?`<span class="sub">incl. lethal</span>`:''}</td><td>${f1(x.fail*100)}%</td><td>${f2(x.dmg)}</td><td class="dealt">${f2(x.dealt)}</td></tr>`;
+  }).join('');
+  return `<div class="tbl-scroll"><table class="dt"><thead><tr><th>Weapon</th><th>Type</th><th>Models</th><th>Attacks</th><th title="Chance to hit. The small line is extra hits per attack from Sustained Hits">Hit</th><th title="Wounds per hit. Lethal Hits count as automatic wounds">Wound</th><th title="Share of wounds that get past saves">Fail save</th><th>Dmg/wound</th><th>Wounds dealt</th></tr></thead><tbody>${tr || `<tr><td colspan="9" class="emptyrow">No ${S.opts.phase==='ranged'?'ranged':'melee'} weapons on this unit.</td></tr>`}</tbody></table></div>`;
+}
+
+function sigma(u, t, r){
+  const cls = r.roi>=100?'hi':(r.roi<35?'lo':'');
+  const share = r.total/r.pool*100;
+  let alt = '';
+  if (u.enh && S.opts.enh){ const off = atk(u,t,Object.assign({},S.opts,{enh:false})); alt = `Without ${esc(u.enh.nm)} (${off.pts} pts) the same attacks return ${f1(off.roi)}%.`; }
+  const poolLine = r.capped ? `That wipes all ${r.pool} wounds; the extra is ignored because overkill is capped.`
+    : share>=100 ? `That’s more than the unit’s ${r.pool} wounds, so ${f1(r.total-r.pool)} of it is overkill unless you switch on the cap.`
+    : `That’s ${Math.round(share)}% of the unit’s ${r.pool} wounds.`;
+  return `<div class="sigma" id="sigma">
+    <div class="line">
+      <span class="term">Σ ${f2(r.total)}<small>wounds dealt</small></span>
+      <span class="op">(</span><span class="term">${f2(r.total)}<small>wounds</small></span><span class="op">÷</span><span class="term">${r.pts}<small>your points</small></span><span class="op">)</span>
+      <span class="op">×</span><span class="term">${f1(r.ppw)}<small>their pts per wound</small></span>
+      <span class="op">×</span><span class="term">100</span><span class="op">=</span><span class="term res ${cls}">${f1(r.roi)}%<small>return</small></span>
+    </div>
+    <p>${esc(u.nm)} ${u.combined?'remove':'removes'} about <b>${Math.round(r.total*r.ppw)} pts</b> of ${esc(t.nm)} for the ${r.pts} pts ${u.combined?'they cost':'spent'}. ${poolLine}</p>
+    ${alt?`<p class="alt">${alt}</p>`:''}
+  </div>`;
+}
+
+function loadout(u){
+  const editable = S.edit && !u.combined;
+  const btn = u.combined ? '' : `<div class="editbar"><button class="btn ${S.edit?'primary':''}" type="button" data-act="toggle-edit">${S.edit?'Done editing':'Edit profiles'}</button>
+    ${S.edit?`<label>Points <input class="ptsin" data-upts="${u.id}" value="${u.pts}"></label>`:''}</div>`;
+  const rowsHtml = u.w.map((w,i)=>{
+    if (!editable) return `<tr class="${w.off?'skip':''}"><td><span class="wn">${esc(w.nm)}</span>${w.off?`<span class="wnotes">${esc(w.off)}</span>`:''}</td><td>${w.t==='r'?'ranged':'melee'}</td><td>${w.n}</td><td>${esc(w.A)}</td><td>${w.kw&&w.kw.torrent?'N/A':w.sk+'+'}</td><td>${w.S}</td><td>${w.AP?'-'+w.AP:'0'}</td><td>${esc(w.D)}</td><td class="l">${esc(kwText(w))}</td></tr>`;
+    const inp = (f,v,c='') => `<input class="${c}" data-u="${u.id}" data-i="${i}" data-f="${f}" value="${esc(v)}">`;
+    return `<tr><td>${inp('nm',w.nm,'nmin')}</td><td>${w.t==='r'?'ranged':'melee'}</td><td>${inp('n',w.n)}</td><td>${inp('A',w.A)}</td><td>${inp('sk',w.sk)}</td><td>${inp('S',w.S)}</td><td>${inp('AP',w.AP)}</td><td>${inp('D',w.D)}</td><td class="l">${inp('kw',kwSerialize(w.kw),'kwin')}</td></tr>`;
+  }).join('');
+  const help = editable ? `<p class="hint">Abilities are typed as words: torrent lethal sus1 tl dev lance blast melta2 heavy rf1 anti-infantry2 pistol ic. Changes save in this browser and recalculate everything.</p>` : '';
+  return btn + `<div class="tbl-scroll"><table class="dt"><thead><tr><th>Weapon</th><th>Type</th><th>Models</th><th>A</th><th>BS/WS</th><th>S</th><th>AP</th><th>D</th><th class="l">Abilities</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>` + help;
+}
+
+// ---------- target page ----------
+function renderTarget(tid){
+  const t = findTarget(tid);
+  if (!t){ $('#view').innerHTML = `<p class="empty">Unknown target. <a href="#/">Back to the matrix</a>.</p>`; return; }
+  const R = rows().map(u=>({u, r:atk(u,t)})).sort((a,b)=>b.r.roi-a.r.roi);
+  const fld = (f,l,c='') => `<label>${l}<input class="${c}" data-t="${t.id}" data-f="${f}" value="${esc(t[f])}"></label>`;
+  $('#view').innerHTML = `
+    <div class="crumbs"><a href="#/">Damage matrix</a></div>
+    <div class="dhead">
+      <div><h2>${esc(t.nm)}</h2><div class="meta">${t.N} model${t.N>1?'s':''} with ${t.W} wound${t.W>1?'s':''} each, ${t.pts} pts, so every wound is worth ${f1(t.pts/(t.W*t.N))} pts.</div></div>
+      <div class="ptsbig">${f1(t.pts/(t.W*t.N))}<small>points per wound</small></div>
+    </div>
+    <div class="tprof">${fld('pts','Points')}${fld('T','Toughness')}${fld('Sv','Save')}${fld('inv','Invuln (0 = none)')}${fld('W','Wounds each')}${fld('N','Models')}${fld('fnp','Feel No Pain (0 = none)')}${fld('dr','Damage reduction')}${fld('kw','Keyword','wide')}</div>
+    <section style="padding-top:16px">
+      <h3 class="sh">Who removes it best <span>${esc(phaseLabel(S.opts.phase))}</span></h3>
+      <ul class="bars">${R.map(({u,r})=>{ const h=heat(r.roi);
+        return `<li><a class="bn" href="#/unit/${u.id}/vs/${t.id}">${esc(u.nm)}${u.sub?` (${esc(u.sub)})`:''}</a><a class="track" href="#/unit/${u.id}/vs/${t.id}" aria-label="${f1(r.roi)}%"><span class="fill" style="width:${Math.min(r.roi,200)/2}%;background:${barBg(h)}"></span><span class="mk" style="left:32.5%"></span><span class="mk m100" style="left:50%"></span></a><span class="bv">${Math.round(r.roi)}%</span></li>`; }).join('')}</ul>
+    </section>`;
+}
+
+// ---------- footer ----------
+function renderFoot(){
+  const bare = Object.assign({}, COGITATOR_OPTS, {off:{}});
+  DEFAULT_UNITS.forEach(u=>COGITATOR_RULES_OFF.forEach(r=>bare.off[ruleKey(u.id,r)]=true));
+  const chk = attackUnit(DEFAULT_UNITS.find(u=>u.id==='yriel'), DEFAULT_TARGETS.find(t=>t.id==='warp-spiders'), bare, DEFAULT_UNITS);
+  $('#foot').innerHTML = `
+    <p>Calibration: with bare datasheets, the Yriel, Fuegan, Kharseth and Shroud Runners rows reproduce the Cogitator’s numbers against all 19 targets. Live check, Yriel into Warp Spiders: <span class="check">Σ ${f2(chk.total)} → ${f1(chk.roi)}%</span>. Expected values only. Stratagems are left out on purpose.</p>
+    <p><button class="linkbtn" type="button" data-act="reset">Restore this list and the default targets</button></p>`;
+}
+
+// ---------- router ----------
+let lastPath = '';
+function route(){
+  const h = location.hash.replace(/^#\/?/,'').split('/');
+  const view = h[0]==='rules' ? 'rules' : h[0]==='import' ? 'import' : (h[0]==='unit'||h[0]==='target' ? 'detail' : 'matrix');
+  renderListPick();
+  renderControls(view);
+  if (h[0]==='import'){ $('#controls').innerHTML = renderTabsOnly(view); renderImport(); renderDrawer(); renderFoot(); return; }
+  if (h[0]==='unit' && h[1]) renderUnit(h[1], h[2]==='vs' ? h[3] : null);
+  else if (h[0]==='target' && h[1]) renderTarget(h[1]);
+  else if (h[0]==='rules') renderRules();
+  else renderMatrix();
+  renderDrawer();
+  renderFoot();
+}
+window.addEventListener('hashchange', ()=>{
+  const path = location.hash.split('/vs/')[0];
+  const sameUnit = path===lastPath && location.hash.includes('/vs/');
+  lastPath = path; S.rule = null;
+  route();
+  if (!sameUnit) window.scrollTo(0,0);
+  else { const s = document.getElementById('sigma'); if (s){ s.classList.remove('flash'); void s.offsetWidth; s.classList.add('flash'); } }
+});
+
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-set]');
+  if (b){ let v = b.dataset.val; if (v==='true') v=true; else if (v==='false') v=false; S.opts[b.dataset.set]=v; save(); route(); return; }
+  const mb = e.target.closest('[data-mod]');
+  if (mb){
+    const k = mb.dataset.mod; let v = mb.dataset.mval;
+    if (v==='true') v = true; else if (v==='false') v = false; else if (/^-?\d+$/.test(v)) v = +v;
+    const cur = Object.assign({}, MOD0, S.opts.mods[S.modScope]||{}, {[k]:v});
+    if (modIsSet(cur)) S.opts.mods[S.modScope] = cur; else delete S.opts.mods[S.modScope];
+    if (k==='apply' && !modIsSet(cur)) S.opts.mods[S.modScope] = cur; // keep the scope choice even before a modifier is set
+    save(); route(); return;
+  }
+  const c = e.target.closest('[data-rule]');
+  if (c && !c.classList.contains('demo')){ S.rule = {id:c.dataset.rule, owner:c.dataset.owner}; route(); return; }
+  const a = e.target.closest('[data-act]'); if (!a) return;
+  const act = a.dataset.act;
+  if (act==='close-rule'){ S.rule=null; route(); }
+  if (act==='mod-clear'){ delete S.opts.mods[S.modScope]; save(); route(); }
+  if (act==='preset-table'){ S.opts = Object.assign(freshOpts(), {phase:S.opts.phase, combine:S.opts.combine}); save(); route(); }
+  if (act==='preset-cog'){ const off={}; S.units.forEach(u=>COGITATOR_RULES_OFF.forEach(r=>off[ruleKey(u.id,r)]=true)); S.opts = Object.assign(freshOpts(), COGITATOR_OPTS, {off, phase:S.opts.phase, combine:S.opts.combine}); save(); route(); }
+  if (act==='toggle-edit'){ S.edit = !S.edit; route(); }
+  if (act==='reset'){ const L = S.lists[S.listId]; L.units = L.id==='builtin' ? clone(DEFAULT_UNITS) : clone(L.base); S.targets = clone(DEFAULT_TARGETS); S.opts = freshOpts(); applyList(S.listId); save(); route(); }
+  if (act==='import-read') return doImport();
+  if (act==='import-save') return saveImport();
+  if (act==='import-cancel'){ S.pending = null; S.importErr = null; route(); }
+  if (act==='list-delete'){ const id = a.dataset.id; if (id && id!=='builtin' && confirm('Delete this list from your browser?')){ delete S.lists[id]; if (S.listId===id) applyList('builtin'); save(); route(); } }
+  if (act==='list-open'){ applyList(a.dataset.id); save(); location.hash = '#/'; route(); }
+});
+document.addEventListener('change', e=>{
+  const el = e.target;
+  if (el.dataset.opt){ S.opts[el.dataset.opt] = el.checked; save(); route(); return; }
+  if (el.id==='listpick'){ if (el.value==='__import'){ location.hash = '#/import'; } else { applyList(el.value); save(); route(); } return; }
+  if (el.dataset.pts){ const p = S.pending; const u = p && p.units.find(x=>x.id===el.dataset.pts); if (u){ u.pts = Math.max(0, parseFloat(el.value)||0); } return; }
+  if (el.dataset.enhpts){ const p = S.pending; const u = p && p.units.find(x=>x.id===el.dataset.enhpts); if (u && u.enh){ const v = Math.max(0, parseFloat(el.value)||0); u.enh.pts = v; } return; }
+  if (el.id==='impname'){ if (S.pending) S.pending.meta.name = el.value.trim() || S.pending.meta.name; return; }
+  if (el.hasAttribute('data-modscope')){ S.modScope = el.value; route(); const s=$('#modscope'); if (s) s.focus(); return; }
+  if (el.dataset.rulesw){ if (el.checked) delete S.opts.off[el.dataset.rulesw]; else S.opts.off[el.dataset.rulesw] = true; save(); route(); return; }
+  if (el.dataset.upts){ const u=unitById(el.dataset.upts); const v=parseFloat(el.value); if(u && v>0){ u.pts=v; save(); route(); } return; }
+  if (el.dataset.u){
+    const u = unitById(el.dataset.u); if (!u) return;
+    const w = u.w[+el.dataset.i], f = el.dataset.f, v = el.value.trim();
+    if (f==='nm') w.nm = v || w.nm; else if (f==='kw') w.kw = kwParse(v);
+    else if (f==='A' || f==='D') w[f] = /d/i.test(v) ? v.toUpperCase() : (parseFloat(v)||0);
+    else if (f==='AP') w.AP = Math.abs(parseFloat(v)||0); else w[f] = parseFloat(v)||0;
+    save(); route(); return;
+  }
+  if (el.dataset.t){
+    const t = findTarget(el.dataset.t); if (!t) return; const f = el.dataset.f, v = el.value.trim();
+    if (f==='kw') t.kw = v.toUpperCase(); else { const n=parseFloat(v); if (!isNaN(n) && n>=0) t[f] = (f==='N'||f==='W'||f==='pts') ? Math.max(1,n) : n; }
+    save(); route();
+  }
+});
+document.addEventListener('toggle', e=>{ if (e.target.classList && e.target.classList.contains('modwrap')) S.modOpen = e.target.open; }, true);
+document.addEventListener('keydown', e=>{ if (e.key==='Escape' && S.rule){ S.rule=null; route(); } });
+
+(function theme(){
+  const KEY='kill-ledger:theme'; let mode='auto';
+  try { mode = localStorage.getItem(KEY) || 'auto'; } catch(e){}
+  const apply = ()=>{ if (mode==='auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', mode); $('#themebtn').textContent = 'Theme: '+mode; };
+  apply();
+  $('#themebtn').addEventListener('click', ()=>{ mode = mode==='auto'?'light':(mode==='light'?'dark':'auto'); try{localStorage.setItem(KEY,mode);}catch(e){} apply(); });
+})();
+applyList(S.listId);
+lastPath = location.hash.split('/vs/')[0];
+route();
+
+// ---------- lists and import ----------
+function renderListPick(){
+  const sel = $('#listpick'); if (!sel) return;
+  const opts = Object.values(S.lists).map(L=>`<option value="${L.id}" ${L.id===S.listId?'selected':''}>${esc(L.meta.name)}${L.builtin?' (built-in)':''}</option>`).join('');
+  sel.innerHTML = opts + `<option value="__import">Import a list…</option>`;
+}
+function renderTabsOnly(view){
+  return `<nav class="tabs" aria-label="Views">
+      <a href="#/" ${view==='matrix'?'aria-current="page"':''}>Damage matrix</a>
+      <a href="#/rules" ${view==='rules'?'aria-current="page"':''}>Rules matrix</a>
+      <a href="#/import" ${view==='import'?'aria-current="page"':''}>Import a list</a>
+    </nav>`;
+}
+function ruleCounts(u, rules){
+  let dmg=0, note=0, todo=0;
+  for (const id of u.rules||[]){ const r = (rules&&rules[id]) || BASE_RULES[id]; if (!r) continue; if (r.dmg) dmg++; else if (r.todo) todo++; else note++; }
+  return {dmg, note, todo};
+}
+function renderImport(){
+  const p = S.pending;
+  const lists = Object.values(S.lists).map(L=>{
+    const pts = L.units.reduce((s,u)=>s+(u.pts||0),0);
+    return `<tr><td><b>${esc(L.meta.name)}</b>${L.builtin?' <span class="hint">built-in</span>':''}${L.id===S.listId?' <span class="hint">open now</span>':''}</td><td>${L.units.length}</td><td>${pts}</td>
+      <td class="l"><button class="btn" type="button" data-act="list-open" data-id="${L.id}">Open</button>${L.builtin?'':` <button class="btn ghost danger" type="button" data-act="list-delete" data-id="${L.id}">Delete</button>`}</td></tr>`;
+  }).join('');
+  let review = '';
+  if (p){
+    const total = p.units.reduce((s,u)=>s+(u.pts||0),0);
+    const rows = p.units.map(u=>{
+      const c = ruleCounts(u, p.rules);
+      const grp = u.grp ? `${u.role==='Leader'?'leads':'led in'} ${esc(p.groups[u.grp].short)}` : '<span class="none">—</span>';
+      const enh = u.enh ? `${esc(u.enh.nm)} <input class="ptsmini" data-enhpts="${u.id}" value="${u.enh.pts}" aria-label="Enhancement points"> pts` : '<span class="none">—</span>';
+      return `<tr><td><b>${esc(u.nm)}</b><span class="um">${esc(u.kw.filter(k=>['CHARACTER','INFANTRY','VEHICLE','MONSTER','MOUNTED','BATTLELINE'].includes(k)).map(k=>k.toLowerCase()).join(', '))}</span></td>
+        <td>${u.models}</td><td><input class="ptsmini" data-pts="${u.id}" value="${u.pts}" aria-label="Points for ${esc(u.nm)}"></td><td class="l">${grp}</td><td class="l">${enh}</td><td>${u.w.filter(w=>!w.off).length}</td>
+        <td class="l">${c.dmg?`<span class="chip on demo">${c.dmg} counted</span>`:''}${c.todo?`<span class="chip todo demo">${c.todo} not modelled</span>`:''}${c.note?`<span class="chip note demo">${c.note} noted</span>`:''}</td></tr>`;
+    }).join('');
+    const st = p.stats;
+    review = `<section class="imp-review">
+      <h3 class="sh">Check it before saving</h3>
+      <label class="impname">List name <input id="impname" value="${esc(p.meta.name)}"></label>
+      <p class="lede">${st.units} units, ${st.models} models, ${total} pts. ${Object.keys(p.groups).length} attached units found. ${st.known} rules already in the library, ${st.newRules} new ones read from the file${st.todo?`, ${st.todo} of which look like they change damage`:''}.${p.armyRules.length?` Army and detachment rules: ${p.armyRules.map(id=>esc(BASE_RULES[id].nm)).join(', ')}.`:''}</p>
+      ${p.warnings.length?`<ul class="warns">${p.warnings.map(w=>`<li>${esc(w)}</li>`).join('')}</ul>`:''}
+      <div class="tbl-scroll"><table class="dt imp"><thead><tr><th>Unit</th><th>Models</th><th>Points</th><th class="l">Attached</th><th class="l">Enhancement</th><th>Weapons</th><th class="l">Rules</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="presets"><button class="btn primary" type="button" data-act="import-save">Save and open the matrix</button><button class="btn" type="button" data-act="import-cancel">Cancel</button></div>
+    </section>`;
+  }
+  $('#view').innerHTML = `
+    <div class="dhead"><div><h2>Import a list</h2><div class="meta">Roster files from 40k.app, NewRecruit or BattleScribe (.ros or .rosz). Stats, weapons, leaders and rule text come from the file.</div></div></div>
+    <div class="impform">
+      <label class="drop">Roster file<input type="file" id="impfile" accept=".ros,.rosz,application/xml,text/xml,application/zip"><span class="hint">${S.impFile?esc(S.impFile.name):'Choose a .ros or .rosz file'}</span></label>
+      <label class="txt">Text export, optional<textarea id="imptext" rows="7" placeholder="Paste the 40k.app text export here for points, enhancement costs, detachments and wargear like Faolchú that roster files leave out.">${esc(S.impText||'')}</textarea></label>
+      <div class="presets"><button class="btn primary" type="button" data-act="import-read" ${S.impFile?'':'disabled'}>Read the roster</button></div>
+      ${S.importErr?`<p class="err">${esc(S.importErr)}</p>`:''}
+    </div>
+    ${review}
+    <section class="mylists"><h3 class="sh">Your lists</h3><div class="tbl-scroll"><table class="dt"><thead><tr><th>List</th><th>Units</th><th>Points</th><th class="l"></th></tr></thead><tbody>${lists}</tbody></table></div></section>`;
+}
+async function doImport(){
+  S.importErr = null;
+  try {
+    if (!S.impFile) throw new Error('Choose a roster file first.');
+    const xml = await IMP.readFile(S.impFile);
+    S.pending = IMP.parse(xml, S.impText||'');
+  } catch(e){ S.pending = null; S.importErr = e.message || String(e); }
+  route();
+}
+function saveImport(){
+  const p = S.pending; if (!p) return;
+  const id = 'L' + Date.now().toString(36);
+  S.lists[id] = {id, meta:p.meta, groups:p.groups, armyRules:p.armyRules, rules:p.rules, base:clone(p.units), units:clone(p.units), gameSystem:p.gameSystem};
+  S.pending = null; S.impFile = null; S.impText = '';
+  applyList(id); save();
+  location.hash = '#/';
+}
+document.addEventListener('input', e=>{ if (e.target.id==='imptext') S.impText = e.target.value; });
+document.addEventListener('change', e=>{ if (e.target.id==='impfile'){ S.impFile = e.target.files[0] || null; S.pending = null; S.importErr = null; route(); } });
+
+</script>
+</body>
+</html>
