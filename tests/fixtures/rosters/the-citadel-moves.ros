@@ -1,0 +1,1709 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<roster id="40kapp-export" name="THE CITADEL MOVES" battleScribeVersion="2.03" gameSystemId="sys-352e-adc2-7639-d6a9" gameSystemName="Warhammer 40,000 10th Edition" xmlns="http://www.battlescribe.net/schema/rosterSchema">
+  <forces>
+    <force name="Army Roster" catalogueName="Chaos Space Marines">
+      <selections>
+    <selection name="Chaos Rhino" type="model" number="1">
+      <profiles>
+        <profile name="Chaos Rhino" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">9</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">10</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deadly Demise D3" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Deadly Demise X. Each time a model with this ability is destroyed, after the units embarked within it (if any) have made their emergency disembark moves, roll one D6. On a 6, that model suffers a deadly demise; each unit within 6&quot; of that model suffers a number of mortal wounds denoted by X (if this is a random number, roll separately for each unit within 6&quot;).</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Firing Deck 2" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Firing Deck X. In your Shooting phase, each time this TRANSPORT is selected to shoot, if one or more units are embarked within it, resolve the following sequence:
+1. Select up to X models embarked within this TRANSPORT (excluding models whose units have already been selected to shoot this phase).
+2. For each selected model, select one of its ranged weapons (excluding [ONE SHOT] weapons).
+3. Until this TRANSPORT has resolved all of its attacks, it has all of those selected weapons in addition to its other weapons.
+4. Until the end of the turn, units embarked within this TRANSPORT are not eligible to shoot.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Dark Pacts" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Self Repair" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">At the start of your Command phase, this model regains 1 lost wound.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Armoured tracks" type="upgrade" number="1">
+        <profiles>
+          <profile name="Armoured tracks" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">4+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Combi-bolter" type="upgrade" number="2">
+        <profiles>
+          <profile name="Combi-bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">RAPID FIRE 2</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Chaos Space Marines"/>
+        <category name="Dedicated Transport"/>
+        <category name="Chaos"/>
+        <category name="Rhino"/>
+        <category name="Smoke"/>
+        <category name="Vehicle"/>
+        <category name="Transport"/>
+        <category name="Frame"/>
+      </categories>
+    </selection>
+    <selection name="Cultist Mob" type="unit" number="1">
+      <profiles>
+        <profile name="Dark Pacts" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="For the Dark Gods" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">At the end of your Command phase, if this unit is within range of an objective marker you control, that objective marker remains under your control until your opponent’s Level of Control over that objective marker is greater than yours at the end of a phase.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Chaos Cultist" type="model" number="9">
+        <profiles>
+        <profile name="Chaos Cultist" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">3</characteristic>
+            <characteristic name="SV">6+</characteristic>
+            <characteristic name="W">1</characteristic>
+            <characteristic name="LD">7+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Autopistol" type="upgrade" number="9">
+        <profiles>
+          <profile name="Autopistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">4+</characteristic>
+              <characteristic name="S">3</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Pistol</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Brutal assault weapon" type="upgrade" number="9">
+        <profiles>
+          <profile name="Brutal assault weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="WS">4+</characteristic>
+              <characteristic name="S">3</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Cultist Champion" type="model" number="1">
+        <profiles>
+        <profile name="Cultist Champion" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">3</characteristic>
+            <characteristic name="SV">6+</characteristic>
+            <characteristic name="W">1</characteristic>
+            <characteristic name="LD">7+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Autopistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Autopistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">4+</characteristic>
+              <characteristic name="S">3</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Pistol</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Brutal assault weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Brutal assault weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="WS">4+</characteristic>
+              <characteristic name="S">3</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Chaos Space Marines"/>
+        <category name="Grenades"/>
+        <category name="Infantry"/>
+        <category name="Cultist Mob"/>
+        <category name="Chaos"/>
+        <category name="Damned"/>
+        <category name="Battleline"/>
+      </categories>
+    </selection>
+    <selection name="Chaos Terminator Squad A" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Chaos Lord in Terminator Armour</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Dark Pacts" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Despoilers" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes a Dark Pact, until the end of the phase, each time a model in this unit makes an attack, you can re-roll the Hit roll.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Chaos Terminator" type="model" number="4">
+        <profiles>
+        <profile name="Chaos Terminator" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Paired accursed weapons" type="upgrade" number="4">
+        <profiles>
+          <profile name="Paired accursed weapons" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Twin-linked</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Accursed weapon" type="upgrade" number="4">
+        <profiles>
+          <profile name="Accursed weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Combi-bolter" type="upgrade" number="4">
+        <profiles>
+          <profile name="Combi-bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">RAPID FIRE 2</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Terminator Champion" type="model" number="1">
+        <profiles>
+        <profile name="Terminator Champion" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Accursed weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Accursed weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Paired accursed weapons" type="upgrade" number="1">
+        <profiles>
+          <profile name="Paired accursed weapons" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Twin-linked</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Combi-bolter" type="upgrade" number="1">
+        <profiles>
+          <profile name="Combi-bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">RAPID FIRE 2</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Chaos Space Marines"/>
+        <category name="Infantry"/>
+        <category name="Chaos"/>
+        <category name="Terminator"/>
+        <category name="Chaos Terminator Squad"/>
+      </categories>
+    </selection>
+    <selection name="Chaos Vindicator" type="model" number="1">
+      <profiles>
+        <profile name="Chaos Vindicator" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">9&quot;</characteristic>
+            <characteristic name="T">11</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">11</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">3</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deadly Demise D3" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Deadly Demise X. Each time a model with this ability is destroyed, after the units embarked within it (if any) have made their emergency disembark moves, roll one D6. On a 6, that model suffers a deadly demise; each unit within 6&quot; of that model suffers a number of mortal wounds denoted by X (if this is a random number, roll separately for each unit within 6&quot;).</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Dark Pacts" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Siege Shield" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">When making ranged attacks with its demolisher cannon, this model can target enemy units within Engagement Range of it (provided no other friendly units are also within Engagement Range of that enemy unit). In addition, when making ranged attacks, this model does not suffer the penalty to its Hit rolls for being within Engagement Range of one or more enemy units.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Armoured tracks" type="upgrade" number="1">
+        <profiles>
+          <profile name="Armoured tracks" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">4+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Demolisher cannon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Demolisher cannon" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">D6+3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">14</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">D6</characteristic>
+              <characteristic name="Keywords">Blast</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Chaos Space Marines"/>
+        <category name="Smoke"/>
+        <category name="Frame"/>
+        <category name="Chaos"/>
+        <category name="Vehicle"/>
+        <category name="Vindicator"/>
+      </categories>
+    </selection>
+    <selection name="Havocs" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Warpsmith</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Dark Pacts" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Stabilisation Talons" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time a model in this unit makes an attack with a ranged weapon, you can ignore any or all modifiers to the Hit roll and any or all modifiers to the Ballistic Skill characteristic of that weapon.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Havoc Champion" type="model" number="1">
+        <profiles>
+        <profile name="Havoc Champion" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Flamer" type="upgrade" number="1">
+        <profiles>
+          <profile name="Flamer" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">D6</characteristic>
+              <characteristic name="BS">-</characteristic>
+              <characteristic name="S">4</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Ignores Cover, Torrent</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Astartes chainsword" type="upgrade" number="1">
+        <profiles>
+          <profile name="Astartes chainsword" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Havoc" type="model" number="4">
+        <profiles>
+        <profile name="Havoc" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Havoc autocannon" type="upgrade" number="4">
+        <profiles>
+          <profile name="Havoc autocannon" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">48&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">9</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">3</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Close Combat Weapon" type="upgrade" number="4">
+        <profiles>
+          <profile name="Close Combat Weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Chaos Space Marines"/>
+        <category name="Infantry"/>
+        <category name="Chaos"/>
+        <category name="Havocs"/>
+      </categories>
+    </selection>
+    <selection name="Obliterators A" type="unit" number="1">
+      <profiles>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">5+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Dark Pacts" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Warp Rift Firepower" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per battle, during the shooting phase, this unit can use this ability. If it does, until the end of the phase, ranged weapons models in this unit are equipped with have the **[INDIRECT FIRE]** ability.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Obliterator" type="model" number="2">
+        <profiles>
+        <profile name="Obliterator" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">4&quot;</characteristic>
+            <characteristic name="T">7</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">5</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Crushing fists" type="upgrade" number="2">
+        <profiles>
+          <profile name="Crushing fists" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">9</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Fleshmetal guns - focused malice" type="upgrade" number="2">
+        <profiles>
+          <profile name="Fleshmetal guns - focused malice" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">D3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">12</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">4</characteristic>
+              <characteristic name="Keywords">Melta 2</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Fleshmetal guns - ruinous salvo" type="upgrade" number="2">
+        <profiles>
+          <profile name="Fleshmetal guns - ruinous salvo" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">D6</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Blast</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Fleshmetal guns - warp hail" type="upgrade" number="2">
+        <profiles>
+          <profile name="Fleshmetal guns - warp hail" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">D6+3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Sustained Hits 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Chaos Space Marines"/>
+        <category name="Infantry"/>
+        <category name="Chaos"/>
+        <category name="Obliterators"/>
+        <category name="Daemon"/>
+      </categories>
+    </selection>
+    <selection name="Legionaries" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Master of Possession</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Dark Pacts" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Veterans of the Long War" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time a model in this unit targets an enemy unit with a melee attack, re-roll a Wound roll of 1. If that enemy unit is within range of an objective marker, you can re-roll the Wound roll instead.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Legionary" type="model" number="9">
+        <profiles>
+        <profile name="Legionary" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Boltgun" type="upgrade" number="9">
+        <profiles>
+          <profile name="Boltgun" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Close Combat Weapon" type="upgrade" number="9">
+        <profiles>
+          <profile name="Close Combat Weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Bolt pistol" type="upgrade" number="9">
+        <profiles>
+          <profile name="Bolt pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Pistol</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Aspiring Champion" type="model" number="1">
+        <profiles>
+        <profile name="Aspiring Champion" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Bolt pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Bolt pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Pistol</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Boltgun" type="upgrade" number="1">
+        <profiles>
+          <profile name="Boltgun" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Close Combat Weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Close Combat Weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Chaos Space Marines"/>
+        <category name="Infantry"/>
+        <category name="Battleline"/>
+        <category name="Chaos"/>
+        <category name="Grenades"/>
+        <category name="Legionaries"/>
+      </categories>
+    </selection>
+    <selection name="Chaos Terminator Squad B" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Kravek Morne</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Dark Pacts" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Despoilers" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes a Dark Pact, until the end of the phase, each time a model in this unit makes an attack, you can re-roll the Hit roll.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Chaos Terminator" type="model" number="4">
+        <profiles>
+        <profile name="Chaos Terminator" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Paired accursed weapons" type="upgrade" number="4">
+        <profiles>
+          <profile name="Paired accursed weapons" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Twin-linked</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Accursed weapon" type="upgrade" number="4">
+        <profiles>
+          <profile name="Accursed weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Combi-bolter" type="upgrade" number="4">
+        <profiles>
+          <profile name="Combi-bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">RAPID FIRE 2</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Terminator Champion" type="model" number="1">
+        <profiles>
+        <profile name="Terminator Champion" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Accursed weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Accursed weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Paired accursed weapons" type="upgrade" number="1">
+        <profiles>
+          <profile name="Paired accursed weapons" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Twin-linked</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Combi-bolter" type="upgrade" number="1">
+        <profiles>
+          <profile name="Combi-bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">RAPID FIRE 2</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Chaos Space Marines"/>
+        <category name="Infantry"/>
+        <category name="Chaos"/>
+        <category name="Terminator"/>
+        <category name="Chaos Terminator Squad"/>
+      </categories>
+    </selection>
+    <selection name="Obliterators B" type="unit" number="1">
+      <profiles>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">5+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Dark Pacts" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Warp Rift Firepower" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per battle, during the shooting phase, this unit can use this ability. If it does, until the end of the phase, ranged weapons models in this unit are equipped with have the **[INDIRECT FIRE]** ability.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Obliterator" type="model" number="2">
+        <profiles>
+        <profile name="Obliterator" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">4&quot;</characteristic>
+            <characteristic name="T">7</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">5</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Crushing fists" type="upgrade" number="2">
+        <profiles>
+          <profile name="Crushing fists" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">9</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Fleshmetal guns - focused malice" type="upgrade" number="2">
+        <profiles>
+          <profile name="Fleshmetal guns - focused malice" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">D3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">12</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">4</characteristic>
+              <characteristic name="Keywords">Melta 2</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Fleshmetal guns - ruinous salvo" type="upgrade" number="2">
+        <profiles>
+          <profile name="Fleshmetal guns - ruinous salvo" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">D6</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Blast</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Fleshmetal guns - warp hail" type="upgrade" number="2">
+        <profiles>
+          <profile name="Fleshmetal guns - warp hail" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">D6+3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Sustained Hits 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Chaos Space Marines"/>
+        <category name="Infantry"/>
+        <category name="Chaos"/>
+        <category name="Obliterators"/>
+        <category name="Daemon"/>
+      </categories>
+    </selection>
+    <selection name="Defiler" type="model" number="1">
+      <profiles>
+        <profile name="Defiler" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">11</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">18</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">5</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">5+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deadly Demise D6" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Deadly Demise X. Each time a model with this ability is destroyed, after the units embarked within it (if any) have made their emergency disembark moves, roll one D6. On a 6, that model suffers a deadly demise; each unit within 6&quot; of that model suffers a number of mortal wounds denoted by X (if this is a random number, roll separately for each unit within 6&quot;).</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Dark Pacts" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Scuttling Walker" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes a Normal, Advance or Fall Back move, it can move through models (excluding **TITANIC** models) and terrain features. When doing so, it can move within Engagement Range of enemy models, but cannot end that move within Engagement Range of them, and any Desperate Escape test is automatically passed.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Daemonforge" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes a Dark Pact, until the end of the phase, each time this model makes an attack, re-roll a Wound roll of 1.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Hades battle cannon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Hades battle cannon" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">48&quot;</characteristic>
+              <characteristic name="A">D6+3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">10</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">3</characteristic>
+              <characteristic name="Keywords">Blast</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy baleflamer" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy baleflamer" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">D6+3</characteristic>
+              <characteristic name="BS">-</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Ignores Cover, Torrent</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy missile launcher - krak" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy missile launcher - krak" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">48&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">10</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">D6+1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy missile launcher - frag" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy missile launcher - frag" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">48&quot;</characteristic>
+              <characteristic name="A">2D6</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Blast</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Shearing claws - strike" type="upgrade" number="1">
+        <profiles>
+          <profile name="Shearing claws - strike" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">16</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">D6+1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Shearing claws - sweep" type="upgrade" number="1">
+        <profiles>
+          <profile name="Shearing claws - sweep" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">10</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Excruciator cannon" type="upgrade" number="2">
+        <profiles>
+          <profile name="Excruciator cannon" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">36&quot;</characteristic>
+              <characteristic name="A">6</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Chaos Space Marines"/>
+        <category name="Vehicle"/>
+        <category name="Daemon"/>
+        <category name="Walker"/>
+        <category name="Defiler"/>
+        <category name="Chaos"/>
+      </categories>
+    </selection>
+    <selection name="Master of Possession" type="model" number="1">
+      <profiles>
+        <profile name="Master of Possession" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">8&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">4</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Legionaries</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">5+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Dark Pacts" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Daemonkin" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">While this model is leading a unit, add 1 to Advance and Charge rolls made for that unit.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Sacrificial Dagger" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per phase, when this model is selected to shoot or fight, it can use this ability. If it does, this model’s unit suffers 1 mortal wound and, until the end of the phase, each time this model makes a Psychic Attack, add 1 to the Hit roll and add 1 to the Wound roll.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Staff of possession" type="upgrade" number="1">
+        <profiles>
+          <profile name="Staff of possession" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">D3</characteristic>
+              <characteristic name="Keywords">Anti-psyker 2+, Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Rite of Possession - witchfire" type="upgrade" number="1">
+        <profiles>
+          <profile name="Rite of Possession - witchfire" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">4</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Anti-psyker 2+, Pistol, Precision, Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Rite of Possession - focused witchfire" type="upgrade" number="1">
+        <profiles>
+          <profile name="Rite of Possession - focused witchfire" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">3</characteristic>
+              <characteristic name="Keywords">Anti-psyker 2+, Hazardous, Pistol, Precision, Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Bolt pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Bolt pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Pistol</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Chaos Space Marines"/>
+        <category name="Infantry"/>
+        <category name="Character"/>
+        <category name="Psyker"/>
+        <category name="Chaos"/>
+        <category name="Master of Possession"/>
+      </categories>
+    </selection>
+    <selection name="Chaos Lord in Terminator Armour" type="model" number="1">
+      <profiles>
+        <profile name="Chaos Lord in Terminator Armour" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">6</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Chaos Terminator Squad A</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Dark Pacts" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Lord of Chaos" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per battle round, one unit from your army with this ability can use it when it is targeted with a Stratagem. If it does, reduce the CP cost of that usage of that Stratagem by 1CP.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Formidably Resilient" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time an attack is allocated to this model, halve the Damage characteristic of that attack.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Enhancement: Tzagulla" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">**HERETIC ASTARTES** model with the Deep Strike ability only. Improve the Attacks, Strength and Armour Penetration characteristics of the bearer’s weapons by 1. In addition, each time the bearer’s unit is set up on the battlefield from Reserves, until the end of the turn, improve the Damage characteristic of the bearer’s weapons by 1.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Combi-bolter" type="upgrade" number="1">
+        <profiles>
+          <profile name="Combi-bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Rapid Fire 2</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Exalted weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Exalted weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">6</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Chaos Space Marines"/>
+        <category name="Infantry"/>
+        <category name="Character"/>
+        <category name="Chaos"/>
+        <category name="Terminator"/>
+        <category name="Chaos Lord"/>
+        <category name="Chaos Lord in Terminator Armour"/>
+      </categories>
+    </selection>
+    <selection name="Warpsmith" type="model" number="1">
+      <profiles>
+        <profile name="Warpsmith" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">4</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Havocs</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Dark Pacts" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Warpsmith" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">While this model is within 3&quot; of one or more friendly **HERETIC ASTARTES VEHICLE** units, this model has the Lone Operative ability.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Master of Mechanisms" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">In your Command phase, select one friendly **HERETIC ASTARTES VEHICLE** model within 3&quot; of this model. That **VEHICLE** model regains up to D3 lost wounds and, until the start of your next Command phase, each time that **VEHICLE** makes an attack, add 1 to the Hit roll. Each model can only be selected for this ability once per Command phase.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Enrage Machine Spirits" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">At the end of your Movement phase, select one enemy **VEHICLE** unit within 12&quot; of this model. That unit must take a Battle-shock test.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Enhancement: Eye of Oblivion" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Warpsmith model only. When this unit is selected to shoot, select one enemy unit within 24&quot; of this unit. That enemy unit has +6&quot; detection range until this unit has shot.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Plasma pistol - standard" type="upgrade" number="1">
+        <profiles>
+          <profile name="Plasma pistol - standard" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Pistol</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Plasma pistol - supercharge" type="upgrade" number="1">
+        <profiles>
+          <profile name="Plasma pistol - supercharge" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Pistol, Hazardous</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Melta tendril" type="upgrade" number="1">
+        <profiles>
+          <profile name="Melta tendril" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">6&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">-4</characteristic>
+              <characteristic name="D">D3</characteristic>
+              <characteristic name="Keywords">Pistol, Melta 2</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Forge weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Forge weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Anti-vehicle 4+</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Flamer tendril" type="upgrade" number="1">
+        <profiles>
+          <profile name="Flamer tendril" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">D6</characteristic>
+              <characteristic name="BS">-</characteristic>
+              <characteristic name="S">3</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Pistol, Torrent, Ignores Cover</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Chaos Space Marines"/>
+        <category name="Infantry"/>
+        <category name="Character"/>
+        <category name="Grenades"/>
+        <category name="Chaos"/>
+        <category name="Warpsmith"/>
+      </categories>
+    </selection>
+    <selection name="Kravek Morne" type="model" number="1">
+      <profiles>
+        <profile name="Kravek Morne" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">6</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Chaos Terminator Squad B</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Dark Pacts" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Headlong Destruction" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time a model in this unit makes an attack that targets the closest eligible enemy unit, improve the Armour Penetration characteristic of that attack by 1.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Architect of Ruin" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">At the start of the battle, select one unit in your opponent’s army to be this model’s hated foe. Each time this model makes an attack that targets its hated foe, you can re-roll the Wound roll. Each time this model’s hated foe is destroyed, you can select a new unit from your opponent’s army to be its hated foe.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Servo-harness" type="upgrade" number="1">
+        <profiles>
+          <profile name="Servo-harness" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Extra Attacks, Anti-vehicle 2+</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Last Argument and power fist" type="upgrade" number="1">
+        <profiles>
+          <profile name="Last Argument and power fist" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">7</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">10</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Devastating Wounds</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Combi-bolter" type="upgrade" number="1">
+        <profiles>
+          <profile name="Combi-bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Rapid Fire 2</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Baleflamer" type="upgrade" number="1">
+        <profiles>
+          <profile name="Baleflamer" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">D6+3</characteristic>
+              <characteristic name="BS">-</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Ignores Cover, Torrent</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Chaos Space Marines"/>
+        <category name="Infantry"/>
+        <category name="Character"/>
+        <category name="Epic Hero"/>
+        <category name="Chaos"/>
+        <category name="Chaos Undivided"/>
+        <category name="Terminator"/>
+        <category name="Kravek Morne"/>
+      </categories>
+    </selection>
+      </selections>
+    </force>
+  </forces>
+</roster>

@@ -1,0 +1,1176 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<roster id="40kapp-export" name="TEN THOUSAND AND NO MORE" battleScribeVersion="2.03" gameSystemId="sys-352e-adc2-7639-d6a9" gameSystemName="Warhammer 40,000 10th Edition" xmlns="http://www.battlescribe.net/schema/rosterSchema">
+  <forces>
+    <force name="Army Roster" catalogueName="Adeptus Custodes">
+      <selections>
+    <selection name="Prosecutors" type="unit" number="1">
+      <profiles>
+        <profile name="Daughters of the Abyss" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Models in this unit have the Feel No Pain 3+ ability against Psychic Attacks and mortal wounds.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Purity of Execution" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time a model in this unit makes a ranged attack that targets a **PSYKER** unit, that attack has the **[PRECISION]** and **[DEVASTATING WOUNDS]** abilities.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Prosecutor" type="model" number="3">
+        <profiles>
+        <profile name="Prosecutor" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">3</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">1</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Close combat weapon" type="upgrade" number="3">
+        <profiles>
+          <profile name="Close combat weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">3</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Boltgun" type="upgrade" number="3">
+        <profiles>
+          <profile name="Boltgun" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">RAPID FIRE 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Prosecutor Sister Superior" type="model" number="1">
+        <profiles>
+        <profile name="Prosecutor Sister Superior" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">3</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">1</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Boltgun" type="upgrade" number="1">
+        <profiles>
+          <profile name="Boltgun" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">RAPID FIRE 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Close combat weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Close combat weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">3</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Adeptus Custodes"/>
+        <category name="Imperium"/>
+        <category name="Prosecutors"/>
+        <category name="Anathema Psykana"/>
+        <category name="Infantry"/>
+      </categories>
+    </selection>
+    <selection name="Custodian Guard A" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Shield-Captain A</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Martial Ka’tah" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Stand Vigil" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time a model in this unit makes an attack, re-roll a Wound roll of 1. While this unit is within range of an objective marker you control, you can re-roll the Wound roll instead.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Sentinel Storm" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per battle, in your Shooting phase, after this unit has shot, it can shoot again.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Custodian Guard" type="model" number="4">
+        <profiles>
+        <profile name="Custodian Guard" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Guardian spear - ranged" type="upgrade" number="4">
+        <profiles>
+          <profile name="Guardian spear - ranged" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Assault</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Guardian spear - melee" type="upgrade" number="4">
+        <profiles>
+          <profile name="Guardian spear - melee" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Adeptus Custodes"/>
+        <category name="Infantry"/>
+        <category name="Custodian Guard"/>
+        <category name="Battleline"/>
+        <category name="Imperium"/>
+      </categories>
+    </selection>
+    <selection name="Custodian Guard B" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Shield-Captain B</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Martial Ka’tah" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Stand Vigil" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time a model in this unit makes an attack, re-roll a Wound roll of 1. While this unit is within range of an objective marker you control, you can re-roll the Wound roll instead.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Sentinel Storm" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per battle, in your Shooting phase, after this unit has shot, it can shoot again.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Custodian Guard" type="model" number="4">
+        <profiles>
+        <profile name="Custodian Guard" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Guardian spear - ranged" type="upgrade" number="4">
+        <profiles>
+          <profile name="Guardian spear - ranged" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Assault</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Guardian spear - melee" type="upgrade" number="4">
+        <profiles>
+          <profile name="Guardian spear - melee" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Adeptus Custodes"/>
+        <category name="Infantry"/>
+        <category name="Custodian Guard"/>
+        <category name="Battleline"/>
+        <category name="Imperium"/>
+      </categories>
+    </selection>
+    <selection name="Venatari Custodians A" type="unit" number="1">
+      <profiles>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Martial Ka’tah" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Strike from the Skies" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This unit is eligible to shoot and declare a charge in a turn in which it Fell Back.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Swooping Dive" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per battle, you can target this unit with the Rapid Ingress Stratagem for 0CP, and can do so even if you have already targeted a different unit with that Stratagem this phase.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Venatari Custodian" type="model" number="3">
+        <profiles>
+        <profile name="Venatari Custodian" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">10&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Venatari lance" type="upgrade" number="3">
+        <profiles>
+          <profile name="Venatari lance" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">4</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Assault</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Adeptus Custodes"/>
+        <category name="Jump Pack"/>
+        <category name="Infantry"/>
+        <category name="Venatari Custodians"/>
+        <category name="Fly"/>
+        <category name="Imperium"/>
+      </categories>
+    </selection>
+    <selection name="Venatari Custodians B" type="unit" number="1">
+      <profiles>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Martial Ka’tah" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Strike from the Skies" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This unit is eligible to shoot and declare a charge in a turn in which it Fell Back.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Swooping Dive" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per battle, you can target this unit with the Rapid Ingress Stratagem for 0CP, and can do so even if you have already targeted a different unit with that Stratagem this phase.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Venatari Custodian" type="model" number="3">
+        <profiles>
+        <profile name="Venatari Custodian" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">10&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Venatari lance" type="upgrade" number="3">
+        <profiles>
+          <profile name="Venatari lance" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">4</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Assault</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Adeptus Custodes"/>
+        <category name="Jump Pack"/>
+        <category name="Infantry"/>
+        <category name="Venatari Custodians"/>
+        <category name="Fly"/>
+        <category name="Imperium"/>
+      </categories>
+    </selection>
+    <selection name="Custodian Wardens" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Trajann Valoris</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Martial Ka’tah" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Resolute Will" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">While a **CHARACTER** model is leading this unit, each time an attack targets this unit, if the Strength characteristic of that attack is greater than the Toughness characteristic of this unit, subtract 1 from the Wound roll.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Living Fortress" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per battle, at the start of any phase, this unit can use this ability. If it does, until the end of the phase, models in this unit have the Feel No Pain 4+ ability.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Custodian Warden" type="model" number="4">
+        <profiles>
+        <profile name="Custodian Warden" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Guardian spear - ranged" type="upgrade" number="4">
+        <profiles>
+          <profile name="Guardian spear - ranged" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Assault</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Guardian spear - melee" type="upgrade" number="4">
+        <profiles>
+          <profile name="Guardian spear - melee" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Adeptus Custodes"/>
+        <category name="Custodian Wardens"/>
+        <category name="Infantry"/>
+        <category name="Imperium"/>
+      </categories>
+    </selection>
+    <selection name="Vertus Praetors" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Shield-Captain on Dawneagle Jetbike</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Martial Ka’tah" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Turbo-boost" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit Advances, do not make an Advance roll. Instead, until the end of the phase, add 6&quot; to the Move characteristic of models in this unit.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Quicksilver Execution" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per battle, after this unit ends a Normal or Advance move, you can select one enemy unit (excluding **MONSTERS** and **VEHICLES**) that it moved over during that move, then roll one D6 for each model in this unit: for each 2+, that enemy unit suffers 2 mortal wounds.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Vertus Praetor w/ Salvo launcher" type="model" number="1">
+        <profiles>
+        <profile name="Vertus Praetor w/ Salvo launcher" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">7</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">5</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Interceptor lance" type="upgrade" number="1">
+        <profiles>
+          <profile name="Interceptor lance" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Lance</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Salvo launcher" type="upgrade" number="1">
+        <profiles>
+          <profile name="Salvo launcher" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">10</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">D6+1</characteristic>
+              <characteristic name="Keywords">Twin-linked</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Vertus Praetor w/ Vertus hurricane bolter" type="model" number="1">
+        <profiles>
+        <profile name="Vertus Praetor w/ Vertus hurricane bolter" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">7</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">5</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Interceptor lance" type="upgrade" number="1">
+        <profiles>
+          <profile name="Interceptor lance" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Lance</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Vertus hurricane bolter" type="upgrade" number="1">
+        <profiles>
+          <profile name="Vertus hurricane bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Rapid Fire 3, Twin-linked</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Adeptus Custodes"/>
+        <category name="Fly"/>
+        <category name="Imperium"/>
+        <category name="Vertus Praetors"/>
+        <category name="Mounted"/>
+      </categories>
+    </selection>
+    <selection name="Telemon Heavy Dreadnought" type="model" number="1">
+      <profiles>
+        <profile name="Telemon Heavy Dreadnought" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">8&quot;</characteristic>
+            <characteristic name="T">10</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">12</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">4</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deadly Demise D3" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Deadly Demise X. Each time a model with this ability is destroyed, after the units embarked within it (if any) have made their emergency disembark moves, roll one D6. On a 6, that model suffers a deadly demise; each unit within 6&quot; of that model suffers a number of mortal wounds denoted by X (if this is a random number, roll separately for each unit within 6&quot;).</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Martial Ka’tah" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Guardian Eternal" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time an attack is allocated to this model, subtract 1 from the Damage characteristic of that attack.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Devoted to Destruction" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">If this model is equipped with 2 Telemon caestus weapons in addition to its armoured feet weapon, add 2 to the Attacks characteristic of those Telemon caestus weapons.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Iliastus accelerator culverin" type="upgrade" number="2">
+        <profiles>
+          <profile name="Iliastus accelerator culverin" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">48&quot;</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">9</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">3</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Armoured feet" type="upgrade" number="1">
+        <profiles>
+          <profile name="Armoured feet" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Spiculus bolt launcher" type="upgrade" number="1">
+        <profiles>
+          <profile name="Spiculus bolt launcher" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">36&quot;</characteristic>
+              <characteristic name="A">D6+3</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Blast</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Adeptus Custodes"/>
+        <category name="Imperium"/>
+        <category name="Walker"/>
+        <category name="Telemon Heavy Dreadnought"/>
+        <category name="Vehicle"/>
+      </categories>
+    </selection>
+    <selection name="Shield-Captain on Dawneagle Jetbike" type="model" number="1">
+      <profiles>
+        <profile name="Shield-Captain on Dawneagle Jetbike" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">12&quot;</characteristic>
+            <characteristic name="T">7</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">8</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Vertus Praetors</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Martial Ka’tah" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Sweeping Advance" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per battle, at the end of the Fight phase, if this model’s unit has fought this phase, if it is within Engagement Range of one or more enemy units, it can make a Fall Back move or, if it is not within Engagement Range of one or more enemy units, it can make a Normal move.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Strategic Mastery" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per battle round, one unit from your army with this ability can use it when it is targeted with a Stratagem. If it does, reduce the CP cost of that usage of that Stratagem by 1CP.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Interceptor lance" type="upgrade" number="1">
+        <profiles>
+          <profile name="Interceptor lance" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">6</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Lance</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Vertus hurricane bolter" type="upgrade" number="1">
+        <profiles>
+          <profile name="Vertus hurricane bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Rapid Fire 3, Twin-linked</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Adeptus Custodes"/>
+        <category name="Shield-Captain"/>
+        <category name="Dawneagle Jetbike"/>
+        <category name="Imperium"/>
+        <category name="Mounted"/>
+        <category name="Fly"/>
+        <category name="Character"/>
+      </categories>
+    </selection>
+    <selection name="Trajann Valoris" type="model" number="1">
+      <profiles>
+        <profile name="Trajann Valoris" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">7</characteristic>
+            <characteristic name="LD">5+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Custodian Wardens</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Feel No Pain 5+" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Feel No Pain X+. Each time a model with this ability would lose a wound, roll one D6: on an X+, that wound is not lost.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Martial Ka’tah" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Captain-General" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">While this model is leading a unit, each time a model in this unit makes an attack, you can ignore any or all modifiers to that attack’s Ballistic skill or Weapon skill characteristics and/or all modifiers to the Hit roll.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Moment Shackle" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per battle, at the start of the Fight phase, you can select one of the following to take effect until the end of the phase:
+■ This model’s Watcher’s Axe melee weapon has an Attacks characteristic of 12.
+■ This model has a 2+ invulnerable save.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Eagle’s Scream" type="upgrade" number="1">
+        <profiles>
+          <profile name="Eagle’s Scream" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">3</characteristic>
+              <characteristic name="Keywords">Assault</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Watcher’s Axe" type="upgrade" number="1">
+        <profiles>
+          <profile name="Watcher’s Axe" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">6</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">10</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">3</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Adeptus Custodes"/>
+        <category name="Infantry"/>
+        <category name="Imperium"/>
+        <category name="Epic Hero"/>
+        <category name="Character"/>
+        <category name="Trajann Valoris"/>
+      </categories>
+    </selection>
+    <selection name="Shield-Captain A" type="model" number="1">
+      <profiles>
+        <profile name="Shield-Captain A" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">6</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Custodian Guard A</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Martial Ka’tah" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Master of the Stances" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per battle, when this model’s unit is selected to fight, it can use this ability. If it does, until that fight is resolved, both Ka’tah Stances are active for that unit, instead of only one.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Strategic Mastery" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per battle round, one unit from your army with this ability can use it when it is targeted with a Stratagem. If it does, reduce the CP cost of that usage of that Stratagem by 1CP.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Guardian spear - Ranged" type="upgrade" number="1">
+        <profiles>
+          <profile name="Guardian spear - Ranged" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Assault</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Guardian spear - Melee" type="upgrade" number="1">
+        <profiles>
+          <profile name="Guardian spear - Melee" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">7</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Adeptus Custodes"/>
+        <category name="Shield-Captain"/>
+        <category name="Infantry"/>
+        <category name="Character"/>
+        <category name="Imperium"/>
+      </categories>
+    </selection>
+    <selection name="Shield-Captain B" type="model" number="1">
+      <profiles>
+        <profile name="Shield-Captain B" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">6</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Custodian Guard B</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Martial Ka’tah" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Master of the Stances" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per battle, when this model’s unit is selected to fight, it can use this ability. If it does, until that fight is resolved, both Ka’tah Stances are active for that unit, instead of only one.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Strategic Mastery" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per battle round, one unit from your army with this ability can use it when it is targeted with a Stratagem. If it does, reduce the CP cost of that usage of that Stratagem by 1CP.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Guardian spear - Ranged" type="upgrade" number="1">
+        <profiles>
+          <profile name="Guardian spear - Ranged" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Assault</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Guardian spear - Melee" type="upgrade" number="1">
+        <profiles>
+          <profile name="Guardian spear - Melee" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">7</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Adeptus Custodes"/>
+        <category name="Shield-Captain"/>
+        <category name="Infantry"/>
+        <category name="Character"/>
+        <category name="Imperium"/>
+      </categories>
+    </selection>
+    <selection name="Contemptor-Galatus Dreadnought" type="model" number="1">
+      <profiles>
+        <profile name="Contemptor-Galatus Dreadnought" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">9</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">10</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">3</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deadly Demise 1" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Deadly Demise X. Each time a model with this ability is destroyed, after the units embarked within it (if any) have made their emergency disembark moves, roll one D6. On a 6, that model suffers a deadly demise; each unit within 6&quot; of that model suffers a number of mortal wounds denoted by X (if this is a random number, roll separately for each unit within 6&quot;).</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Martial Ka’tah" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Galatus Shield" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time a melee attack targets this model, subtract 1 from the Wound roll.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Galatus warblade" type="upgrade" number="1">
+        <profiles>
+          <profile name="Galatus warblade" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">D6</characteristic>
+              <characteristic name="BS">-</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Ignores Cover, Torrent, Twin-linked</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Adeptus Custodes"/>
+        <category name="Walker"/>
+        <category name="Contemptor-Galatus Dreadnought"/>
+        <category name="Imperium"/>
+        <category name="Vehicle"/>
+      </categories>
+    </selection>
+      </selections>
+    </force>
+  </forces>
+</roster>

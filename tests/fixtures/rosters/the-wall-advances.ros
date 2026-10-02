@@ -1,0 +1,1413 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<roster id="40kapp-export" name="THE WALL ADVANCES" battleScribeVersion="2.03" gameSystemId="sys-352e-adc2-7639-d6a9" gameSystemName="Warhammer 40,000 10th Edition" xmlns="http://www.battlescribe.net/schema/rosterSchema">
+  <forces>
+    <force name="Army Roster" catalogueName="Imperial Fists">
+      <selections>
+    <selection name="Tor Garadon" type="model" number="1">
+      <profiles>
+        <profile name="Tor Garadon" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">6</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Eradicator Squad with heavy bolters B</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Siege Captain" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This model’s attacks that target a Fortification/Monster/Vehicle unit have +2 S, AP and D.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Signum Array" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">In your Shooting phase, you can select one visible enemy unit within 18&quot; of this unit. That enemy unit cannot have the benefit of cover.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Transhuman Strategist" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Artificer Grav-gun" type="upgrade" number="1">
+        <profiles>
+          <profile name="Artificer Grav-gun" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">ANTI-VEHICLE 2+</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Hand of Defiance" type="upgrade" number="1">
+        <profiles>
+          <profile name="Hand of Defiance" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">12</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Imperial Fists"/>
+        <category name="Character"/>
+        <category name="Captain"/>
+        <category name="Imperium"/>
+        <category name="Epic Hero"/>
+        <category name="Infantry"/>
+        <category name="Gravis"/>
+      </categories>
+    </selection>
+    <selection name="Eradicator Squad with heavy bolters A" type="unit" number="1">
+      <profiles>
+        <profile name="Overlapping Destruction" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">In your Shooting phase, you can select one enemy unit. This unit’s Heavy Bolter weapons that target that enemy unit have [Blast 1].</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Eradicator Sergeant" type="model" number="1">
+        <profiles>
+        <profile name="Eradicator Sergeant" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Ceramite Fists" type="upgrade" number="1">
+        <profiles>
+          <profile name="Ceramite Fists" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Bolter" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy Bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">36&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">HEAVY, RAPID FIRE 2, SUSTAINED HITS 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Bolt Pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Eradicator" type="model" number="5">
+        <profiles>
+        <profile name="Eradicator" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Ceramite Fists" type="upgrade" number="5">
+        <profiles>
+          <profile name="Ceramite Fists" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Bolter" type="upgrade" number="5">
+        <profiles>
+          <profile name="Heavy Bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">36&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">HEAVY, RAPID FIRE 2, SUSTAINED HITS 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Bolt Pistol" type="upgrade" number="5">
+        <profiles>
+          <profile name="Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Imperial Fists"/>
+        <category name="Infantry"/>
+        <category name="Imperium"/>
+        <category name="Gravis"/>
+        <category name="Explosives"/>
+      </categories>
+    </selection>
+    <selection name="Repulsor Executioner A" type="model" number="1">
+      <profiles>
+        <profile name="Repulsor Executioner A" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">10&quot;</characteristic>
+            <characteristic name="T">12</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">16</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">5</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Executioner" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This unit’s ranged attacks that target a unit not below half-strength have +1 to hit rolls.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Damaged 6" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Damaged X. While a model’s remaining wounds are equal to or less than X, that model is damaged:While a model is damaged, that model's attacks have -1 to hit rolls.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deadly Demise D6" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Deadly Demise X. Each time a model with this ability is destroyed, after the units embarked within it (if any) have made their emergency disembark moves, roll one D6. On a 6, that model suffers a deadly demise; each unit within 6&quot; of that model suffers a number of mortal wounds denoted by X (if this is a random number, roll separately for each unit within 6&quot;).</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Defensive Array" type="upgrade" number="1">
+        <profiles>
+          <profile name="Defensive Array" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">18</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Twin Heavy Bolter" type="upgrade" number="1">
+        <profiles>
+          <profile name="Twin Heavy Bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">36&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">RAPID FIRE 2, SUSTAINED HITS 1, TWIN-LINKED</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Onslaught Gatling Cannon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy Onslaught Gatling Cannon" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">12</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">DEVASTATING WOUNDS: non-MONSTER/VEHICLE, SUSTAINED HITS 2: non-MONSTER/VEHICLE</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Armoured Hull" type="upgrade" number="1">
+        <profiles>
+          <profile name="Armoured Hull" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">6</characteristic>
+              <characteristic name="WS">4+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Laser Destroyer" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy Laser Destroyer" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">72&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">16</characteristic>
+              <characteristic name="AP">-4</characteristic>
+              <characteristic name="D">D6+4</characteristic>
+              <characteristic name="Keywords">DEVASTATING WOUNDS, HEAVY</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Imperial Fists"/>
+        <category name="Smoke"/>
+        <category name="Frame"/>
+        <category name="Vehicle"/>
+        <category name="Transport"/>
+        <category name="Imperium"/>
+      </categories>
+    </selection>
+    <selection name="Repulsor Executioner B" type="model" number="1">
+      <profiles>
+        <profile name="Repulsor Executioner B" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">10&quot;</characteristic>
+            <characteristic name="T">12</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">16</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">5</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Executioner" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This unit’s ranged attacks that target a unit not below half-strength have +1 to hit rolls.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Damaged 6" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Damaged X. While a model’s remaining wounds are equal to or less than X, that model is damaged:While a model is damaged, that model's attacks have -1 to hit rolls.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deadly Demise D6" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Deadly Demise X. Each time a model with this ability is destroyed, after the units embarked within it (if any) have made their emergency disembark moves, roll one D6. On a 6, that model suffers a deadly demise; each unit within 6&quot; of that model suffers a number of mortal wounds denoted by X (if this is a random number, roll separately for each unit within 6&quot;).</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Enhancement: Redoubtable Machine Spirit (Upgrade)" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Adeptus Astartes Vehicle unit only (excluding Dedicated Transport/Fly/Walker units). This unit:Has 5+ InSv.At the end of your Command phase, heals 1 wound.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Defensive Array" type="upgrade" number="1">
+        <profiles>
+          <profile name="Defensive Array" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">18</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Twin Heavy Bolter" type="upgrade" number="1">
+        <profiles>
+          <profile name="Twin Heavy Bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">36&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">RAPID FIRE 2, SUSTAINED HITS 1, TWIN-LINKED</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Onslaught Gatling Cannon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy Onslaught Gatling Cannon" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">12</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">DEVASTATING WOUNDS: non-MONSTER/VEHICLE, SUSTAINED HITS 2: non-MONSTER/VEHICLE</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Armoured Hull" type="upgrade" number="1">
+        <profiles>
+          <profile name="Armoured Hull" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">6</characteristic>
+              <characteristic name="WS">4+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Macro Plasma Incinerator - Standard" type="upgrade" number="1">
+        <profiles>
+          <profile name="Macro Plasma Incinerator - Standard" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">36&quot;</characteristic>
+              <characteristic name="A">D3+3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">9</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">BLAST 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Macro Plasma Incinerator - Supercharge" type="upgrade" number="1">
+        <profiles>
+          <profile name="Macro Plasma Incinerator - Supercharge" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">36&quot;</characteristic>
+              <characteristic name="A">D3+3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">10</characteristic>
+              <characteristic name="AP">-4</characteristic>
+              <characteristic name="D">3</characteristic>
+              <characteristic name="Keywords">BLAST 1, HAZARDOUS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Imperial Fists"/>
+        <category name="Smoke"/>
+        <category name="Frame"/>
+        <category name="Vehicle"/>
+        <category name="Transport"/>
+        <category name="Imperium"/>
+      </categories>
+    </selection>
+    <selection name="Ballistus Dreadnought A" type="model" number="1">
+      <profiles>
+        <profile name="Ballistus Dreadnought A" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">8&quot;</characteristic>
+            <characteristic name="T">10</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">12</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">4</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deadly Demise D3" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Deadly Demise X. Each time a model with this ability is destroyed, after the units embarked within it (if any) have made their emergency disembark moves, roll one D6. On a 6, that model suffers a deadly demise; each unit within 6&quot; of that model suffers a number of mortal wounds denoted by X (if this is a random number, roll separately for each unit within 6&quot;).</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Ballistus Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This unit’s ranged attacks that target an enemy unit within 24&quot; of this unit have [Sustained Hits 1].</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Damaged 4" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Damaged X. While a model’s remaining wounds are equal to or less than X, that model is damaged:While a model is damaged, that model's attacks have -1 to hit rolls.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Enhancement: Venerable Champion (Aura) (Upgrade)" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Dreadnought unit only. While a friendly Adeptus Astartes Infantry/Mounted unit is within 6&quot; of this unit, that unit’s attacks can re-roll hit rolls of 1.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Storm Bolters" type="upgrade" number="1">
+        <profiles>
+          <profile name="Storm Bolters" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">RAPID FIRE 4</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Ballistus Lascannon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Ballistus Lascannon" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">48&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">12</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">D3+3</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Ballistus Missile Launcher - Frag" type="upgrade" number="1">
+        <profiles>
+          <profile name="Ballistus Missile Launcher - Frag" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">48&quot;</characteristic>
+              <characteristic name="A">D6+6</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">BLAST 2</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Ballistus Missile Launcher - Krak" type="upgrade" number="1">
+        <profiles>
+          <profile name="Ballistus Missile Launcher - Krak" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">48&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">10</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">D3+3</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Armoured Feet" type="upgrade" number="1">
+        <profiles>
+          <profile name="Armoured Feet" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Imperial Fists"/>
+        <category name="Vehicle"/>
+        <category name="Dreadnought"/>
+        <category name="Imperium"/>
+        <category name="Walker"/>
+      </categories>
+    </selection>
+    <selection name="Ballistus Dreadnought B" type="model" number="1">
+      <profiles>
+        <profile name="Ballistus Dreadnought B" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">8&quot;</characteristic>
+            <characteristic name="T">10</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">12</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">4</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deadly Demise D3" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Deadly Demise X. Each time a model with this ability is destroyed, after the units embarked within it (if any) have made their emergency disembark moves, roll one D6. On a 6, that model suffers a deadly demise; each unit within 6&quot; of that model suffers a number of mortal wounds denoted by X (if this is a random number, roll separately for each unit within 6&quot;).</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Ballistus Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This unit’s ranged attacks that target an enemy unit within 24&quot; of this unit have [Sustained Hits 1].</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Damaged 4" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">This ability always takes the form Damaged X. While a model’s remaining wounds are equal to or less than X, that model is damaged:While a model is damaged, that model's attacks have -1 to hit rolls.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Enhancement: Artificer Sarcophagus (Upgrade)" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Dreadnought unit only. Attacks that target this unit have -1 D.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Storm Bolters" type="upgrade" number="1">
+        <profiles>
+          <profile name="Storm Bolters" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">RAPID FIRE 4</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Ballistus Lascannon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Ballistus Lascannon" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">48&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">12</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">D3+3</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Ballistus Missile Launcher - Frag" type="upgrade" number="1">
+        <profiles>
+          <profile name="Ballistus Missile Launcher - Frag" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">48&quot;</characteristic>
+              <characteristic name="A">D6+6</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">BLAST 2</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Ballistus Missile Launcher - Krak" type="upgrade" number="1">
+        <profiles>
+          <profile name="Ballistus Missile Launcher - Krak" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">48&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">10</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">D3+3</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Armoured Feet" type="upgrade" number="1">
+        <profiles>
+          <profile name="Armoured Feet" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Imperial Fists"/>
+        <category name="Vehicle"/>
+        <category name="Dreadnought"/>
+        <category name="Imperium"/>
+        <category name="Walker"/>
+      </categories>
+    </selection>
+    <selection name="Darnath Lysander" type="model" number="1">
+      <profiles>
+        <profile name="Darnath Lysander" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">7</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Terminator Assault Squad</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Rampart (Once per battle, per army)" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">At the start of any phase, you can use this ability. If you do, this model has 2+ InSv until the end of the phase.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Transhuman Strategist" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Icon of Obstinacy" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Attacks that target this unit have -1 to hit rolls.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Fist of Dorn" type="upgrade" number="1">
+        <profiles>
+          <profile name="Fist of Dorn" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">10</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">3</characteristic>
+              <characteristic name="Keywords">CLEAVE 1, DEVASTATING WOUNDS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Imperial Fists"/>
+        <category name="Epic Hero"/>
+        <category name="Character"/>
+        <category name="Terminator"/>
+        <category name="Captain"/>
+        <category name="Infantry"/>
+        <category name="Imperium"/>
+      </categories>
+    </selection>
+    <selection name="Terminator Assault Squad" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Darnath Lysander</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Teleport Homer (Once per battle, per unit)" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">At the start of the battle, you can set up one Teleport Homer token for this unit on the battlefield. If you do:When you target this unit with the Rapid Ingress stratagem, you can use that Teleport Homer token. If you do, that use is -1 CP, but when resolving that stratagem, this unit must be set up within 3&quot; of that Teleport Homer token and not within 8&quot; of an enemy unit. That Teleport Homer token is then removed from the battlefield. If an enemy unit ends a move within 1&quot; of that Teleport Homer token, that Teleport Homer token is removed from the battlefield.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Terminatus Assault" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">If this unit made a charge move this turn, this unit’s:Lightning Claws weapons have [Sustained Hits 1: non-Monster/Vehicle].Thunder Hammer weapons have [Sustained Hits 1: Monster/Vehicle].</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Terminator" type="model" number="4">
+        <profiles>
+        <profile name="Terminator" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Thunder Hammer" type="upgrade" number="4">
+        <profiles>
+          <profile name="Thunder Hammer" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">3</characteristic>
+              <characteristic name="Keywords">DEVASTATING WOUNDS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Terminator Sergeant" type="model" number="1">
+        <profiles>
+        <profile name="Terminator Sergeant" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Thunder Hammer" type="upgrade" number="1">
+        <profiles>
+          <profile name="Thunder Hammer" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">8</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">3</characteristic>
+              <characteristic name="Keywords">DEVASTATING WOUNDS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Imperial Fists"/>
+        <category name="Terminator"/>
+        <category name="Infantry"/>
+        <category name="Imperium"/>
+      </categories>
+    </selection>
+    <selection name="Eradicator Squad with heavy bolters B" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Tor Garadon</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Overlapping Destruction" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">In your Shooting phase, you can select one enemy unit. This unit’s Heavy Bolter weapons that target that enemy unit have [Blast 1].</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Eradicator Sergeant" type="model" number="1">
+        <profiles>
+        <profile name="Eradicator Sergeant" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Ceramite Fists" type="upgrade" number="1">
+        <profiles>
+          <profile name="Ceramite Fists" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Bolter" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy Bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">36&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">HEAVY, RAPID FIRE 2, SUSTAINED HITS 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Bolt Pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Eradicator" type="model" number="5">
+        <profiles>
+        <profile name="Eradicator" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Ceramite Fists" type="upgrade" number="5">
+        <profiles>
+          <profile name="Ceramite Fists" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Bolter" type="upgrade" number="5">
+        <profiles>
+          <profile name="Heavy Bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">36&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">HEAVY, RAPID FIRE 2, SUSTAINED HITS 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Bolt Pistol" type="upgrade" number="5">
+        <profiles>
+          <profile name="Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Imperial Fists"/>
+        <category name="Infantry"/>
+        <category name="Imperium"/>
+        <category name="Gravis"/>
+        <category name="Explosives"/>
+      </categories>
+    </selection>
+    <selection name="Heavy Intercessor Squad" type="unit" number="1">
+      <profiles>
+        <profile name="Unyielding in the Face of the Foe" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">While this unit is controlling an objective, this unit has +1 to save rolls.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Heavy Intercessor Sergeant" type="model" number="1">
+        <profiles>
+        <profile name="Heavy Intercessor Sergeant" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Ceramite Fists" type="upgrade" number="1">
+        <profiles>
+          <profile name="Ceramite Fists" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Bolt Pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Bolt Rifle" type="upgrade" number="1">
+        <profiles>
+          <profile name="Heavy Bolt Rifle" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">30&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">HEAVY, RAPID FIRE 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Heavy Intercessor" type="model" number="4">
+        <profiles>
+        <profile name="Heavy Intercessor" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Ceramite Fists" type="upgrade" number="4">
+        <profiles>
+          <profile name="Ceramite Fists" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Bolt Pistol" type="upgrade" number="4">
+        <profiles>
+          <profile name="Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Heavy Bolt Rifle" type="upgrade" number="4">
+        <profiles>
+          <profile name="Heavy Bolt Rifle" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">30&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">HEAVY, RAPID FIRE 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Imperial Fists"/>
+        <category name="Imperium"/>
+        <category name="Gravis"/>
+        <category name="Battleline"/>
+        <category name="Infantry"/>
+        <category name="Explosives"/>
+      </categories>
+    </selection>
+    <selection name="Intercessor Squad" type="unit" number="1">
+      <profiles>
+        <profile name="Combat Doctrines" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Bolter Discipline" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">In your Shooting phase, if any of the following apply, this unit’s ranged attacks have +1 to hit rolls:This unit is within range of an objective.The target of that attack is within range of an objective.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Tactical Mainstay" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Being engaged/battle-shocked does not prevent this unit from being eligible to start an action.When this unit starts an action, that action does not prevent this unit from being eligible to shoot.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Intercessor" type="model" number="4">
+        <profiles>
+        <profile name="Intercessor" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Knives and Fists" type="upgrade" number="4">
+        <profiles>
+          <profile name="Knives and Fists" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Bolt Pistol" type="upgrade" number="4">
+        <profiles>
+          <profile name="Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Bolt Rifle - Focused Fire" type="upgrade" number="4">
+        <profiles>
+          <profile name="Bolt Rifle - Focused Fire" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">HEAVY, RAPID FIRE 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Bolt Rifle - Saturation" type="upgrade" number="4">
+        <profiles>
+          <profile name="Bolt Rifle - Saturation" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">ASSAULT, RAPID FIRE 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Intercessor Sergeant" type="model" number="1">
+        <profiles>
+        <profile name="Intercessor Sergeant" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Bolt Rifle - Focused Fire" type="upgrade" number="1">
+        <profiles>
+          <profile name="Bolt Rifle - Focused Fire" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">HEAVY, RAPID FIRE 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Bolt Rifle - Saturation" type="upgrade" number="1">
+        <profiles>
+          <profile name="Bolt Rifle - Saturation" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">ASSAULT, RAPID FIRE 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Knives and Fists" type="upgrade" number="1">
+        <profiles>
+          <profile name="Knives and Fists" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Bolt Pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Bolt Pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">CLOSE-QUARTERS</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Imperial Fists"/>
+        <category name="Imperium"/>
+        <category name="Explosives"/>
+        <category name="Tacticus"/>
+        <category name="Battleline"/>
+        <category name="Infantry"/>
+      </categories>
+    </selection>
+      </selections>
+    </force>
+  </forces>
+</roster>
