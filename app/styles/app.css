@@ -363,3 +363,24 @@ details > summary{cursor:pointer}
 .cards.sources .card:hover{border-color:var(--jade)}
 .cards.sources .card small:first-child{margin:0 0 6px}
 .cards.sources .big{font-size:26px; line-height:1.1}
+
+/* profile differences on the import review: a unit's row opens to the roster and Wahapedia side by side */
+button.pill{background:transparent; cursor:pointer; font-family:inherit; line-height:inherit}
+button.pill:hover, button.pill[aria-expanded="true"]{background:color-mix(in oklab, var(--warn) 12%, var(--surface))}
+.dt tr.opened > td{border-bottom-color:transparent}
+.dt tr.diffrow > td{padding:0; text-align:left; background:var(--bg)}
+.diff{padding:8px 14px 12px 18px; border-left:3px solid var(--warn)}
+.dt table.pd{width:auto; min-width:0; font-size:13px; margin:0 0 10px}
+.dt .pd td{border-bottom:0; padding:3px 10px}
+.dt .pd tbody + tbody tr:first-child td{border-top:1px solid var(--line)}
+.dt .pd td.src{color:var(--muted); white-space:nowrap}
+.dt .pd td.chg{font-weight:700; background:color-mix(in oklab, var(--warn) 16%, var(--surface))}
+.diffact{display:flex; flex-wrap:wrap; gap:6px 22px; align-items:center; font-size:13.5px}
+.diffact a{color:var(--jade)}
+.dt .diff input[type="checkbox"]{width:auto; padding:0; border:0; margin-top:3px}
+
+/* a roster dragged over the Lists page */
+.dropveil{position:fixed; inset:0; z-index:60; display:grid; place-items:center; padding:16px; pointer-events:none; background:color-mix(in oklab, var(--bg) 82%, transparent); outline:3px dashed var(--jade); outline-offset:-12px}
+.dropveil > div{display:flex; flex-direction:column; gap:6px; max-width:420px; padding:22px 26px; border:1px solid var(--line); border-radius:14px; background:var(--surface); text-align:center; box-shadow:0 10px 40px rgba(0,0,0,.12)}
+.dropveil b{font-family:var(--serif); font-size:28px; font-weight:600; color:var(--ink)}
+.dropveil span{color:var(--muted); font-size:14px}

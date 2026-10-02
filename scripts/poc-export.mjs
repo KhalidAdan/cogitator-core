@@ -81,20 +81,14 @@ const fixRule = (r) => {
   if (out.scope == null) delete out.scope
   return out
 }
-const lists = [
-  {
-    id: "builtin-burning-v1",
-    meta: { ...poc.BUILTIN_META, faction: "Asuryani", detachments: ["Corsair Coterie", "Path of the Outcast"], mission: "Priority Assets" },
-    groups: poc.BUILTIN_GROUPS,
-    armyRules: poc.BUILTIN_ARMY_RULES,
-    rules: {},
-    units: poc.DEFAULT_UNITS
-  },
-  // Strike Force Cophasta is no longer shipped as a built-in list (its points are being corrected and it
-  // will come back as an ordinary import). The tests still check the engine and importer against it,
-  // reading it straight from the POC.
-  ...poc.EXTRA_BUILTIN_LISTS.filter((L) => L.id !== "builtin-cophasta")
-].map((L) => ({
+// One built-in list: the POC's imported v2 of The Burning One and the Exile, under the list's own name.
+// Its id keeps the "-v2" so that existing databases, links and settings still find it. The POC's
+// hand-built v1 and Strike Force Cophasta are no longer shipped (decisions D-27, D-35); the tests still
+// check the engine and importer against both, reading them straight from the POC.
+const lists = poc.EXTRA_BUILTIN_LISTS.filter((L) => L.id === "builtin-burning-v2").map((L) => ({
+  ...L,
+  meta: { ...L.meta, name: "The Burning One and the Exile" }
+})).map((L) => ({
   ...clone(L),
   rules: Object.fromEntries(Object.entries(clone(L.rules)).map(([k, v]) => [k, fixRule(v)]))
 }))

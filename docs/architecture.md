@@ -127,8 +127,9 @@ The `wh_*` tables, the loader and the change report are all generated from one r
 | `engine-parity.test.ts` | Cogitator calibration rows; the 88.0% anchor; 72,618 cells against the POC engine |
 | `importer-parity.test.ts` | the POC importer's output for both fixture rosters, and the 684 / 532 / 570 cell regression |
 | `library-rules.test.ts` | each rule added since the POC does what its wording says, and only then |
+| `rosters.test.ts` | your real rosters (`tests/fixtures/rosters`): read, fully translated, scored; and against the export, which weapons aren't on their datasheets |
 | `domain.test.ts` | option intents, the matrix and findings (including the handoff's headline numbers), keywords, effect descriptions |
-| `db.test.ts` | migrations, seed, repositories, typed errors |
+| `db.test.ts` | migrations, seed (and upgrading an older database's built-in lists), repositories, typed errors |
 | `mfm.test.ts` | the Field Manual reader and parser, version comparison, and pricing lists from it (against the saved pages when present) |
 | `wahapedia.test.ts` | the CSV dialect, the change report, points tiers; and against the real export: loading, diffing, datasheet queries, the list check, rule linking |
 

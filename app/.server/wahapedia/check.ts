@@ -167,19 +167,29 @@ export function pickDatasheet(
 /** Weapon names as lists write them: "Neuro disruptor (Felarch)" → "neuro disruptor". */
 const weaponKey = (nm: string) => norm(nm.replace(/\([^)]*\)/g, ""))
 
+/**
+ * Rosters split a weapon with a ranged and a melee profile by type ("Guardian
+ * spear - ranged"); the datasheet gives both rows the one name and tells them
+ * apart by type, which `findWargear` already filters on.
+ */
+const TYPE_SUFFIX = /\s*[-–—]\s*(ranged|melee)\s*$/i
+
 function findWargear(nm: string, wargear: ReadonlyArray<WargearProfile>, melee: boolean): { w: WargearProfile; exact: boolean } | null {
-  const key = weaponKey(nm)
   const sameType = wargear.filter((w) => (w.type === "Melee") === melee)
   const pool = sameType.length ? sameType : wargear
-  const exact = pool.find((w) => norm(w.name) === key)
-  if (exact) return { w: exact, exact: true }
-  // "Chainsword" ↔ "Astartes chainsword", "Fragstorm Grenade Launchers" ↔ "Fragstorm grenade launcher"
   const loose = (s: string) => s.replace(/s$/, "")
-  const near = pool.filter((w) => {
-    const k = norm(w.name)
-    return loose(k) === loose(key) || k.endsWith(" " + key) || key.endsWith(" " + k)
-  })
-  return near.length === 1 ? { w: near[0], exact: false } : null
+  // the name as written first, so a datasheet that really has a "… - melee" row still wins
+  for (const key of new Set([weaponKey(nm), weaponKey(nm.replace(TYPE_SUFFIX, ""))])) {
+    const exact = pool.find((w) => norm(w.name) === key)
+    if (exact) return { w: exact, exact: true }
+    // "Chainsword" ↔ "Astartes chainsword", "Fragstorm Grenade Launchers" ↔ "Fragstorm grenade launcher"
+    const near = pool.filter((w) => {
+      const k = norm(w.name)
+      return loose(k) === loose(key) || k.endsWith(" " + key) || key.endsWith(" " + k)
+    })
+    if (near.length === 1) return { w: near[0], exact: false }
+  }
+  return null
 }
 
 const dbSkill = (s: string) => (/n\/a|^-$/i.test(s.trim()) ? 0 : parseNum(s))
@@ -535,6 +545,98 @@ export const pointsDrift = Effect.fn("wahapedia.pointsDrift")(function*(list: Pi
   } satisfies PointsDrift
 })
 
+// ---------- the differences, side by side ----------
+
+/** A weapon profile as the tables print it. */
+export interface ProfileCells {
+  readonly A: string
+  readonly skill: string
+  readonly S: string
+  readonly AP: string
+  readonly D: string
+  readonly abilities: string
+}
+
+export interface StatCells {
+  readonly T: string
+  readonly Sv: string
+  readonly W: string
+  readonly inv: string
+}
+
+export interface WeaponDiff {
+  readonly nm: string
+  readonly melee: boolean
+  /** The datasheet's name for it, when it isn't spelled the same way. */
+  readonly matchedAs: string | null
+  readonly list: ProfileCells
+  /** Null when the datasheet has no such weapon. */
+  readonly db: ProfileCells | null
+  readonly changed: ReadonlyArray<keyof ProfileCells>
+}
+
+/**
+ * Where a unit's profile disagrees with its datasheet, with both sides in
+ * full so they can be read against each other. Neither side is "the old one":
+ * Wahapedia can lag a codex, so which is right is the reader's call.
+ */
+export interface ProfileDiff {
+  readonly stats: { readonly list: StatCells; readonly db: StatCells; readonly changed: ReadonlyArray<keyof StatCells> } | null
+  readonly weapons: ReadonlyArray<WeaponDiff>
+  readonly leader: string | null
+  /** Whether `applyProfiles` would change anything: a weapon missing from the datasheet can't be taken from it. */
+  readonly applicable: boolean
+}
+
+const profileCells = (w: Pick<Weapon, "A" | "sk" | "S" | "AP" | "D" | "kw">): ProfileCells => ({
+  A: String(w.A),
+  skill: w.kw?.torrent || !w.sk ? "N/A" : `${w.sk}+`,
+  S: String(w.S),
+  AP: w.AP ? `-${w.AP}` : "0",
+  D: String(w.D),
+  abilities: keywordText({ kw: w.kw })
+})
+
+const statCells = (s: { T: number; Sv: number; W: number; inv?: number }): StatCells => ({
+  T: String(s.T),
+  Sv: `${s.Sv}+`,
+  W: String(s.W),
+  inv: s.inv ? `${s.inv}+` : "none"
+})
+
+const WEAPON_CELL: Record<string, keyof ProfileCells> = { A: "A", WS: "skill", BS: "skill", S: "S", AP: "AP", D: "D", Abilities: "abilities" }
+const STAT_CELL: Record<string, keyof StatCells> = { T: "T", Sv: "Sv", W: "W", Invuln: "inv" }
+
+export function profileDiff(unit: Unit, check: UnitCheck): ProfileDiff {
+  const statsDiffer = Object.keys(check.stats).length > 0 && !!unit.stats && !!check.dbStats
+  const weapons = check.weapons.flatMap((c): Array<WeaponDiff> => {
+    const row = unit.w[c.index]
+    if (c.status === "ok" || !row) return []
+    return [{
+      nm: c.nm,
+      melee: row.t === "m",
+      matchedAs: c.matchedAs ?? null,
+      list: profileCells(row),
+      db: c.db ? profileCells(c.db) : null,
+      changed: Object.keys(c.changes).flatMap((k) => (WEAPON_CELL[k] ? [WEAPON_CELL[k]] : []))
+    }]
+  })
+  return {
+    stats: statsDiffer
+      ? {
+          list: statCells(unit.stats!),
+          db: statCells(check.dbStats!),
+          changed: Object.keys(check.stats).flatMap((k) => (STAT_CELL[k] ? [STAT_CELL[k]] : []))
+        }
+      : null,
+    weapons,
+    leader: check.leader,
+    applicable: statsDiffer || weapons.some((w) => w.db !== null)
+  }
+}
+
+// ---------- applying ----------
+
 /**
  * A unit with the database's values written over the list's: weapon profiles
  * and unit stats wherever the database had a match, and points where the
@@ -542,14 +644,18 @@ export const pointsDrift = Effect.fn("wahapedia.pointsDrift")(function*(list: Pi
  * left as the list had it.
  */
 export function applyCheck(unit: Unit, check: UnitCheck): Unit {
-  const priced = applyPoints(unit, check)
-  if (!check.datasheet) return priced
+  return applyProfiles(applyPoints(unit, check), check)
+}
+
+/** A unit with only its profiles taken from the database: weapon rows and unit stats. Points are left alone. */
+export function applyProfiles(unit: Unit, check: UnitCheck): Unit {
+  if (!check.datasheet) return unit
   const w = unit.w.map((row, i) => {
     const c = check.weapons.find((x) => x.index === i)
     return c?.db ? { ...row, ...c.db } : row
   })
   return {
-    ...priced,
+    ...unit,
     datasheetId: check.datasheet.id,
     ...(check.dbStats ? { stats: { ...(unit.stats ?? { M: null, Ld: null, OC: null }), ...check.dbStats } } : {}),
     w

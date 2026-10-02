@@ -64,7 +64,7 @@ New, from the roadmap:
 
 | Claim | Evidence |
 |---|---|
-| The engine port gives the POC's numbers | `tests/engine-parity.test.ts`: the four Cogitator calibration rows, Yriel into Warp Spiders at Σ 3.98 → 88.0%, and all 72,618 cells of the three built-in lists under 39 option scenarios, split and combined, equal to the original `engine.js` to nine decimal places |
+| The engine port gives the POC's numbers | `tests/engine-parity.test.ts`: the four Cogitator calibration rows, Yriel into Warp Spiders at Σ 3.98 → 88.0%, and all 72,618 cells of the built-in list and the POC's two other lists under 39 option scenarios, split and combined, equal to the original `engine.js` to nine decimal places |
 | The importer port gives the POC's output | `tests/importer-parity.test.ts`: both fixture rosters produce the same units, groups and rules as the POC's importer, document for document; 684, 532 and 570 matrix cells with zero differences (the handoff's own numbers) |
 | The handoff's headline findings still hold | `tests/domain.test.ts`: Yriel + Voidscarred at 107 / 104 / 64 / 55 into Terminators, Intercessors, Wraiths, C'tan; 49.4% points-weighted average; 1,085 points in units averaging 50%+ |
 | The database layer works | `tests/db.test.ts`: migrations, seed, round trips, typed errors, on in-memory SQLite |

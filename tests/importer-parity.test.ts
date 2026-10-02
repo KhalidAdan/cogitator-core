@@ -11,7 +11,7 @@ import { defaultOpts } from "~/domain/options"
 import type { RuleBook, Target, Unit } from "~/domain/schema"
 import { parseRosterSync, parseTextExport } from "~/.server/importer/roster"
 import seed from "~/.server/seed/poc-seed.json"
-import { COPHASTA, pocCophasta, pocPath } from "./helpers/poc"
+import { BURNING_V1, COPHASTA, pocBurningV1, pocCophasta, pocPath } from "./helpers/poc"
 
 const library = seed.rules as unknown as RuleBook
 const targets = seed.targets as unknown as Array<Target>
@@ -29,9 +29,9 @@ type Reference = {
   armyRules: Array<string>
   meta: { faction: string; detachments: Array<string>; mission: string }
 }
-const cophasta = pocCophasta()
-/** The POC importer's output for a fixture: a built-in list from the seed, or Cophasta straight from the POC. */
-const builtin = (id: string) => (id === COPHASTA ? cophasta : seed.lists.find((l) => l.id === id)!) as unknown as Reference
+const fromPoc: Record<string, unknown> = { [COPHASTA]: pocCophasta(), [BURNING_V1]: pocBurningV1() }
+/** A reference list: the built-in list from the seed, or one of the others straight from the POC. */
+const builtin = (id: string) => (fromPoc[id] ?? seed.lists.find((l) => l.id === id)!) as unknown as Reference
 
 /** Drop null/undefined properties so "absent" and "null" compare equal. */
 const tidy = (v: unknown): unknown => JSON.parse(JSON.stringify(v, (_k, x) => (x === null ? undefined : x)))
@@ -90,7 +90,7 @@ describe("roster importer", () => {
 
   it("v2 matches the hand-built v1 list on every unit they share (570 cells)", () => {
     const got = parseRosterSync(fixture("burning-v2.ros"), fixture("burning-v2.txt"), ctx)
-    const v1 = builtin("builtin-burning-v1")
+    const v1 = builtin(BURNING_V1)
     const skip = ["Rangers A", "Rangers B", "Corsair Skyreavers C"]
     const nameKey = (s: string) => s.toLowerCase().replace(/^corsair /, "").replace(/ [ab]$/, "")
     let n = 0

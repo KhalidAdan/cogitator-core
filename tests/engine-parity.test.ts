@@ -3,23 +3,27 @@
  *
  * 1. Calibration (handoff section 7 / 10): with bare datasheets, four rows
  *    reproduce the Culling Cogitator for all 19 targets, and Yriel into Warp
- *    Spiders is Σ 3.98 → 88.0%.
- * 2. Parity: every cell of every built-in list, split and combined, under a
- *    spread of option scenarios, equals the POC engine's value. This is what
- *    licenses moving the POC's by-name rule branches into data.
+ *    Spiders is Σ 3.98 → 88.0%. Measured on the POC's hand-built list, and
+ *    held on the list the app ships, whose footer shows the live number.
+ * 2. Parity: every cell of the built-in list and of the POC's two other lists,
+ *    split and combined, under a spread of option scenarios, equals the POC
+ *    engine's value. This is what licenses moving the POC's by-name rule
+ *    branches into data.
  */
 import { describe, expect, it } from "vitest"
 import { attackerList, attackUnit, MOD0 } from "~/domain/engine"
 import { bareDatasheetOpts, defaultOpts } from "~/domain/options"
 import type { Mod, Opts, RuleBook, Target, Unit } from "~/domain/schema"
 import seed from "~/.server/seed/poc-seed.json"
-import { COPHASTA, loadPoc, pocCophasta, pocLists, toPocOpts } from "./helpers/poc"
+import { COPHASTA, loadPoc, pocBurningV1, pocCophasta, pocLists, toPocOpts } from "./helpers/poc"
 
 const rules = seed.rules as unknown as RuleBook
 const targets = seed.targets as unknown as Array<Target>
-// the lists the app ships, plus the POC's Space Marines list (see tests/helpers/poc.ts)
-const lists = [...seed.lists, pocCophasta()] as unknown as Array<{ id: string; units: Array<Unit>; rules: RuleBook }>
-const v1 = lists.find((l) => l.id === "builtin-burning-v1")!
+type TestList = { id: string; units: Array<Unit>; rules: RuleBook }
+// the list the app ships, plus the POC's hand-built Aeldari list and its Space Marines list (see tests/helpers/poc.ts)
+const builtin = seed.lists[0] as unknown as TestList
+const lists = [builtin, pocBurningV1(), pocCophasta()] as unknown as Array<TestList>
+const v1 = lists[1]
 
 describe("calibration against the Culling Cogitator", () => {
   const EXPECT: Record<string, Array<number>> = {
@@ -28,26 +32,32 @@ describe("calibration against the Culling Cogitator", () => {
     kharseth: [34, 57, 34, 41, 31, 27, 23, 32, 5, 6, 5, 9, 7, 9, 8, 8, 10, 7, 7],
     "shroud-runners": [68, 105, 73, 58, 38, 27, 15, 21, 23, 23, 17, 35, 20, 19, 19, 14, 21, 18, 13]
   }
-  const bare = bareDatasheetOpts(v1.units)
-  const ctx = { rules, units: v1.units }
-  // the Cogitator scored Yriel without Archraider
-  const unit = (id: string): Unit => {
-    const u = v1.units.find((x) => x.id === id)!
-    return id === "yriel" ? { ...u, pts: 95 } : u
-  }
 
-  for (const [id, want] of Object.entries(EXPECT)) {
-    it(`${id} reproduces the published row`, () => {
-      const got = targets.map((t) => Math.round(attackUnit(unit(id), t, bare, ctx).roi))
-      expect(got).toEqual(want)
+  // [list, its id for Yriel]: the importer names him by his datasheet, the hand-built list didn't
+  for (const [list, yrielId] of [[v1, "yriel"], [builtin, "prince-yriel"]] as const) {
+    describe(list.id, () => {
+      const bare = bareDatasheetOpts(list.units)
+      const ctx = { rules, units: list.units }
+      // the Cogitator scored Yriel without Archraider
+      const unit = (id: string): Unit => {
+        const u = list.units.find((x) => x.id === (id === "yriel" ? yrielId : id))!
+        return id === "yriel" ? { ...u, pts: 95 } : u
+      }
+
+      for (const [id, want] of Object.entries(EXPECT)) {
+        it(`${id} reproduces the published row`, () => {
+          const got = targets.map((t) => Math.round(attackUnit(unit(id), t, bare, ctx).roi))
+          expect(got).toEqual(want)
+        })
+      }
+
+      it("Yriel at 95 pts into Warp Spiders is Σ 3.98 → 88.0%", () => {
+        const r = attackUnit(unit("yriel"), targets.find((t) => t.id === "warp-spiders")!, bare, ctx)
+        expect(r.total.toFixed(2)).toBe("3.98")
+        expect(r.roi.toFixed(1)).toBe("88.0")
+      })
     })
   }
-
-  it("Yriel at 95 pts into Warp Spiders is Σ 3.98 → 88.0%", () => {
-    const r = attackUnit(unit("yriel"), targets.find((t) => t.id === "warp-spiders")!, bare, ctx)
-    expect(r.total.toFixed(2)).toBe("3.98")
-    expect(r.roi.toFixed(1)).toBe("88.0")
-  })
 })
 
 describe("parity with the POC engine", () => {

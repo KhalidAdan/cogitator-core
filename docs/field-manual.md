@@ -63,7 +63,7 @@ Each snapshot records what moved. Against a previous snapshot, that is a real co
 ## Verified
 
 - All 30 faction pages parse (tried once each on 2 October, without storing the other 28). Aeldari v1.5 is 76 units and 15 detachments; Space Marines v1.5 is 87 and 22, with the chapter and sub-faction headings in the right places.
-- *The Burning One and the Exile v2* and your re-entered Strike Force Cophasta both agree with it on every price.
+- *The Burning One and the Exile* (the imported v2, now the only built-in list) and your re-entered Strike Force Cophasta both agree with it on every price.
 - Importing the old Cophasta roster reproduces the finding from that morning: nine units differ, 1,980 points at current prices against 1,990 in the file. "Update points" fixes all nine and leaves the profiles alone.
 - `tests/mfm.test.ts`: 19 tests covering the data reader, the parser, version comparison and list pricing.
 

@@ -36,14 +36,16 @@ export async function loader({ params }: Route.LoaderArgs) {
 /**
  * The anchor number from the handoff, computed by the running build from the
  * seed data (not the database, so edits can't move it): Yriel at 95 points
- * into Warp Spiders, bare datasheets, must be Σ 3.98 → 88.0%.
+ * into Warp Spiders, bare datasheets, must be Σ 3.98 → 88.0%. The handoff
+ * measured it on the POC's hand-built list; the built-in list gives the same
+ * rows (tests/engine-parity.test.ts checks both).
  */
 function calibrationCheck() {
-  const v1 = seedData.lists.find((l) => l.id === "builtin-burning-v1")
-  const yriel = v1?.units.find((u) => u.id === "yriel")
+  const list = seedData.lists.find((l) => l.id === seedData.defaultListId)
+  const yriel = list?.units.find((u) => u.id === "prince-yriel")
   const spiders = seedData.targets.find((t) => t.id === "warp-spiders")
-  if (!v1 || !yriel || !spiders) return null
-  const r = attackUnit({ ...yriel, pts: 95 }, spiders, bareDatasheetOpts(v1.units), { rules: seedData.rules, units: v1.units })
+  if (!list || !yriel || !spiders) return null
+  const r = attackUnit({ ...yriel, pts: 95 }, spiders, bareDatasheetOpts(list.units), { rules: seedData.rules, units: list.units })
   return { total: r.total, roi: r.roi }
 }
 

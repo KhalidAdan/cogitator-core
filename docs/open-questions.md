@@ -25,7 +25,7 @@ The 19 are kept, because the calibration depends on them. But you can now add an
 You confirmed the codex numbers came out on 30 September. Wahapedia's export is stamped 28 September, and its live Lieutenant page still shows the old profile (Toughness 4, Oath of Moment), so the whole site is behind, not just the export. Cophasta's roster values are the right ones; leave "use the database's values" alone for that list until Wahapedia updates.
 
 **7. Which price is right for the four Aeldari units?** *Answered on 2 October: your list's.*
-Checked against the Munitorum Field Manual on Warhammer Community (Aeldari, v1.5). All four differences are points drops in v1.5 that Wahapedia, still on v1.4, doesn't have: Fire Dragons 120 → 110, Kharseth 85 → 80, Farseer 65 → 60, Shroud Runners (6) 175 → 165. Every unit and enhancement in *The Burning One and the Exile v2* matches v1.5, so the list is 2,000 points.
+Checked against the Munitorum Field Manual on Warhammer Community (Aeldari, v1.5). All four differences are points drops in v1.5 that Wahapedia, still on v1.4, doesn't have: Fire Dragons 120 → 110, Kharseth 85 → 80, Farseer 65 → 60, Shroud Runners (6) 175 → 165. Every unit and enhancement in *The Burning One and the Exile* (the imported v2, now the only built-in list) matches v1.5, so the list is 2,000 points.
 
 **8. Should imports take the database's values by default?**
 I left it off because of question 6 (decision D-12). Once you trust the database for a faction, you may want it on for that faction. Per-faction trust would be a small addition: a setting that says "for Aeldari, the database wins".

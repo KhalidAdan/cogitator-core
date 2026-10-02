@@ -17,13 +17,14 @@ import { Rules } from "~/.server/repos/Rules"
 import { Settings } from "~/.server/repos/Settings"
 import { Targets } from "~/.server/repos/Targets"
 import { seed } from "~/.server/seed/Seed"
-import { applyCheck, checkList, tierRange } from "~/.server/wahapedia/check"
+import { applyCheck, applyProfiles, checkList, checkUnit, profileDiff, tierRange } from "~/.server/wahapedia/check"
 import { parseExportCsvSync } from "~/.server/wahapedia/csv"
 import { buildReport, diffTable, reportHasChanges } from "~/.server/wahapedia/diff"
-import { costLines, currentSnapshotId, datasheets, searchDatasheets } from "~/.server/wahapedia/queries"
+import { costLines, currentSnapshotId, type Datasheet, datasheets, searchDatasheets, type WargearProfile } from "~/.server/wahapedia/queries"
 import { Snapshots } from "~/.server/wahapedia/Snapshots"
 import { syncRules } from "~/.server/wahapedia/sync"
 import { WH_ALL_FILES, WH_TABLES, whTableByFile } from "~/.server/wahapedia/tables"
+import type { Unit, Weapon } from "~/domain/schema"
 import { stripHtml, textHash } from "~/domain/text"
 
 describe("export CSV dialect", () => {
@@ -133,6 +134,114 @@ describe("change report", () => {
     expect(d.added.map((r) => r.keyword)).toEqual(["Grenades"])
     expect(d.changed.map(([a, b]) => [a.is_faction_keyword, b.is_faction_keyword])).toEqual([["false", "true"]])
     expect(d.removed).toEqual([])
+  })
+})
+
+describe("profile differences", () => {
+  const wargear = (name: string, type: "Ranged" | "Melee", S: string, AP: string, abilities = ""): WargearProfile => ({
+    name,
+    abilities,
+    range: type === "Melee" ? "Melee" : "24",
+    type,
+    A: "2",
+    skill: "3",
+    S,
+    AP,
+    D: "1"
+  })
+  const sheet = (over: Partial<Datasheet>): Datasheet => ({
+    id: "d1",
+    name: "Legionaries",
+    factionId: "CSM",
+    faction: "Chaos Space Marines",
+    role: "",
+    source: "",
+    legacy: false,
+    virtual: false,
+    link: "",
+    isSupport: false,
+    loadout: "",
+    damaged: "",
+    models: [{ name: "LEGIONARY", M: '6"', T: "4", Sv: "3", inv: "-", invNote: "", W: "2", Ld: "6+", OC: "2" }],
+    wargear: [],
+    abilities: [],
+    keywords: [],
+    factionKeywords: [],
+    costs: [],
+    composition: [],
+    options: [],
+    leads: [],
+    ledBy: [],
+    ...over
+  })
+  const weapon = (nm: string, t: "r" | "m", S: number, AP: number): Weapon => ({ nm, t, n: 5, A: 2, sk: 3, S, AP, D: 1, kw: {} })
+  const unit = (w: Array<Weapon>, T = 4): Unit => ({
+    id: "u",
+    nm: "Legionaries",
+    pts: 90,
+    models: 5,
+    rules: [],
+    w,
+    stats: { T, Sv: 3, W: 2, M: '6"', Ld: "6+", OC: "2", inv: 0 }
+  })
+  const ctx = { candidates: 1, position: 1, rules: {}, enhancements: [], factionId: null, detachmentNames: [], attachedTo: null, manual: null }
+
+  it("matches a roster’s “- ranged” and “- melee” rows to the datasheet’s one name for both", () => {
+    const spear = sheet({ wargear: [wargear("Guardian spear", "Melee", "7", "-2"), wargear("Guardian spear", "Ranged", "4", "-1")] })
+    const u = unit([weapon("Guardian spear - Ranged", "r", 4, 1), weapon("Guardian spear - melee", "m", 7, 2)])
+    const c = checkUnit(u, spear, ctx)
+    expect(c.weapons.map((w) => [w.status, w.matchedAs])).toEqual([["ok", undefined], ["ok", undefined]])
+    expect(profileDiff(u, c)).toEqual({ stats: null, weapons: [], leader: null, applicable: false })
+    // a datasheet that does name its profiles that way still matches as written
+    const split = sheet({ wargear: [wargear("Plasma pistol – standard", "Ranged", "7", "-2"), wargear("Plasma pistol – supercharge", "Ranged", "8", "-3")] })
+    expect(checkUnit(unit([weapon("Plasma pistol - supercharge", "r", 8, 3)]), split, ctx).weapons[0].status).toBe("ok")
+  })
+
+  it("lays both sides out in full and marks the cells that disagree", () => {
+    const u = unit([weapon("Boltgun", "r", 5, 1), weapon("Close combat weapon", "m", 4, 0), weapon("Balefire tome", "r", 6, 1)], 5)
+    const c = checkUnit(u, sheet({ wargear: [wargear("Boltgun", "Ranged", "4", "0"), wargear("Close combat weapon", "Melee", "4", "0")] }), ctx)
+    const d = profileDiff(u, c)
+    expect(d.stats).toEqual({
+      list: { T: "5", Sv: "3+", W: "2", inv: "none" },
+      db: { T: "4", Sv: "3+", W: "2", inv: "none" },
+      changed: ["T"]
+    })
+    // the weapon that agrees is left out; the one the datasheet doesn't have is shown with nothing to compare it with
+    expect(d.weapons).toEqual([
+      {
+        nm: "Boltgun",
+        melee: false,
+        matchedAs: null,
+        list: { A: "2", skill: "3+", S: "5", AP: "-1", D: "1", abilities: "" },
+        db: { A: "2", skill: "3+", S: "4", AP: "0", D: "1", abilities: "" },
+        changed: ["S", "AP"]
+      },
+      { nm: "Balefire tome", melee: false, matchedAs: null, list: { A: "2", skill: "3+", S: "6", AP: "-1", D: "1", abilities: "" }, db: null, changed: [] }
+    ])
+    expect(d.applicable).toBe(true)
+    // what the row's pill counts: the stat line and the two weapons (the price is counted apart)
+    expect(c.issues - c.pointsIssues).toBe(3)
+  })
+
+  it("has nothing to take from Wahapedia when the only difference is a weapon it doesn’t list", () => {
+    const u = unit([weapon("Balefire tome", "r", 6, 1)])
+    const d = profileDiff(u, checkUnit(u, sheet({ wargear: [wargear("Boltgun", "Ranged", "4", "0")] }), ctx))
+    expect(d.weapons).toHaveLength(1)
+    expect(d.applicable).toBe(false)
+  })
+
+  it("takes Wahapedia’s profile for a unit without touching its points", () => {
+    const u = unit([weapon("Boltgun", "r", 5, 1), weapon("Balefire tome", "r", 6, 1)], 5)
+    const priced = sheet({ wargear: [wargear("Boltgun", "Ranged", "4", "0")], costs: [{ tier: "", description: "5 models", cost: 75 }] })
+    const c = checkUnit(u, priced, ctx)
+    const profiled = applyProfiles(u, c)
+    expect(profiled.pts).toBe(90)
+    expect(profiled.datasheetId).toBe("d1")
+    expect(profiled.stats?.T).toBe(4)
+    expect(profiled.w.map((w) => [w.nm, w.n, w.S, w.AP])).toEqual([["Boltgun", 5, 4, 0], ["Balefire tome", 5, 6, 1]])
+    // …where applying the whole check also brings the price up to date
+    expect(applyCheck(u, c).pts).toBe(75)
+    expect(applyCheck(u, c).w).toEqual(profiled.w)
   })
 })
 

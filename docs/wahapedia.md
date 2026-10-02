@@ -83,7 +83,7 @@ Some datasheets also have per-weapon costs (`per Multi-melta`, `+ 1 Invader ATV`
 
 ### The Aeldari list agrees with the database
 
-*The Burning One and the Exile v2*, checked against the snapshot:
+*The Burning One and the Exile* (the imported v2, now the only built-in list), checked against the snapshot:
 
 - All 20 units resolve to a datasheet.
 - **Every weapon profile matches**: attacks, skill, strength, AP, damage and abilities, for every weapon in the list.
@@ -139,7 +139,8 @@ A linked rule is not a checked rule. Linking is by name, so Combat Doctrines lin
 |---|---|
 | Resolve a unit to its datasheet | `check.ts`: by normalised name, preferring the list's faction, then current over legacy datasheets |
 | Compare points, weapons, stats, abilities | `check.ts`, shown on each list's Database check tab and in the import review |
-| Write database values over a unit | `applyCheck` in `check.ts`, on request |
+| Show a unit's profile beside its datasheet's | `profileDiff` in `check.ts`, in the import review's expandable rows |
+| Write database values over a unit | `applyCheck` in `check.ts`, on request: `applyProfiles` for weapons and stats, `applyPoints` for prices |
 | Show official wording beside each library rule | `sync.ts` links rules by name and faction; the text is on the rule's page |
 | Notice a reworded rule | `sync.ts`: a changed hash drops the rule to draft |
 | Report what an update changed | `diff.ts`, stored with the snapshot, shown on the Database page |

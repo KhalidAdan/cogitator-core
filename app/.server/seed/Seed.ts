@@ -1,6 +1,6 @@
 /**
- * First-run data: the POC's rules library, benchmark targets and the two
- * built-in Aeldari lists (see scripts/poc-export.mjs for where the JSON comes from).
+ * First-run data: the POC's rules library, benchmark targets and the built-in
+ * Aeldari list (see scripts/poc-export.mjs for where the JSON comes from).
  *
  * Seeding only ever adds what is missing. Rules you have edited, lists you
  * have changed and targets you have tuned are left alone; bump `VERSION` when
@@ -15,10 +15,13 @@ import { Targets } from "../repos/Targets"
 import { LIBRARY_RULES } from "./library"
 import raw from "./poc-seed.json"
 
-const VERSION = 3
+const VERSION = 4
 
 /** Built-in lists that used to be seeded and are removed from existing databases on upgrade. */
-const RETIRED_LISTS = ["builtin-cophasta"]
+const RETIRED_LISTS = ["builtin-cophasta", "builtin-burning-v1"]
+
+/** Built-in lists seeded under another name before: renamed on upgrade, unless you have renamed them yourself. */
+const FORMER_NAMES: Record<string, string> = { "builtin-burning-v2": "The Burning One and the Exile v2" }
 
 const SeedFile = Schema.Struct({
   rules: Schema.Record(Schema.String, Rule),
@@ -67,15 +70,20 @@ export const seed = Effect.gen(function*() {
   ])
   if ((yield* targets.count) === 0) yield* targets.replaceAll(seedData.targets)
   for (const l of seedData.lists) {
-    if (yield* lists.exists(l.id)) continue
-    yield* lists.create({ ...l, builtin: true, opts: seedData.opts })
+    if (!(yield* lists.exists(l.id))) {
+      yield* lists.create({ ...l, builtin: true, opts: seedData.opts })
+      continue
+    }
+    const former = FORMER_NAMES[l.id]
+    if (former && (yield* lists.get(l.id).pipe(Effect.orDie)).meta.name === former) yield* lists.rename(l.id, l.meta.name)
   }
   for (const id of RETIRED_LISTS) {
     if (yield* lists.exists(id)) yield* lists.remove(id)
   }
-  if (Option.isNone(yield* settings.get(ACTIVE_LIST))) yield* settings.set(ACTIVE_LIST, seedData.defaultListId)
+  const active = Option.getOrUndefined(yield* settings.get(ACTIVE_LIST))
+  if (!active || RETIRED_LISTS.includes(active)) yield* settings.set(ACTIVE_LIST, seedData.defaultListId)
   yield* settings.set(SEED_VERSION, String(VERSION))
-  yield* Effect.logInfo(`Seeded the database: ${added} new rules, ${seedData.targets.length} targets, ${seedData.lists.length} built-in lists`)
+  yield* Effect.logInfo(`Seeded the database: ${added} new rules, ${seedData.targets.length} targets, ${seedData.lists.length} built-in ${seedData.lists.length === 1 ? "list" : "lists"}`)
 }).pipe(Effect.withSpan("seed"))
 
 export const SeedLive = Layer.effectDiscard(seed)

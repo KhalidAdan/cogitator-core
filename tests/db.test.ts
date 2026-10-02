@@ -3,19 +3,21 @@
  * migrations, seed, repositories.
  */
 import { describe, expect, it } from "@effect/vitest"
-import { Effect, Layer } from "effect"
+import { Effect, Layer, Option } from "effect"
 import { attackUnit } from "~/domain/engine"
 import { bareDatasheetOpts } from "~/domain/options"
 import { layerAt } from "~/.server/db/Db"
 import { ListNotFound, Lists } from "~/.server/repos/Lists"
 import { Rules } from "~/.server/repos/Rules"
-import { Settings } from "~/.server/repos/Settings"
+import { ACTIVE_LIST, SEED_VERSION, Settings } from "~/.server/repos/Settings"
 import { Targets } from "~/.server/repos/Targets"
 import { LIBRARY_RULES } from "~/.server/seed/library"
 import { seed, seedData } from "~/.server/seed/Seed"
 
 const Repos = Layer.mergeAll(Lists.layer, Rules.layer, Targets.layer, Settings.layer)
 const TestLayer = Layer.effectDiscard(seed).pipe(Layer.provideMerge(Repos), Layer.provideMerge(layerAt(":memory:")))
+/** An empty database, for setting up what an older version left behind before seeding. */
+const Unseeded = Repos.pipe(Layer.provideMerge(layerAt(":memory:")))
 
 describe("database", () => {
   it.effect("seeds the library, targets and built-in lists, once", () =>
@@ -23,14 +25,14 @@ describe("database", () => {
       const lists = yield* Lists
       const rules = yield* Rules
       const targets = yield* Targets
-      expect((yield* lists.all).map((l) => l.id).sort()).toEqual(["builtin-burning-v1", "builtin-burning-v2"])
+      expect((yield* lists.all).map((l) => [l.id, l.name])).toEqual([["builtin-burning-v2", "The Burning One and the Exile"]])
       // the POC's library plus the rules translated since (seed/library.ts)
       expect(Object.keys(yield* rules.book)).toHaveLength(Object.keys(seedData.rules).length + LIBRARY_RULES.length)
       expect((yield* rules.get("despoilers")).status).toBe("draft")
       expect(yield* targets.all).toHaveLength(19)
       // running the seed again adds nothing
       yield* seed
-      expect(yield* lists.all).toHaveLength(2)
+      expect(yield* lists.all).toHaveLength(1)
       const summary = (yield* lists.all).find((l) => l.id === "builtin-burning-v2")!
       expect(summary.pts).toBe(2000)
       expect(summary.units).toBe(20)
@@ -38,10 +40,10 @@ describe("database", () => {
 
   it.effect("round-trips a list through SQLite without changing the maths", () =>
     Effect.gen(function*() {
-      const list = yield* (yield* Lists).get("builtin-burning-v1")
+      const list = yield* (yield* Lists).get("builtin-burning-v2")
       const book = yield* (yield* Rules).book
       const targets = yield* (yield* Targets).all
-      const yriel = { ...list.units.find((u) => u.id === "yriel")!, pts: 95 }
+      const yriel = { ...list.units.find((u) => u.id === "prince-yriel")!, pts: 95 }
       const r = attackUnit(yriel, targets.find((t) => t.id === "warp-spiders")!, bareDatasheetOpts(list.units), { rules: book, units: list.units })
       expect(r.total.toFixed(2)).toBe("3.98")
       expect(r.roi.toFixed(1)).toBe("88.0")
@@ -65,6 +67,31 @@ describe("database", () => {
       expect(after.units).toEqual(before.units)
       expect(after.opts.phase).toBe("all")
     }).pipe(Effect.provide(TestLayer)))
+
+  it.effect("upgrading retires v1, renames v2 and moves you off a list that is gone", () =>
+    Effect.gen(function*() {
+      const lists = yield* Lists
+      const settings = yield* Settings
+      // a database as seed version 3 left it: both Aeldari lists, v1 open
+      const [v2] = seedData.lists
+      yield* lists.create({ ...v2, id: "builtin-burning-v1", builtin: true, meta: { ...v2.meta, name: "The Burning One and the Exile" } })
+      yield* lists.create({ ...v2, builtin: true, meta: { ...v2.meta, name: "The Burning One and the Exile v2" } })
+      yield* settings.set(SEED_VERSION, "3")
+      yield* settings.set(ACTIVE_LIST, "builtin-burning-v1")
+      yield* seed
+      expect((yield* lists.all).map((l) => [l.id, l.name])).toEqual([["builtin-burning-v2", "The Burning One and the Exile"]])
+      expect(Option.getOrUndefined(yield* settings.get(ACTIVE_LIST))).toBe("builtin-burning-v2")
+    }).pipe(Effect.provide(Unseeded)))
+
+  it.effect("leaves a built-in list you renamed yourself alone", () =>
+    Effect.gen(function*() {
+      const lists = yield* Lists
+      const settings = yield* Settings
+      yield* lists.create({ ...seedData.lists[0], builtin: true, meta: { ...seedData.lists[0].meta, name: "Yriel’s Raiders" } })
+      yield* settings.set(SEED_VERSION, "3")
+      yield* seed
+      expect((yield* lists.all).map((l) => l.name)).toEqual(["Yriel’s Raiders"])
+    }).pipe(Effect.provide(Unseeded)))
 
   it.effect("fails with a typed error for a list that isn’t there", () =>
     Effect.gen(function*() {

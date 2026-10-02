@@ -70,7 +70,7 @@ Your stated principle is "don't trust user-supplied datasheets". I implemented t
 
 The reason is what the real data showed: the export's Space Marines are older than your roster (see [wahapedia.md](wahapedia.md#what-the-real-data-showed)). If imports silently took the database's values, Strike Force Cophasta would lose a point of Toughness across the board and several of its weapons. Until the export catches up with the codex, the roster is the better source for that faction, and the app can't tell which case it's in.
 
-So: the import review shows how many values disagree and has a checkbox, off by default, to use the database's. Every list has a Database check tab with the differences per unit and a button per unit or for the whole list. "Restore this list" undoes it.
+So: the import review shows how many values disagree and has a checkbox, off by default, to use the database's (since D-34 it also shows the differences themselves, and lets you choose per unit). Every list has a Database check tab with the differences per unit and a button per unit or for the whole list. "Restore this list" undoes it.
 
 *To flip the default:* the checkbox in `app/routes/lists.import.tsx`. I'd wait until a faction's check comes back clean.
 
@@ -122,7 +122,7 @@ Uploading a roster stores it as a pending import and redirects to a review page 
 The roster XML and text export are stored with the list. That's what makes "Re-read the roster file" possible: add a rule to the library, re-read, and the list picks it up.
 
 ### D-24. Built-in lists can be reset but not deleted
-They are the calibration reference. Imported lists can be deleted.
+They are the calibration reference. Imported lists can be deleted. (Since D-35 there is one.)
 
 ### D-25. A live calibration check stays in the footer
 As in the POC, every list page shows Yriel into Warp Spiders computed by the running build. It uses the seed data rather than the database, so editing a rule or a target can't move it; if that number is ever not 3.98 → 88.0%, the engine itself has changed.
@@ -193,6 +193,29 @@ Judgment calls in the translations:
 - *Dark Pacts itself is not translated.* The switch drives Despoilers and Daemonforge only; the pact's own Lethal Hits or Sustained Hits 1 is a choice between two abilities, which the effect vocabulary can't express, so it is left to the modifier bar and the switch's hint says so. Nor is the Leadership test and its mortal wounds.
 - *Purity of Execution* does nothing against the default targets, none of which is a Psyker.
 - *Stand Vigil* reads "an objective marker you control" as the existing "Your unit is on an objective" switch.
+
+### D-34. The import review shows each profile difference, and takes Wahapedia's unit by unit (2 October, your call)
+
+The review used to say "3 profile differences" and offer one all-or-nothing checkbox, so the only way to see what differed was to save the list and open its Database check tab. Now the count is a button: the unit's row opens to the roster's profile and Wahapedia's, one above the other, with the cells that disagree marked on both.
+
+- **Side by side, not before and after.** Neither row is struck through or shown as the correction. Wahapedia can lag a codex (D-12), so which is right is your call, and the page says so when Wahapedia is still on old prices for the faction.
+- **Unit by unit.** Each opened row has its own "Use Wahapedia's profile for this unit". The checkbox at the top is now "all of them" and shows a half-tick when only some are chosen.
+- **Profiles and points are separate choices.** Taking Wahapedia's profile used to rewrite the unit's points as well, even with "Use the Field Manual's points" unticked. It no longer does (`applyProfiles`, next to `applyPoints`; `applyCheck` is both). So that a roster with no points still arrives priced when the Field Manual hasn't been read for its faction, the points boxes are now pre-filled from Wahapedia in that case.
+- **A matcher fix the view exposed.** Rosters split a two-profile weapon by type ("Guardian spear - ranged"); the datasheet has one name for both rows. These were reported as "not on the datasheet" and are now matched, which surfaced a real difference on the Custodes spears.
+
+The panel leaves out ability differences, which the Database check tab still lists; they are about rules, which the review's Rules column covers.
+
+### D-35. One built-in list; your rosters are test fixtures (2 October, your call)
+
+*The Burning One and the Exile* is now the only built-in list: the imported v2, under the list's own name. The POC's hand-built v1 is gone from the app. On upgrade, an existing database drops v1, renames v2 (unless you've renamed it yourself) and moves you to it if v1 was open.
+
+- **The id stays `builtin-burning-v2`**, so its URL, your saved options and the active-list setting carry over. Only the name changed.
+- **Calibration moved with it.** v2 reproduces all four Culling Cogitator rows and the 88.0% anchor exactly, so the footer's live check now runs on it. The tests check the calibration on both v1 and v2, reading v1 straight from the POC, as they already did for Cophasta. Engine parity still covers all three POC lists, so nothing lost coverage.
+- **Your four rosters are fixtures** (`tests/fixtures/rosters`, with a README): The Citadel Moves, Ten Thousand and No More, Strike Force Cophasta as re-entered, and The Wall Advances. `tests/rosters.test.ts` checks each one reads correctly, has no untranslated damage rules and scores every unit. Against the Wahapedia export, it checks that every unit finds its datasheet and names the weapons that don't. All 27 such weapons are in the two Space Marines lists and are real gaps: the 30 September codex added wargear options (plasma pistols and thunder hammers on Outriders), renamed close combat weapons (Ceramite Fists, Armoured Impact) and split the bolt rifle's profiles, none of which the 28 September export has. When Wahapedia catches up, that test will fail and the lists can be emptied.
+
+### D-36. Drop a roster anywhere on the Lists page (2 October, your call)
+
+Dragging a file over /lists dims the page and says "Drop to import". The dropped roster goes to the import page's own "read" action, so there is one import path, not two. A readable file lands on its review; an unreadable one shows the reason on the Lists page. Drop the text export (.txt) together with the roster to bring its points. A text export on its own, or any other kind of file, gets a sentence saying what to drop instead. Dragging text or links is left to the browser. Only the Lists page has this; the import page keeps its file picker.
 
 ---
 
