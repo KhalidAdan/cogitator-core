@@ -251,10 +251,26 @@ You wanted khld.dev on Cloudflare with this as its first site, always on. The fr
 
 - **One Durable Object runs the app**: its SQLite storage is the database, it renders the pages, and its alarm runs the scheduled update. This is the closest match to the app's design (one process, one SQLite file, in-memory caches, a background schedule), so only the database driver, the disk access and the schedule changed. See [cloudflare.md](cloudflare.md).
 - **Served at khld.dev/cogitator-core** through routes, leaving the rest of the domain for other sites.
-- **Public, no login**, for now and at your request. The update button has a ten-minute cooldown so it can't be used to hammer Wahapedia or Games Workshop.
+- **Public, no login**, at first and at your request (accounts followed in D-39). The update button has a ten-minute cooldown so it can't be used to hammer Wahapedia or Games Workshop.
 - **Wrangler builds and deploys; `cf` manages the account.** `cf migrate` converted the project, but `cf build` can't yet build a React Router app (the details are in cloudflare.md), so the migration was reverted.
 - **Local development runs in Cloudflare's runtime** (workerd, through Cloudflare's Vite plugin), with its own local database. Your old `data/cogitator.db` is no longer used by the app. The tests still run in Node.
 - **Removed:** the Node server (`npm start`), the scripts that only fed the old local database (`update`, `wahapedia:load`, `db:migrate`, `db:reset`), and "Rebuild the datasheets from the last download" on the Database page (there's no disk to rebuild from). `wahapedia:fetch` and `mfm:fetch` stay, to download the data the integration tests read.
+
+### D-39. Accounts: you and the friends you add (2 October, your call)
+
+better-auth, email and password, and **no sign-up**: everyone uses the site as before, and accounts exist only for you and the friends you add by hand.
+
+| Who | Can |
+|---|---|
+| Anyone | Open any list by its link, and try its switches and modifiers (kept in their browser, in a cookie, never on the list). Browse the library, the database and datasheets. |
+| A friend | Import lists, which are theirs, and change them. |
+| You (the owner) | Everything: check for updates and follow factions, edit the rules library and benchmark targets, manage accounts, and own the built-in list and any list from before accounts. |
+
+- **The first account** is made at `/setup`, which works only while there is no owner and only with the `SETUP_CODE` secret, so nobody else can claim the site after a deploy. After that, the **Accounts** page (owner only) adds friends, sets a new password (there's no email, so you pass it on), and removes accounts, whose lists become yours.
+- **better-auth runs on the app's own database.** Its four tables are migration `0005_accounts`. Its queries go through Effect's `SqlClient` via a small Kysely dialect (`app/.server/auth/dialect.ts`), so there's one connection and the same code runs in the Node tests. It's only called server-side from loaders and actions; its HTTP endpoints aren't mounted.
+- **Enforced on the server**: every action checks (`app/.server/access.ts`); pages also hide what won't work. React Router's built-in check already refuses forms posted from other sites.
+- **Sessions** last 30 days. The session cookie is scoped to `/cogitator-core` (khld.dev will host other sites). There's no cached copy of the session in a cookie, so a removed account or a new password takes effect at once. Sign-in is throttled after 8 failures per address or email in 15 minutes.
+- **"Last opened list"** moved from a site-wide setting to a per-browser cookie, now that more than one person uses the site.
 
 ---
 

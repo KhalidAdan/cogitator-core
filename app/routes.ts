@@ -28,5 +28,11 @@ export default [
     route("datasheets/:datasheetId", "routes/database.datasheet.tsx")
   ]),
 
-  route("theme", "routes/theme.ts")
+  route("theme", "routes/theme.ts"),
+
+  // accounts: no sign-up; the owner creates them (the first one through /setup)
+  route("sign-in", "routes/sign-in.tsx"),
+  route("sign-out", "routes/sign-out.ts"),
+  route("setup", "routes/setup.tsx"),
+  route("accounts", "routes/accounts.tsx")
 ] satisfies RouteConfig

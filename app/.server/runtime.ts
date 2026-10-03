@@ -11,8 +11,9 @@
  * its own SQLite storage when it starts.
  */
 import { Cause, Effect, Exit, Layer, ManagedRuntime, Option } from "effect"
-import type { SqlClient } from "effect/sql"
+import { SqlClient } from "effect/sql"
 import { data } from "react-router"
+import type { Execute } from "./auth/dialect"
 import { Imports } from "./repos/Imports"
 import { Lists } from "./repos/Lists"
 import { Rules } from "./repos/Rules"
@@ -89,6 +90,10 @@ export async function installRuntime(layer: ReturnType<typeof appLayer>): Promis
   await runtime.runPromise(Effect.void)
   if (previous) await previous.dispose()
 }
+
+/** better-auth's queries, run on the app's database (see auth/dialect.ts). */
+export const executeSql: Execute = (statement, params) =>
+  run(Effect.flatMap(SqlClient.SqlClient, (sql) => sql.unsafe<Record<string, unknown>>(statement, [...params])))
 
 /** Domain failures that map straight onto an HTTP status. */
 const STATUS: Record<string, number> = {

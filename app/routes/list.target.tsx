@@ -2,11 +2,13 @@
 import { Effect, Schema } from "effect"
 import { useMemo } from "react"
 import { data, Form, Link, redirect, useFetcher } from "react-router"
+import { requireOwner } from "~/.server/access"
 import { Targets } from "~/.server/repos/Targets"
 import { run } from "~/.server/runtime"
 import { f1, plural, useLedger } from "~/components/ledger"
 import { attack, barBackground, heat, phaseLabel, rows } from "~/domain/ledger"
 import { Target } from "~/domain/schema"
+import { isOwner, useViewer } from "~/viewer"
 import type { Route } from "./+types/list.target"
 
 const FIELDS = ["pts", "T", "Sv", "inv", "W", "N", "fnp", "dr"] as const
@@ -14,8 +16,9 @@ const FIELDS = ["pts", "T", "Sv", "inv", "W", "N", "fnp", "dr"] as const
 /** Targets made from a datasheet (see the database pages) carry this prefix. */
 const isAdded = (id: string) => id.startsWith("ds-")
 
-/** Targets are shared by every list, so this saves to the benchmark set itself. */
-export async function action({ request, params }: Route.ActionArgs) {
+/** Targets are shared by every list, so this saves to the benchmark set itself, and only the site's owner can. */
+export async function action({ request, params, context }: Route.ActionArgs) {
+  requireOwner(context, request)
   const form = await request.formData()
   if (form.get("intent") === "remove") {
     // only targets added from the database can be removed; the calibrated set is restored, not deleted
@@ -44,6 +47,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 export default function TargetView({ params }: Route.ComponentProps) {
   const ledger = useLedger()
   const fetcher = useFetcher()
+  const owner = isOwner(useViewer())
   const saved = ledger.targets.find((x) => x.id === params.targetId)
   if (!saved) throw data({ message: "Unknown target." }, { status: 404 })
 
@@ -89,7 +93,8 @@ export default function TargetView({ params }: Route.ComponentProps) {
           <small>points per wound</small>
         </div>
       </div>
-      <fetcher.Form method="post" className="tprof" onBlur={(e) => fetcher.submit(e.currentTarget)}>
+      <fetcher.Form method="post" className="tprof" onBlur={(e) => owner && fetcher.submit(e.currentTarget)}>
+        <fieldset disabled={!owner} className="plain">
         {field("pts", "Points")}
         {field("T", "Toughness")}
         {field("Sv", "Save")}
@@ -99,12 +104,19 @@ export default function TargetView({ params }: Route.ComponentProps) {
         {field("fnp", "Feel No Pain (0 = none)")}
         {field("dr", "Damage reduction")}
         {field("kw", "Keywords", true)}
-        <button className="btn" type="submit">
-          Save
-        </button>
+        {owner ? (
+          <button className="btn" type="submit">
+            Save
+          </button>
+        ) : null}
+        </fieldset>
       </fetcher.Form>
-      <p className="hint">The benchmark set is shared by all your lists. “Restore this list and the default targets” below puts it back.</p>
-      {isAdded(saved.id) ? (
+      <p className="hint">
+        {owner
+          ? "The benchmark set is shared by every list. “Restore this list and the default targets” below puts it back."
+          : "The benchmark set is shared by every list; only the site’s owner can change it."}
+      </p>
+      {owner && isAdded(saved.id) ? (
         <Form method="post">
           <button className="btn ghost danger" type="submit" name="intent" value="remove" style={{ marginLeft: 0 }}>
             Remove this target from the benchmark set

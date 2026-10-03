@@ -384,3 +384,13 @@ button.pill:hover, button.pill[aria-expanded="true"]{background:color-mix(in okl
 .dropveil > div{display:flex; flex-direction:column; gap:6px; max-width:420px; padding:22px 26px; border:1px solid var(--line); border-radius:14px; background:var(--surface); text-align:center; box-shadow:0 10px 40px rgba(0,0,0,.12)}
 .dropveil b{font-family:var(--serif); font-size:28px; font-weight:600; color:var(--ink)}
 .dropveil span{color:var(--muted); font-size:14px}
+
+/* accounts: the sign-in, setup and accounts pages, and who's signed in */
+main.narrow{max-width:520px}
+.authform{display:flex; flex-direction:column; max-width:420px; margin-top:14px}
+.authform .presets{padding-top:6px}
+.topbar .who{display:flex; gap:10px; align-items:baseline; font-size:13.5px; color:var(--muted); margin-left:auto}
+.topbar .who span{color:var(--ink)}
+form.inline{display:flex; gap:6px; align-items:center}
+/* a form's fields shown read-only to someone who can't change them; layout as if the fieldset weren't there */
+fieldset.plain{border:0; padding:0; margin:0; min-width:0; display:contents}

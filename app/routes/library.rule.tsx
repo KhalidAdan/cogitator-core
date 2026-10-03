@@ -5,11 +5,13 @@
  */
 import { Effect, Schema } from "effect"
 import { data, Form, Link, redirect, useNavigation } from "react-router"
+import { requireOwner } from "~/.server/access"
 import { Rules } from "~/.server/repos/Rules"
 import { run } from "~/.server/runtime"
 import { describeFx, FX_HELP } from "~/domain/fx"
 import { SITUATION } from "~/domain/options"
 import { Fx, Rule, RuleStatus } from "~/domain/schema"
+import { isOwner, useViewer } from "~/viewer"
 import type { Route } from "./+types/library.rule"
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -27,7 +29,9 @@ const FxList = Schema.Array(Fx)
 /** Unknown fields are almost always typos, so the effect is decoded strictly. */
 const decodeFx = Schema.decodeUnknownEffect(FxList, { onExcessProperty: "error", errors: "all" })
 
-export async function action({ request, params }: Route.ActionArgs) {
+export async function action({ request, params, context }: Route.ActionArgs) {
+  // the library is everyone's maths, so only the site's owner changes it
+  requireOwner(context, request)
   const form = await request.formData()
   const intent = form.get("intent")
   const id = params.ruleId
@@ -101,6 +105,7 @@ export default function RuleEditor({ loaderData, actionData }: Route.ComponentPr
   const r = entry.rule
   const customCond = !!r.cond && !SITUATION.some(([k]) => k === r.cond)
   const navigation = useNavigation()
+  const owner = isOwner(useViewer())
   const saving = navigation.state !== "idle" && navigation.formMethod === "POST"
   const error = actionData && "error" in actionData ? actionData.error : null
   const saved = actionData && "saved" in actionData ? actionData.saved : null
@@ -125,7 +130,9 @@ export default function RuleEditor({ loaderData, actionData }: Route.ComponentPr
       {saved ? <p className="note">{saved}</p> : null}
       {error ? <p className="note warn" style={{ whiteSpace: "pre-wrap" }}>{error}</p> : null}
 
+      {owner ? null : <p className="note">Only the site’s owner can change the rules library; this is how the engine reads the rule.</p>}
       <Form method="post" key={formKey}>
+        <fieldset disabled={!owner} className="plain">
         <div className="dgrid">
           <section>
             <h3 className="sh">The rule</h3>
@@ -272,7 +279,8 @@ export default function RuleEditor({ loaderData, actionData }: Route.ComponentPr
           </section>
         </div>
 
-        <div className="presets" style={{ paddingTop: 16 }}>
+        </fieldset>
+        <div className="presets" style={{ paddingTop: 16 }} hidden={!owner}>
           <button className="btn primary" type="submit" name="intent" value="save" disabled={saving}>
             {saving ? "Saving…" : "Save"}
           </button>

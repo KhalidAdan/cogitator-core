@@ -20,8 +20,13 @@
 
   "vars": {
     // "off": no scheduled checks; only "Check for updates" on the Database page
-    "COGITATOR_AUTO_UPDATE": "on"
+    "COGITATOR_AUTO_UPDATE": "on",
+    // where the site is served; sign-in cookies are made for it (.dev.vars sets http://localhost:5173 locally)
+    "BETTER_AUTH_URL": "https://khld.dev"
   },
+  // secrets (wrangler secret put …; locally, in .dev.vars):
+  //   BETTER_AUTH_SECRET  signs sessions
+  //   SETUP_CODE          what /setup asks for before creating the owner's account
 
   // khld.dev/cogitator-core and everything under it; the rest of khld.dev is left for other sites
   "routes": [

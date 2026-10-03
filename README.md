@@ -20,6 +20,8 @@ npm run dev
 
 Open http://localhost:5173/cogitator-core/. The dev server runs the app inside `workerd`, Cloudflare's Workers runtime, through Cloudflare's Vite plugin: the Durable Object that holds the database included. Its data lives in `.wrangler/state/`, separate from the live site. A fresh local database seeds itself, and about fifteen seconds after start it reads the Field Manual and the Wahapedia export (wahapedia.ru doesn't resolve through some VPNs).
 
+Anyone can use the site; signing in is only for you and the friends you add. In a fresh database, open http://localhost:5173/cogitator-core/setup and enter the `SETUP_CODE` from `.dev.vars` to make the owner's account. `.dev.vars` (git-ignored) holds the local secrets; copy `.dev.vars.example` to start one.
+
 Points come from Games Workshop's Munitorum Field Manual; datasheets, profiles and rules text come from the Wahapedia export. The app checks both every six hours by itself; "Check for updates" on the Database page checks now (at most once every ten minutes).
 
 To run the production build locally, in the same runtime:
@@ -34,7 +36,7 @@ npm run preview
 npm run deploy
 ```
 
-Builds, then `wrangler deploy`: the Worker, its Durable Object and the `khld.dev/cogitator-core` routes, as `wrangler.jsonc` describes them. Needs `wrangler login` once. See [docs/cloudflare.md](docs/cloudflare.md).
+Builds, then `wrangler deploy`: the Worker, its Durable Object and the `khld.dev/cogitator-core` routes, as `wrangler.jsonc` describes them. Needs `wrangler login` once, and the secrets `BETTER_AUTH_SECRET` and `SETUP_CODE` (`wrangler secret put`). See [docs/cloudflare.md](docs/cloudflare.md).
 
 ## Check it
 

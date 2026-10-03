@@ -2,14 +2,19 @@
  * One army list. This layout loads everything the views need (the list, the
  * rules that apply to it, the benchmark targets), owns the action that changes
  * the list's options, and hands its children a `Ledger` to compute from.
+ *
+ * Anyone with the link can open a list. Its owner's switches change the list;
+ * anyone else's are kept in their browser (`cookies.ts`), so they can try
+ * things without changing it for everyone.
  */
 import { Effect } from "effect"
 import { useMemo, useRef } from "react"
-import { data, Link, Outlet, type ShouldRevalidateFunctionArgs, useFetchers, useMatches, useNavigate } from "react-router"
+import { data, Link, Outlet, type ShouldRevalidateFunctionArgs, useFetchers, useMatches, useNavigate, useRouteLoaderData } from "react-router"
+import { requireListEditor, viewerOf } from "~/.server/access"
+import { clearViewerOpts, readViewerOpts, writeActiveList, writeViewerOpts } from "~/.server/cookies"
 import { parseRoster } from "~/.server/importer/roster"
 import { Lists } from "~/.server/repos/Lists"
 import { Rules } from "~/.server/repos/Rules"
-import { ACTIVE_LIST, Settings } from "~/.server/repos/Settings"
 import { Targets } from "~/.server/repos/Targets"
 import { run } from "~/.server/runtime"
 import { seedData } from "~/.server/seed/Seed"
@@ -20,17 +25,32 @@ import { f1, f2, type LedgerContext } from "~/components/ledger"
 import { attackUnit } from "~/domain/engine"
 import { applyIntent, bareDatasheetOpts, intentFromForm } from "~/domain/options"
 import type { Opts } from "~/domain/schema"
+import { canEditList, isOwner, listedFor } from "~/viewer"
 import type { Route } from "./+types/list"
 
-export async function loader({ params }: Route.LoaderArgs) {
-  return run(Effect.gen(function*() {
+export async function loader({ params, request, context }: Route.LoaderArgs) {
+  const viewer = viewerOf(context)
+  const loaded = await run(Effect.gen(function*() {
     const lists = yield* Lists
     const list = yield* lists.get(params.listId)
     const [book, targets, all] = yield* Effect.all([(yield* Rules).book, (yield* Targets).all, lists.all])
-    yield* (yield* Settings).set(ACTIVE_LIST, list.id)
     const hasRoster = (yield* lists.sources(list.id)).rosterXml !== null
-    return { list, book, targets, lists: all, hasRoster, drift: yield* pointsDrift(list), calibration: calibrationCheck() }
+    return { list, book, targets, all, hasRoster, drift: yield* pointsDrift(list) }
   }))
+  const canEdit = canEditList(viewer, loaded.list)
+  // someone else's list: the switches this browser has set on it, over the list's own
+  const mine = canEdit ? null : await readViewerOpts(request, loaded.list.id)
+  const { all, ...rest } = loaded
+  return data(
+    {
+      ...rest,
+      list: mine ? { ...loaded.list, opts: mine } : loaded.list,
+      lists: all.filter((l) => listedFor(viewer, l) || l.id === loaded.list.id),
+      canEdit,
+      calibration: calibrationCheck()
+    },
+    { headers: { "Set-Cookie": await writeActiveList(request, loaded.list.id) } }
+  )
 }
 
 /**
@@ -49,17 +69,25 @@ function calibrationCheck() {
   return { total: r.total, roi: r.roi }
 }
 
-export async function action({ request, params }: Route.ActionArgs) {
+export async function action({ request, params, context }: Route.ActionArgs) {
   const form = await request.formData()
   const listId = params.listId
+  const viewer = viewerOf(context)
+  const list = await run(Effect.flatMap(Lists, (lists) => lists.get(listId)))
+  const canEdit = canEditList(viewer, list)
+
   if (form.get("intent") === "reset") {
+    // someone else's list: forget this browser's switches
+    if (!canEdit) return data({ ok: true }, { headers: { "Set-Cookie": await clearViewerOpts(request, listId) } })
     await run(Effect.gen(function*() {
       yield* (yield* Lists).reset(listId)
-      yield* (yield* Targets).replaceAll(seedData.targets)
+      // the benchmark targets are everyone's, so only the site's owner puts them back
+      if (isOwner(viewer)) yield* (yield* Targets).replaceAll(seedData.targets)
     }))
     return { ok: true }
   }
   if (form.get("intent") === "reread") {
+    requireListEditor(context, request, list)
     // Parse the stored roster again with today's rules library: a rule added to the library since the
     // import is picked up, and anything edited by hand on this list is replaced by what the file says.
     await run(Effect.gen(function*() {
@@ -78,7 +106,11 @@ export async function action({ request, params }: Route.ActionArgs) {
   }
   const intent = intentFromForm(form)
   if (!intent) throw data({ message: "That isn’t a change this list understands." }, { status: 400 })
-  await run(Effect.flatMap(Lists, (lists) => lists.updateOpts(listId, (list) => applyIntent(list.opts, intent, list.units))))
+  if (!canEdit) {
+    const next = applyIntent((await readViewerOpts(request, listId)) ?? list.opts, intent, list.units)
+    return data({ ok: true }, { headers: { "Set-Cookie": await writeViewerOpts(request, listId, next) } })
+  }
+  await run(Effect.flatMap(Lists, (lists) => lists.updateOpts(listId, (l) => applyIntent(l.opts, intent, l.units))))
   return { ok: true }
 }
 
@@ -107,7 +139,8 @@ function useStable<T>(value: T, key: string): T {
 }
 
 export default function ListLayout({ loaderData, params }: Route.ComponentProps) {
-  const { list, book, targets, lists, hasRoster, drift, calibration } = loaderData
+  const { list, book, targets, lists, hasRoster, drift, calibration, canEdit } = loaderData
+  const signedIn = !!useRouteLoaderData<{ viewer: unknown }>("root")?.viewer
   const action = `/lists/${params.listId}`
   const navigate = useNavigate()
   const matches = useMatches()
@@ -137,10 +170,11 @@ export default function ListLayout({ loaderData, params }: Route.ComponentProps)
       targets: stableTargets,
       opts,
       groups: stableList.groups,
-      action
+      action,
+      canEdit
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `optsKey` stands in for `opts`, which is rebuilt every render
-    [stableList, stableBook, stableTargets, optsKey, action]
+    [stableList, stableBook, stableTargets, optsKey, action, canEdit]
   )
 
   return (
@@ -166,10 +200,16 @@ export default function ListLayout({ loaderData, params }: Route.ComponentProps)
                 {l.builtin ? " (built-in)" : ""}
               </option>
             ))}
-            <option value="__import">Import a list…</option>
+            {signedIn ? <option value="__import">Import a list…</option> : null}
           </select>
         </div>
       </header>
+      {canEdit ? null : (
+        <p className="note drift">
+          {signedIn ? "This list isn’t yours" : "You’re not signed in"}, so switches and modifiers you change are kept in this browser
+          only; the list stays as its owner left it.
+        </p>
+      )}
       {drift && drift.units.length ? (
         <p className="note warn drift">
           The Field Manual ({drift.version}) prices {drift.units.length} of this list’s units differently
@@ -200,15 +240,21 @@ export default function ListLayout({ loaderData, params }: Route.ComponentProps)
           Expected values only. Stratagems are left out on purpose.
         </p>
         <div className="footact">
-          <PostButton
-            action={action}
-            fields={{ intent: "reset" }}
-            className="linkbtn"
-            confirm="Restore this list’s units and options, and the default benchmark targets?"
-          >
-            Restore this list and the default targets
-          </PostButton>
-          {hasRoster ? (
+          {canEdit ? (
+            <PostButton
+              action={action}
+              fields={{ intent: "reset" }}
+              className="linkbtn"
+              confirm="Restore this list’s units and options, and the default benchmark targets?"
+            >
+              Restore this list and the default targets
+            </PostButton>
+          ) : (
+            <PostButton action={action} fields={{ intent: "reset" }} className="linkbtn">
+              Put the switches back
+            </PostButton>
+          )}
+          {canEdit && hasRoster ? (
             <>
               {" · "}
               <PostButton

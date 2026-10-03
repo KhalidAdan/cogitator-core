@@ -11,6 +11,8 @@ export interface PendingImport {
   readonly fileName: string
   readonly rosterXml: string
   readonly textExport: string
+  /** The account that uploaded it; only they can review or save it. */
+  readonly ownerId: string | null
 }
 
 export class Imports extends Context.Service<Imports, {
@@ -30,18 +32,24 @@ export class Imports extends Context.Service<Imports, {
         const cutoff = DateTime.formatIso(DateTime.subtract(now, { days: 2 }))
         yield* sql`DELETE FROM pending_imports WHERE created_at < ${cutoff}`.pipe(Effect.orDie)
         yield* sql`
-          INSERT INTO pending_imports (id, file_name, roster_xml, text_export, created_at)
-          VALUES (${id}, ${input.fileName}, ${input.rosterXml}, ${input.textExport}, ${DateTime.formatIso(now)})
+          INSERT INTO pending_imports (id, file_name, roster_xml, text_export, owner_id, created_at)
+          VALUES (${id}, ${input.fileName}, ${input.rosterXml}, ${input.textExport}, ${input.ownerId}, ${DateTime.formatIso(now)})
         `.pipe(Effect.orDie)
         return id
       })
 
       const get = Effect.fn("Imports.get")(function*(id: string) {
-        const rows = yield* sql<{ id: string; file_name: string; roster_xml: string; text_export: string }>`
-          SELECT id, file_name, roster_xml, text_export FROM pending_imports WHERE id = ${id}
+        const rows = yield* sql<{ id: string; file_name: string; roster_xml: string; text_export: string; owner_id: string | null }>`
+          SELECT id, file_name, roster_xml, text_export, owner_id FROM pending_imports WHERE id = ${id}
         `.pipe(Effect.orDie)
         return Option.fromNullishOr(rows[0]).pipe(
-          Option.map((r): PendingImport => ({ id: r.id, fileName: r.file_name, rosterXml: r.roster_xml, textExport: r.text_export }))
+          Option.map((r): PendingImport => ({
+            id: r.id,
+            fileName: r.file_name,
+            rosterXml: r.roster_xml,
+            textExport: r.text_export,
+            ownerId: r.owner_id
+          }))
         )
       })
 

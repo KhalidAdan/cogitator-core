@@ -15,6 +15,9 @@ app/
 
   .server/           never bundled for the browser (React Router enforces this)
     runtime.ts         the ManagedRuntime (installed by the Durable Object), run(), and the scheduled update
+    auth/              better-auth (accounts, sessions, sign-in throttling) and the Kysely dialect it runs on
+    access.ts          the checks actions make: signed in, the site's owner, this list's owner
+    cookies.ts         a visitor's switches on lists they can't change, and their last-opened list
     memo.ts            in-memory caches for what can't change: a snapshot's datasheets, a stored Field Manual page
     updates.ts         one "check for updates" over both sources, and whether they agree
     db/                migrations; the Durable Object's SQLite (DurableDb.ts) and node:sqlite for tests (Db.ts)
@@ -27,7 +30,8 @@ app/
 
   routes/            React Router route modules: loader, action, component
   components/        controls, rule chips and card, shared hooks
-  root.tsx           document shell, theme, request-logging middleware, error boundary
+  root.tsx           document shell, theme, who's signed in (middleware), request logging, error boundary
+  viewer.ts          who is looking and what they may do; shared by server and pages
   entry.server.tsx   server rendering with web streams, for Workers
   routes.ts          the route table
 

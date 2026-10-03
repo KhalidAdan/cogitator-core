@@ -1,0 +1,11 @@
+# Local secrets for `npm run dev` and `npm run preview`. Copy to .dev.vars (git-ignored) and fill in.
+# On the live site these are `wrangler secret put` secrets; see docs/cloudflare.md.
+
+# Where the dev server runs (the live value is in wrangler.jsonc)
+BETTER_AUTH_URL=http://localhost:5173
+
+# Signs sessions: any long random value, e.g. `node -e "console.log(crypto.randomBytes(32).toString('base64url'))"`
+BETTER_AUTH_SECRET=
+
+# What /cogitator-core/setup asks for before it creates the owner's account
+SETUP_CODE=

@@ -7,6 +7,8 @@ export interface LedgerContext extends Ledger {
   readonly list: ArmyList
   /** Where option changes are posted: the list layout's own action. */
   readonly action: string
+  /** Whether this viewer can change the list itself (its units, points, rules); anyone can change its switches for themselves. */
+  readonly canEdit: boolean
 }
 
 export const useLedger = () => useOutletContext<LedgerContext>()

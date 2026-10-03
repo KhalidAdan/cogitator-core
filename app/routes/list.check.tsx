@@ -8,13 +8,14 @@
  */
 import { Effect } from "effect"
 import { data, Link, useFetcher } from "react-router"
+import { requireListEditor } from "~/.server/access"
 import { Lists } from "~/.server/repos/Lists"
 import { Rules } from "~/.server/repos/Rules"
 import { fieldManualSlug } from "~/.server/mfm/factions"
 import { run } from "~/.server/runtime"
 import { sourceStatus } from "~/.server/updates"
 import { applyCheck, applyPoints, checkList, type UnitCheck } from "~/.server/wahapedia/check"
-import { plural } from "~/components/ledger"
+import { plural, useLedger } from "~/components/ledger"
 import type { Route } from "./+types/list.check"
 
 export const handle = { controls: false }
@@ -34,7 +35,8 @@ export async function loader({ params }: Route.LoaderArgs) {
  * enhancement cost; `apply` also writes the database's weapon profiles and
  * stats over the list's. Either can be limited to one unit.
  */
-export async function action({ request, params }: Route.ActionArgs) {
+export async function action({ request, params, context }: Route.ActionArgs) {
+  requireListEditor(context, request, await run(Effect.flatMap(Lists, (l) => l.get(params.listId))))
   const form = await request.formData()
   const intent = form.get("intent")
   const only = form.get("unit")
@@ -62,6 +64,7 @@ const day = (iso: string) => iso.slice(0, 10)
 
 export default function CheckView({ loaderData, params }: Route.ComponentProps) {
   const { check, behind } = loaderData
+  const { canEdit } = useLedger()
   const fetcher = useFetcher<typeof action>()
   const busy = fetcher.state !== "idle"
   const doing = busy ? String(fetcher.formData?.get("intent")) : null
@@ -135,7 +138,7 @@ export default function CheckView({ loaderData, params }: Route.ComponentProps) 
         </div>
       ) : null}
 
-      <div className="presets">
+      <div className="presets" hidden={!canEdit}>
         {totals.pointsIssues ? (
           <fetcher.Form method="post">
             <button className="btn primary" type="submit" name="intent" value="apply-points" disabled={busy}>
@@ -184,7 +187,7 @@ export default function CheckView({ loaderData, params }: Route.ComponentProps) 
           </thead>
           <tbody>
             {check.units.map((u) => (
-              <UnitRow key={u.unitId} u={u} listId={params.listId} hasSnapshot={!!check.snapshot} />
+              <UnitRow key={u.unitId} u={u} listId={params.listId} hasSnapshot={!!check.snapshot} canEdit={canEdit} />
             ))}
           </tbody>
         </table>
@@ -195,7 +198,7 @@ export default function CheckView({ loaderData, params }: Route.ComponentProps) 
 
 const tierWords = (tier: string) => tier.toLowerCase().replace(/^your /, "").replace(/ units? costs?$/, "")
 
-function UnitRow({ u, listId, hasSnapshot }: { u: UnitCheck; listId: string; hasSnapshot: boolean }) {
+function UnitRow({ u, listId, hasSnapshot, canEdit }: { u: UnitCheck; listId: string; hasSnapshot: boolean; canEdit: boolean }) {
   const fetcher = useFetcher()
   const sheet = u.datasheet
   const weapons = u.weapons.filter((w) => w.status !== "ok")
@@ -283,7 +286,7 @@ function UnitRow({ u, listId, hasSnapshot }: { u: UnitCheck; listId: string; has
         {sheet && !u.abilities.notOnUnit.length && !u.abilities.notInDatabase.length ? <span className="pill ok">match</span> : null}
       </td>
       <td>
-        <fetcher.Form method="post" action={`/lists/${listId}/check`} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <fetcher.Form method="post" action={`/lists/${listId}/check`} style={{ display: "flex", flexDirection: "column", gap: 6 }} hidden={!canEdit}>
           <input type="hidden" name="unit" value={u.unitId} />
           {u.pointsIssues ? (
             <button className="btn" type="submit" name="intent" value="apply-points" disabled={fetcher.state !== "idle"}>

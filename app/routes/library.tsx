@@ -4,6 +4,7 @@
  */
 import { Effect } from "effect"
 import { data, Form, Link, redirect, useFetcher, useSubmit } from "react-router"
+import { requireOwner } from "~/.server/access"
 import { Rules } from "~/.server/repos/Rules"
 import { run } from "~/.server/runtime"
 import { syncRules } from "~/.server/wahapedia/sync"
@@ -11,6 +12,7 @@ import { plural } from "~/components/ledger"
 import { describeRule } from "~/domain/fx"
 import type { RuleStatus } from "~/domain/schema"
 import { norm, slug } from "~/domain/text"
+import { isOwner, useViewer } from "~/viewer"
 import type { Route } from "./+types/library"
 
 const FACTIONS: Record<string, string> = { AE: "Aeldari", SM: "Space Marines", CSM: "Chaos Space Marines", AC: "Adeptus Custodes" }
@@ -46,7 +48,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 }
 
-export async function action({ request }: Route.ActionArgs) {
+/** The library is everyone's maths, so only the site's owner changes it. */
+export async function action({ request, context }: Route.ActionArgs) {
+  requireOwner(context, request)
   const form = await request.formData()
   const intent = form.get("intent")
   if (intent === "sync") {
@@ -78,6 +82,7 @@ const STATUS_CLASS: Record<RuleStatus, string> = { verified: "ok", draft: "gold"
 
 export default function Library({ loaderData, actionData }: Route.ComponentProps) {
   const { rules, counts, total, q, status } = loaderData
+  const owner = isOwner(useViewer())
   const submit = useSubmit()
   // a fetcher, so comparing doesn't navigate (and the filters in the URL stay put)
   const sync = useFetcher<{ message: string }>()
@@ -117,20 +122,24 @@ export default function Library({ loaderData, actionData }: Route.ComponentProps
             </select>
           </label>
         </Form>
-        <sync.Form method="post" action="/library?index">
-          <button className="btn" type="submit" name="intent" value="sync" disabled={syncing}>
-            {syncing ? "Comparing…" : "Compare with the database"}
-          </button>
-        </sync.Form>
-        <Form method="post" action="/library?index" style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
-          <label className="field">
-            New rule
-            <input name="nm" placeholder="Rule name" />
-          </label>
-          <button className="btn" type="submit" name="intent" value="create">
-            Add
-          </button>
-        </Form>
+        {owner ? (
+          <>
+            <sync.Form method="post" action="/library?index">
+              <button className="btn" type="submit" name="intent" value="sync" disabled={syncing}>
+                {syncing ? "Comparing…" : "Compare with the database"}
+              </button>
+            </sync.Form>
+            <Form method="post" action="/library?index" style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+              <label className="field">
+                New rule
+                <input name="nm" placeholder="Rule name" />
+              </label>
+              <button className="btn" type="submit" name="intent" value="create">
+                Add
+              </button>
+            </Form>
+          </>
+        ) : null}
       </div>
       {message ? <p className="note">{message}</p> : null}
       <p className="hint">

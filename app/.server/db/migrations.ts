@@ -127,5 +127,43 @@ export const migrations = {
     `
     yield* sql`CREATE INDEX mfm_snapshots_slug ON mfm_snapshots (slug, id)`
     yield* sql`CREATE TABLE mfm_checks (slug TEXT PRIMARY KEY, checked_at TEXT NOT NULL, ok INTEGER NOT NULL, message TEXT NOT NULL)`
+  }),
+
+  /**
+   * Accounts. The four tables are better-auth's, exactly as its migration
+   * helper generates them for this configuration (`app/.server/auth.ts`),
+   * with `role` added: "owner" or "friend". There is no sign-up; accounts are
+   * created by the owner. Lists and pending imports get an owner; a list
+   * without one (the built-in list, and lists from before accounts) belongs to
+   * the site's owner.
+   */
+  "0005_accounts": Effect.gen(function*() {
+    const sql = yield* SqlClient.SqlClient
+    yield* sql`
+      CREATE TABLE "user" ("id" text not null primary key, "name" text not null, "email" text not null unique,
+        "emailVerified" integer not null, "image" text, "createdAt" date not null, "updatedAt" date not null, "role" text not null)
+    `
+    yield* sql`
+      CREATE TABLE "session" ("id" text not null primary key, "expiresAt" date not null, "token" text not null unique,
+        "createdAt" date not null, "updatedAt" date not null, "ipAddress" text, "userAgent" text,
+        "userId" text not null references "user" ("id") on delete cascade)
+    `
+    yield* sql`
+      CREATE TABLE "account" ("id" text not null primary key, "accountId" text not null, "providerId" text not null,
+        "userId" text not null references "user" ("id") on delete cascade, "accessToken" text, "refreshToken" text,
+        "idToken" text, "accessTokenExpiresAt" date, "refreshTokenExpiresAt" date, "scope" text, "password" text,
+        "createdAt" date not null, "updatedAt" date not null)
+    `
+    yield* sql`
+      CREATE TABLE "verification" ("id" text not null primary key, "identifier" text not null, "value" text not null,
+        "expiresAt" date not null, "createdAt" date not null, "updatedAt" date not null)
+    `
+    yield* sql`CREATE INDEX "session_userId_idx" ON "session" ("userId")`
+    yield* sql`CREATE INDEX "account_userId_idx" ON "account" ("userId")`
+    yield* sql`CREATE INDEX "verification_identifier_idx" ON "verification" ("identifier")`
+
+    yield* sql`ALTER TABLE lists ADD COLUMN owner_id TEXT`
+    yield* sql`CREATE INDEX lists_owner ON lists (owner_id)`
+    yield* sql`ALTER TABLE pending_imports ADD COLUMN owner_id TEXT`
   })
 }

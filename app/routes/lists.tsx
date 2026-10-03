@@ -2,28 +2,36 @@
  * Your lists: open one, delete an imported one, or import another. A roster
  * file dropped anywhere on the page is sent to the import page's "read" action,
  * which redirects to its review, exactly as choosing the file there would.
+ *
+ * Signed in, you see your own lists and the built-in one; signed out, just the
+ * built-in one. Other people's lists open by their link.
  */
 import { Effect } from "effect"
 import { useEffect, useRef, useState } from "react"
 import { data, Link, useFetcher } from "react-router"
+import { requireListEditor, viewerOf } from "~/.server/access"
 import { Lists } from "~/.server/repos/Lists"
 import { run } from "~/.server/runtime"
+import { canEditList, listedFor } from "~/viewer"
 import type { Route } from "./+types/lists"
 
-export async function loader() {
-  return { lists: await run(Effect.flatMap(Lists, (l) => l.all)) }
+export async function loader({ context }: Route.LoaderArgs) {
+  const viewer = viewerOf(context)
+  const all = await run(Effect.flatMap(Lists, (l) => l.all))
+  return {
+    signedIn: !!viewer,
+    lists: all.filter((l) => listedFor(viewer, l)).map((l) => ({ ...l, canEdit: canEditList(viewer, l) }))
+  }
 }
 
-export async function action({ request }: Route.ActionArgs) {
+export async function action({ request, context }: Route.ActionArgs) {
   const form = await request.formData()
   const id = String(form.get("id") ?? "")
   if (form.get("intent") !== "delete" || !id) throw data({ message: "Unknown action." }, { status: 400 })
-  await run(Effect.gen(function*() {
-    const lists = yield* Lists
-    const list = yield* lists.get(id)
-    // the built-in list is the calibration reference; it can be reset but not removed
-    if (!list.builtin) yield* lists.remove(id)
-  }))
+  const list = await run(Effect.flatMap(Lists, (l) => l.get(id)))
+  requireListEditor(context, request, list)
+  // the built-in list is the calibration reference; it can be reset but not removed
+  if (!list.builtin) await run(Effect.flatMap(Lists, (l) => l.remove(id)))
   return { ok: true }
 }
 
@@ -37,11 +45,12 @@ const TEXT_EXPORT = /\.txt$/i
  * when they land anywhere on it. Drags of anything but files (text, links) are
  * left to the browser.
  */
-function useWindowDrop(onDrop: (files: Array<File>) => void) {
+function useWindowDrop(onDrop: (files: Array<File>) => void, enabled = true) {
   const [over, setOver] = useState(false)
   const latest = useRef(onDrop)
   latest.current = onDrop
   useEffect(() => {
+    if (!enabled) return
     // dragenter and dragleave fire for every element crossed, so count them
     let depth = 0
     const files = (e: DragEvent) => !!e.dataTransfer && Array.from(e.dataTransfer.types).includes("Files")
@@ -78,11 +87,12 @@ function useWindowDrop(onDrop: (files: Array<File>) => void) {
       window.removeEventListener("dragover", dragover)
       window.removeEventListener("drop", drop)
     }
-  }, [])
+  }, [enabled])
   return over
 }
 
 export default function ListsIndex({ loaderData }: Route.ComponentProps) {
+  const { signedIn } = loaderData
   const fetcher = useFetcher()
   const deleting = fetcher.formData?.get("id")
   // the import page's action answers an unreadable file with { error }, and a readable one with a redirect to its review
@@ -108,7 +118,7 @@ export default function ListsIndex({ loaderData }: Route.ComponentProps) {
     form.set("roster", roster)
     form.set("text", text ? await text.text() : "")
     importer.submit(form, { method: "post", action: "/lists/import", encType: "multipart/form-data" })
-  })
+  }, signedIn)
 
   const problem = dropped?.problem ?? (!reading && importer.data?.error ? importer.data.error : null)
   return (
@@ -123,12 +133,22 @@ export default function ListsIndex({ loaderData }: Route.ComponentProps) {
       ) : null}
       <div className="dhead">
         <div>
-          <h2>Your lists</h2>
-          <div className="meta">The built-in list is the calibration reference. Imported lists are stored in this app’s database.</div>
+          <h2>{signedIn ? "Your lists" : "Lists"}</h2>
+          <div className="meta">
+            {signedIn
+              ? "Your imported lists, and the built-in list, the calibration reference. Anyone with a list’s link can open it; only you can change yours."
+              : "The built-in list, to try. Lists shared with you open by their link. Accounts are made by the site’s owner; sign in to import your own."}
+          </div>
         </div>
-        <Link className="btn primary" to="/lists/import">
-          Import a list
-        </Link>
+        {signedIn ? (
+          <Link className="btn primary" to="/lists/import">
+            Import a list
+          </Link>
+        ) : (
+          <Link className="btn" to="/sign-in?back=/lists">
+            Sign in
+          </Link>
+        )}
       </div>
       <div aria-live="polite">
         {reading && dropped ? <p className="note">Reading {dropped.name}…</p> : null}
@@ -164,7 +184,7 @@ export default function ListsIndex({ loaderData }: Route.ComponentProps) {
                       <Link className="btn" to={`/lists/${l.id}`}>
                         Open
                       </Link>{" "}
-                      {l.builtin ? null : (
+                      {l.builtin || !l.canEdit ? null : (
                         <fetcher.Form
                           method="post"
                           style={{ display: "inline" }}
@@ -185,7 +205,7 @@ export default function ListsIndex({ loaderData }: Route.ComponentProps) {
             </tbody>
           </table>
         </div>
-        <p className="hint">Or drop a roster file anywhere on this page to import it.</p>
+        {signedIn ? <p className="hint">Or drop a roster file anywhere on this page to import it.</p> : null}
       </section>
     </main>
   )

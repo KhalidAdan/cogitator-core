@@ -1,12 +1,14 @@
 /** One datasheet as the database has it, and a way to turn it into a benchmark target. */
 import { Effect, Option } from "effect"
 import { Form, Link, useNavigation } from "react-router"
+import { requireOwner } from "~/.server/access"
 import { Targets } from "~/.server/repos/Targets"
 import { run } from "~/.server/runtime"
 import { currentSnapshotId, type Datasheet, datasheets } from "~/.server/wahapedia/queries"
 import { parseNum } from "~/domain/keywords"
 import type { Target } from "~/domain/schema"
 import { slug } from "~/domain/text"
+import { isOwner, useViewer } from "~/viewer"
 import type { Route } from "./+types/database.datasheet"
 
 const load = (datasheetId: string) =>
@@ -50,7 +52,9 @@ function targetFrom(sheet: Datasheet, costIndex: number): Target | null {
   }
 }
 
-export async function action({ request, params }: Route.ActionArgs) {
+export async function action({ request, params, context }: Route.ActionArgs) {
+  // the benchmark set is everyone's, so only the site's owner adds to it
+  requireOwner(context, request)
   const form = await request.formData()
   const index = Number(form.get("cost"))
   return run(Effect.gen(function*() {
@@ -68,6 +72,7 @@ export const meta: Route.MetaFunction = ({ data }) => [{ title: `${data?.sheet.n
 
 export default function DatasheetView({ loaderData, actionData }: Route.ComponentProps) {
   const { sheet } = loaderData
+  const owner = isOwner(useViewer())
   const navigation = useNavigation()
   const sizes = sheet.costs.map((c, i) => ({ c, i })).filter(({ c }) => /^\d+ models?$/i.test(c.description))
   return (
@@ -177,7 +182,7 @@ export default function DatasheetView({ loaderData, actionData }: Route.Componen
               </tbody>
             </table>
           </div>
-          {sizes.length && sheet.models.length ? (
+          {owner && sizes.length && sheet.models.length ? (
             <Form method="post" className="searchbar">
               <label className="field">
                 Benchmark target from this datasheet

@@ -280,6 +280,8 @@ export const ArmyList = Schema.Struct({
   /** Rules read from the roster file; they overlay the library for this list. */
   rules: Schema.Record(Schema.String, Rule),
   units: Schema.Array(Unit),
-  opts: Opts
+  opts: Opts,
+  /** The account that owns the list; none for the built-in list and lists from before accounts (the site owner's). */
+  ownerId: NullishString
 })
 export type ArmyList = typeof ArmyList.Type

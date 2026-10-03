@@ -11,12 +11,14 @@ import { data, Link, useFetcher } from "react-router"
 import { isMfmSlug, MFM_SLUGS, mfmUrl } from "~/.server/mfm/factions"
 import { refreshManyLive } from "~/.server/mfm/refresh"
 import { type ManualChange, manualStatuses } from "~/.server/mfm/store"
+import { requireOwner } from "~/.server/access"
 import { Settings, UPDATES_CHECKED_AT } from "~/.server/repos/Settings"
 import { run } from "~/.server/runtime"
 import { checkForUpdates, type SourceStatus, sourceStatus } from "~/.server/updates"
 import type { ChangeKind, ChangeReport, FieldChanges } from "~/.server/wahapedia/diff"
 import { Snapshots } from "~/.server/wahapedia/Snapshots"
 import { plural } from "~/components/ledger"
+import { isOwner, useViewer } from "~/viewer"
 import type { Route } from "./+types/database"
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -50,7 +52,9 @@ const COOLDOWN_MINUTES = 10
  * `update` is the one a person uses. `track` adds a faction that no list uses
  * yet; it lives under "History and tools".
  */
-export async function action({ request }: Route.ActionArgs) {
+export async function action({ request, context }: Route.ActionArgs) {
+  // refreshing the data is the site owner's; everyone gets the scheduled update
+  requireOwner(context, request)
   const form = await request.formData()
   const intent = form.get("intent")
 
@@ -98,6 +102,7 @@ export const meta: Route.MetaFunction = () => [{ title: "Database · Cogitator C
 
 export default function Database({ loaderData }: Route.ComponentProps) {
   const { status, snapshots, shown, report, manuals, untracked } = loaderData
+  const owner = isOwner(useViewer())
   // a fetcher: checking can take a minute when there is a new export to download, and it shouldn't be a navigation
   const fetcher = useFetcher<typeof action>()
   const busy = fetcher.state !== "idle"
@@ -136,14 +141,16 @@ export default function Database({ loaderData }: Route.ComponentProps) {
       <Agreement status={status} />
 
       <fetcher.Form method="post" action="/database?index" className="presets" style={{ alignItems: "center" }}>
-        <button className="btn primary" type="submit" name="intent" value="update" disabled={busy}>
-          {working === "update" ? "Checking the Field Manual and Wahapedia…" : "Check for updates"}
-        </button>
+        {owner ? (
+          <button className="btn primary" type="submit" name="intent" value="update" disabled={busy}>
+            {working === "update" ? "Checking the Field Manual and Wahapedia…" : "Check for updates"}
+          </button>
+        ) : null}
         <Link className="btn" to="/database/datasheets">
           Browse datasheets
         </Link>
         <span className="hint">
-          Last checked {when(status.checkedAt)}. The app also checks once a day while it’s running.
+          Last checked {when(status.checkedAt)}. {owner ? "The app also checks once a day by itself." : "The app checks both once a day by itself."}
         </span>
       </fetcher.Form>
       {fetcher.data && working === null ? <p className={`note ${fetcher.data.ok ? "" : "warn"}`}>{fetcher.data.message}</p> : null}
@@ -225,6 +232,8 @@ export default function Database({ loaderData }: Route.ComponentProps) {
       <details className="assume" style={{ marginTop: 26 }}>
         <summary>History and tools</summary>
         <div style={{ paddingTop: 12 }}>
+          {owner ? (
+          <>
           <h3 className="sh">
             Follow another faction <span>points are checked for every faction that has a list; add one here to follow it without a list</span>
           </h3>
@@ -245,6 +254,8 @@ export default function Database({ loaderData }: Route.ComponentProps) {
           ) : (
             <p className="hint">Every faction is already followed.</p>
           )}
+          </>
+          ) : null}
 
           <h3 className="sh">
             Wahapedia exports loaded <span>lists are checked against the newest; older ones are kept to compare with</span>

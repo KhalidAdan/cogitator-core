@@ -6,6 +6,7 @@
 import { Effect, Schema } from "effect"
 import { useMemo } from "react"
 import { data, Form, Link, redirect, useNavigation, useSearchParams } from "react-router"
+import { requireListEditor } from "~/.server/access"
 import { Lists } from "~/.server/repos/Lists"
 import { run } from "~/.server/runtime"
 import { Chip } from "~/components/chips"
@@ -19,7 +20,8 @@ import type { Route } from "./+types/list.unit"
 const diceInput = (v: string) => (/d/i.test(v) ? v.toUpperCase().replace(/\s+/g, "") : parseFloat(v) || 0)
 
 /** Save an edited loadout. Only single datasheets are editable; an attached unit is edited through its members. */
-export async function action({ request, params }: Route.ActionArgs) {
+export async function action({ request, params, context }: Route.ActionArgs) {
+  requireListEditor(context, request, await run(Effect.flatMap(Lists, (l) => l.get(params.listId))))
   const form = await request.formData()
   const text = (k: string) => String(form.get(k) ?? "").trim()
   await run(Effect.gen(function*() {
@@ -63,7 +65,7 @@ export const meta: Route.MetaFunction = ({ matches, params }) => {
 
 export default function UnitView({ params }: Route.ComponentProps) {
   const ledger = useLedger()
-  const { opts, groups, targets } = ledger
+  const { opts, groups, targets, canEdit } = ledger
   const [search] = useSearchParams()
   const u = findUnit(ledger, params.unitId)
 
@@ -75,7 +77,7 @@ export default function UnitView({ params }: Route.ComponentProps) {
 
   const sel = results.find((x) => x.t.id === search.get("vs")) ?? results.reduce((a, b) => (b.r.roi > a.r.roi ? b : a))
   const vs = sel.t.id
-  const editing = search.get("edit") === "1" && !u.combined
+  const editing = search.get("edit") === "1" && !u.combined && canEdit
   const group = u.grp ? groups[u.grp] : undefined
   const models = `${u.models} ${plural(u.models, "model")}`
   const groupLine = u.combined
@@ -164,7 +166,7 @@ export default function UnitView({ params }: Route.ComponentProps) {
           <h3 className="sh">
             Loadout <span>{u.combined ? "edit the members to change these" : "what the matrix is built from"}</span>
           </h3>
-          <Loadout u={u} editing={editing} />
+          <Loadout u={u} editing={editing} canEdit={canEdit} />
         </section>
       </div>
     </>
@@ -315,7 +317,7 @@ function RulesInPlay({ ledger, u }: { ledger: LedgerContext; u: Unit }) {
   )
 }
 
-function Loadout({ u, editing }: { u: Unit; editing: boolean }) {
+function Loadout({ u, editing, canEdit }: { u: Unit; editing: boolean; canEdit: boolean }) {
   const [search] = useSearchParams()
   const navigation = useNavigation()
   const saving = navigation.state === "submitting"
@@ -342,7 +344,7 @@ function Loadout({ u, editing }: { u: Unit; editing: boolean }) {
   if (!editing) {
     return (
       <>
-        {u.combined ? null : (
+        {u.combined || !canEdit ? null : (
           <div className="editbar">
             <Link className="btn" to={`?${toggle}`} preventScrollReset replace>
               Edit profiles

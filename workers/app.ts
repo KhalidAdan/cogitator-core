@@ -10,8 +10,9 @@
  */
 import { DurableObject } from "cloudflare:workers"
 import { createRequestHandler } from "react-router"
+import { installAuth } from "~/.server/auth/auth"
 import { durableDb } from "~/.server/db/DurableDb"
-import { appLayer, installRuntime, run, scheduledUpdate } from "~/.server/runtime"
+import { appLayer, executeSql, installRuntime, run, scheduledUpdate } from "~/.server/runtime"
 
 const handler = createRequestHandler(() => import("virtual:react-router/server-build"), import.meta.env.MODE)
 
@@ -26,6 +27,12 @@ export class CogitatorCore extends DurableObject<Env> {
     // no request gets in until the database is migrated and seeded
     ctx.blockConcurrencyWhile(async () => {
       await installRuntime(appLayer(durableDb(ctx.storage)))
+      installAuth({
+        secret: env.BETTER_AUTH_SECRET,
+        baseURL: env.BETTER_AUTH_URL,
+        setupCode: env.SETUP_CODE || null,
+        execute: executeSql
+      })
       if (this.autoUpdate && (await ctx.storage.getAlarm()) === null) await ctx.storage.setAlarm(Date.now() + FIRST_UPDATE_AFTER_MS)
     })
   }

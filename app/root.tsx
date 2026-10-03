@@ -9,6 +9,7 @@ import "./styles/app.css"
 
 import { Effect } from "effect"
 import {
+  Form,
   isRouteErrorResponse,
   Link,
   Links,
@@ -21,13 +22,35 @@ import {
   useNavigation,
   useRouteLoaderData
 } from "react-router"
+import { getViewer } from "~/.server/auth/auth"
 import { run } from "~/.server/runtime"
 import { readTheme } from "~/.server/theme"
 import { nextTheme, type Theme } from "~/theme"
+import { isOwner, type Viewer, viewerContext } from "~/viewer"
 import type { Route } from "./+types/root"
 
-/** Log every request through the Effect logger, with how long it took. */
+/** A response that takes extra Set-Cookie headers, even when the original's headers are immutable (a fetched redirect). */
+function withCookies(response: Response, cookies: ReadonlyArray<string>): Response {
+  if (!cookies.length) return response
+  try {
+    for (const c of cookies) response.headers.append("Set-Cookie", c)
+    return response
+  } catch {
+    const copy = new Response(response.body, response)
+    for (const c of cookies) copy.headers.append("Set-Cookie", c)
+    return copy
+  }
+}
+
+// A form posted from another site never reaches an action: React Router refuses it (its built-in CSRF check).
 export const middleware: Route.MiddlewareFunction[] = [
+  // Who is asking: every loader and action can read it from the context.
+  async ({ request, context }, next) => {
+    const { viewer, setCookies } = await getViewer(request)
+    context.set(viewerContext, viewer)
+    return withCookies(await next(), setCookies)
+  },
+  // Log every request through the Effect logger, with how long it took.
   async ({ request }, next) => {
     const start = performance.now()
     const response = await next()
@@ -37,12 +60,13 @@ export const middleware: Route.MiddlewareFunction[] = [
   }
 ]
 
-export async function loader({ request }: Route.LoaderArgs) {
-  return { theme: await readTheme(request) }
+export async function loader({ request, context }: Route.LoaderArgs) {
+  return { theme: await readTheme(request), viewer: context.get(viewerContext) }
 }
 
-// the theme only changes through its own action
-export const shouldRevalidate = ({ formAction }: { formAction?: string }) => !!formAction?.endsWith("/theme")
+// the theme and who is signed in only change through these actions
+export const shouldRevalidate = ({ formAction }: { formAction?: string }) =>
+  !!formAction && /\/(theme|sign-in|sign-out|setup)$/.test(new URL(formAction, "http://x").pathname)
 
 export const meta: Route.MetaFunction = () => [
   { title: "Cogitator Core" },
@@ -67,7 +91,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <div className="wrap">
-          <TopBar theme={theme} />
+          <TopBar theme={theme} viewer={data?.viewer ?? null} />
           {children}
           <footer className="credit">
             Datasheets and rules text are <a href="https://wahapedia.ru/wh40k11ed/the-rules/data-export" rel="noreferrer">powered by Wahapedia</a>;
@@ -84,7 +108,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   )
 }
 
-function TopBar({ theme }: { theme: Theme }) {
+function TopBar({ theme, viewer }: { theme: Theme; viewer: Viewer | null }) {
   const fetcher = useFetcher({ key: "theme" })
   const navigation = useNavigation()
   return (
@@ -96,8 +120,21 @@ function TopBar({ theme }: { theme: Theme }) {
         <NavLink to="/lists" prefetch="intent">Lists</NavLink>
         <NavLink to="/library" prefetch="intent">Rules library</NavLink>
         <NavLink to="/database" prefetch="intent">Database</NavLink>
+        {isOwner(viewer) ? <NavLink to="/accounts">Accounts</NavLink> : null}
       </div>
       <span className={"busy" + (navigation.state === "idle" ? "" : " on")} aria-hidden="true" />
+      {viewer ? (
+        <Form method="post" action="/sign-out" className="who">
+          <span title={viewer.email}>{viewer.name}</span>
+          <button className="linkbtn" type="submit">
+            Sign out
+          </button>
+        </Form>
+      ) : (
+        <Link to="/sign-in" className="who">
+          Sign in
+        </Link>
+      )}
       <fetcher.Form method="post" action="/theme">
         <button className="themebtn" type="submit" name="theme" value={nextTheme(theme)}>
           Theme: {theme}

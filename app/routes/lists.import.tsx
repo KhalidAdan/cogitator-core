@@ -13,6 +13,7 @@ import { Effect, Option } from "effect"
 import { Fragment, useState } from "react"
 import { data, Form, Link, redirect, useNavigation } from "react-router"
 import { parseRoster, readRosterFile } from "~/.server/importer/roster"
+import { requireViewer } from "~/.server/access"
 import { Imports } from "~/.server/repos/Imports"
 import { Lists } from "~/.server/repos/Lists"
 import { Rules } from "~/.server/repos/Rules"
@@ -32,11 +33,11 @@ const importContext = (library: RuleBook) => ({
   detachmentUnitGrants: seedData.detachmentUnitGrants
 })
 
-/** Parse a pending import and check it against the database. */
-const preview = (pendingId: string) =>
+/** Parse a pending import and check it against the database. Someone else's upload is as good as missing. */
+const preview = (pendingId: string, ownerId: string) =>
   Effect.gen(function*() {
     const pending = Option.getOrUndefined(yield* (yield* Imports).get(pendingId))
-    if (!pending) return null
+    if (!pending || pending.ownerId !== ownerId) return null
     const library = yield* (yield* Rules).book
     const parsed = yield* parseRoster(pending.rosterXml, pending.textExport, importContext(library))
     const check = yield* checkList({ units: parsed.units, meta: parsed.meta, rules: parsed.rules }, library)
@@ -44,19 +45,21 @@ const preview = (pendingId: string) =>
   })
 
 /** Preview for the review page, which also wants to know whether Wahapedia is behind the Field Manual for this faction. */
-const review = (pendingId: string) =>
+const review = (pendingId: string, ownerId: string) =>
   Effect.gen(function*() {
-    const p = yield* preview(pendingId)
+    const p = yield* preview(pendingId, ownerId)
     if (!p) return null
     const slug = p.check.manual?.slug
     const behind = slug ? ((yield* sourceStatus).agreement.find((a) => a.slug === slug && a.differing > 0) ?? null) : null
     return { ...p, behind }
   })
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ request, context }: Route.LoaderArgs) {
+  // importing makes a list, and a list needs an owner
+  const viewer = requireViewer(context, request)
   const pendingId = new URL(request.url).searchParams.get("pending")
   if (!pendingId) return { review: null, expired: false }
-  const p = await run(review(pendingId))
+  const p = await run(review(pendingId, viewer.id))
   if (!p) return { review: null, expired: true }
   const { parsed, check, library, behind } = p
   const ruleOf = (id: string): Rule | undefined => parsed.rules[id] ?? library[id]
@@ -122,7 +125,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 }
 
-export async function action({ request }: Route.ActionArgs) {
+export async function action({ request, context }: Route.ActionArgs) {
+  const viewer = requireViewer(context, request)
   const form = await request.formData()
   const intent = form.get("intent")
 
@@ -136,7 +140,7 @@ export async function action({ request }: Route.ActionArgs) {
         const xml = yield* readRosterFile(bytes)
         // parse now so a bad file is reported here, not on the review page
         yield* parseRoster(xml, text, importContext(yield* (yield* Rules).book))
-        return { id: yield* (yield* Imports).add({ fileName: file.name, rosterXml: xml, textExport: text }) }
+        return { id: yield* (yield* Imports).add({ fileName: file.name, rosterXml: xml, textExport: text, ownerId: viewer.id }) }
       }).pipe(Effect.catchTag("RosterParseError", (e) => Effect.succeed({ error: e.message })))
     )
     if ("error" in result) return data({ error: result.error }, { status: 422 })
@@ -148,7 +152,7 @@ export async function action({ request }: Route.ActionArgs) {
     const useDatabase = form.get("database") === "true"
     const useManual = form.get("manual") === "true"
     const id = await run(Effect.gen(function*() {
-      const p = yield* preview(pendingId)
+      const p = yield* preview(pendingId, viewer.id)
       if (!p) return null
       const { parsed, check, pending } = p
       const number = (key: string) => {
@@ -180,7 +184,8 @@ export async function action({ request }: Route.ActionArgs) {
         units,
         rosterXml: pending.rosterXml,
         textExport: pending.textExport,
-        gameSystem: parsed.gameSystem
+        gameSystem: parsed.gameSystem,
+        ownerId: viewer.id
       })
       yield* (yield* Imports).remove(pendingId)
       return listId
@@ -190,7 +195,12 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   if (intent === "cancel") {
-    await run(Effect.flatMap(Imports, (i) => i.remove(String(form.get("pending") ?? ""))))
+    await run(Effect.gen(function*() {
+      const imports = yield* Imports
+      const id = String(form.get("pending") ?? "")
+      const pending = Option.getOrUndefined(yield* imports.get(id))
+      if (pending?.ownerId === viewer.id) yield* imports.remove(id)
+    }))
     return redirect("/lists/import")
   }
 

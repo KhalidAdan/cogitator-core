@@ -33,7 +33,7 @@ I left it off because of question 6 (decision D-12). Once you trust the database
 **9. What is Void Thieves now?**
 The library has it as a Corsair Coterie rule. The export's Corsair Coterie has two detachment abilities and it isn't one of them. Renamed, moved onto datasheets, or gone.
 
-**10. Where should this run so your phone can use it?**
+**10. Where should this run so your phone can use it?** *Answered on 2 October: Cloudflare, at khld.dev/cogitator-core, with accounts (D-38, D-39).*
 It's a Node server with a SQLite file. Your machine has Tailscale, so the least-effort answer is to run the production build here and open it over the tailnet. A small VPS or Fly.io with a volume would also work. I didn't set anything up, and there is no login, so it should not be exposed to the open internet as it stands.
 
 **11. "Draft with Claude": do you want it, and on whose key?**

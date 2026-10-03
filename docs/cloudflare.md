@@ -37,6 +37,15 @@ wrangler login    # once
 npm run deploy    # build, then wrangler deploy
 ```
 
+Two secrets, set once with `wrangler secret put <NAME>` (locally they're in `.dev.vars`, which is git-ignored):
+
+| Secret | What it's for |
+|---|---|
+| `BETTER_AUTH_SECRET` | Signs sessions. Any long random value; changing it signs everyone out. |
+| `SETUP_CODE` | What `/cogitator-core/setup` asks for before it creates the owner's account. Only used while there is no owner. |
+
+`BETTER_AUTH_URL` (`https://khld.dev`) is an ordinary variable in `wrangler.jsonc`. After the first deploy with accounts, open `/cogitator-core/setup`, enter the setup code, and make your account; then add friends on the Accounts page.
+
 `wrangler.jsonc` describes everything that gets created: the Worker, the Durable Object class (`CogitatorCore`, SQLite storage), and the routes `khld.dev/cogitator-core` and `khld.dev/cogitator-core/*`. There is no `workers.dev` address and no per-version preview links (`workers_dev` and `preview_urls` are off), so the only way in is khld.dev, where the rate-limit rule applies.
 
 For the routes to receive traffic, khld.dev needs a proxied (orange cloud) DNS record. Logs: `npx wrangler tail cogitator-core`.
@@ -61,7 +70,7 @@ Redirect rules on the zone (free plan, Single Redirects):
 
 To see how Cloudflare handles a URL without sending traffic, use `cf request-tracers traces create --url <url> --method GET` (with `CLOUDFLARE_ACCOUNT_ID` set).
 
-The workers.dev address was switched off on 3 October (version `65c0d552`), once khld.dev was serving the app.
+The workers.dev address was switched off on 3 October (version `65c0d552`), once khld.dev was serving the app. Accounts went live with version `6531b7a1`.
 
 ## Cost and safeguards
 
@@ -73,7 +82,7 @@ Cloudflare has no hard spending cap. The safeguards:
 - **A rate-limiting rule** on the khld.dev zone (free plan: per IP and data centre, 10-second window). An address that sends more than 100 requests to `/cogitator-core` in 10 seconds is blocked for 10 seconds; a first page load, with every script and font, is about 40. It runs before the Worker, so blocked requests aren't Worker requests. Set with `cf rulesets account-rulesets phases update http_ratelimit --zone khld.dev`.
 - **The update button's ten-minute cooldown**, and "follow a faction" answering from what's stored if the page was read within the hour.
 
-The site has no login yet, so anyone can edit lists. That's deliberate for now.
+Anyone can read the site, but only signed-in accounts can change anything, and only the owner can start an update (D-39).
 
 ## The `cf` CLI
 

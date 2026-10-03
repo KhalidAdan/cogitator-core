@@ -18,7 +18,8 @@ export class ListSummary extends Schema.Class<ListSummary>("ListSummary")({
   builtin: Schema.Boolean,
   units: Schema.Number,
   pts: Schema.Number,
-  faction: Schema.String
+  faction: Schema.String,
+  ownerId: Schema.NullOr(Schema.String)
 }) {}
 
 /** What the importer (or the seed) hands over to be stored. */
@@ -34,6 +35,8 @@ export interface NewList {
   readonly rosterXml?: string | null
   readonly textExport?: string | null
   readonly gameSystem?: string | null
+  /** The account importing it; none for the built-in list. */
+  readonly ownerId?: string | null
 }
 
 const json = <S extends Schema.Constraint>(schema: S) => Schema.fromJsonString(schema)
@@ -44,7 +47,8 @@ const ListRow = Schema.Struct({
   groups: json(Schema.Record(Schema.String, Group)),
   army_rules: json(Schema.Array(Schema.String)),
   rules: json(Schema.Record(Schema.String, Rule)),
-  opts: json(Opts)
+  opts: json(Opts),
+  owner_id: Schema.NullOr(Schema.String)
 })
 const UnitRow = Schema.Struct({ data: json(Unit) })
 const SummaryRow = Schema.Struct({
@@ -53,7 +57,8 @@ const SummaryRow = Schema.Struct({
   builtin: Schema.Number,
   meta: json(ListMeta),
   units: Schema.Number,
-  pts: Schema.Number
+  pts: Schema.Number,
+  owner_id: Schema.NullOr(Schema.String)
 })
 
 const encUnit = Schema.encodeSync(json(Unit))
@@ -81,6 +86,8 @@ export class Lists extends Context.Service<Lists, {
   rename(id: string, name: string): Effect.Effect<void>
   remove(id: string): Effect.Effect<void>
   exists(id: string): Effect.Effect<boolean>
+  /** Give an account's lists to the site's owner (no owner), when the account is removed. */
+  releaseOwner(ownerId: string): Effect.Effect<void>
 }>()("cogitator/repos/Lists") {
   static readonly layer = Layer.effect(
     Lists,
@@ -91,7 +98,7 @@ export class Lists extends Context.Service<Lists, {
       const findList = SqlSchema.findOneOption({
         Request: Schema.String,
         Result: ListRow,
-        execute: (id) => sql`SELECT id, builtin, meta, groups, army_rules, rules, opts FROM lists WHERE id = ${id}`
+        execute: (id) => sql`SELECT id, builtin, meta, groups, army_rules, rules, opts, owner_id FROM lists WHERE id = ${id}`
       })
       const findUnits = SqlSchema.findAll({
         Request: Schema.String,
@@ -103,7 +110,7 @@ export class Lists extends Context.Service<Lists, {
         Result: SummaryRow,
         execute: () =>
           sql`
-            SELECT l.id, l.name, l.builtin, l.meta,
+            SELECT l.id, l.name, l.builtin, l.meta, l.owner_id,
                    COUNT(u.unit_id) AS units,
                    COALESCE(SUM(json_extract(u.data, '$.pts')), 0) AS pts
             FROM lists l LEFT JOIN list_units u ON u.list_id = l.id
@@ -115,7 +122,15 @@ export class Lists extends Context.Service<Lists, {
       const all = summaries().pipe(
         Effect.map((rows) =>
           rows.map((r) =>
-            new ListSummary({ id: r.id, name: r.name, builtin: r.builtin !== 0, units: r.units, pts: r.pts, faction: r.meta.faction ?? "" })
+            new ListSummary({
+              id: r.id,
+              name: r.name,
+              builtin: r.builtin !== 0,
+              units: r.units,
+              pts: r.pts,
+              faction: r.meta.faction ?? "",
+              ownerId: r.owner_id
+            })
           )
         ),
         Effect.orDie,
@@ -135,7 +150,8 @@ export class Lists extends Context.Service<Lists, {
           armyRules: l.army_rules,
           rules: l.rules,
           units: units.map((u) => u.data),
-          opts: l.opts
+          opts: l.opts,
+          ownerId: l.owner_id
         } satisfies ArmyList
       })
 
@@ -170,11 +186,11 @@ export class Lists extends Context.Service<Lists, {
           yield* sql`DELETE FROM lists WHERE id = ${id}`
           const position = yield* sql<{ n: number }>`SELECT COALESCE(MAX(position), 0) + 1 AS n FROM lists`
           yield* sql`
-            INSERT INTO lists (id, name, builtin, position, meta, groups, army_rules, rules, opts, roster_xml, text_export, game_system, created_at, updated_at)
+            INSERT INTO lists (id, name, builtin, position, meta, groups, army_rules, rules, opts, roster_xml, text_export, game_system, owner_id, created_at, updated_at)
             VALUES (${id}, ${list.meta.name}, ${list.builtin ? 1 : 0}, ${position[0].n}, ${encMeta(list.meta)},
                     ${encGroups(list.groups)}, ${JSON.stringify(list.armyRules)}, ${encRules(list.rules)},
                     ${encOpts(list.opts ?? defaultOpts())}, ${list.rosterXml ?? null}, ${list.textExport ?? null},
-                    ${list.gameSystem ?? null}, ${ts}, ${ts})
+                    ${list.gameSystem ?? null}, ${list.ownerId ?? null}, ${ts}, ${ts})
           `
           yield* insertUnits(id, list.units)
         })).pipe(Effect.orDie)
@@ -245,7 +261,27 @@ export class Lists extends Context.Service<Lists, {
         })).pipe(Effect.orDie)
       })
 
-      return Lists.of({ all, get, sources, create, setOpts, updateOpts, saveUnit, replaceUnits, replaceContent, reset, rename, remove, exists })
+      const releaseOwner = Effect.fn("Lists.releaseOwner")(function*(ownerId: string) {
+        yield* sql`UPDATE lists SET owner_id = NULL WHERE owner_id = ${ownerId}`.pipe(Effect.orDie)
+        yield* sql`DELETE FROM pending_imports WHERE owner_id = ${ownerId}`.pipe(Effect.orDie)
+      })
+
+      return Lists.of({
+        all,
+        get,
+        sources,
+        create,
+        setOpts,
+        updateOpts,
+        saveUnit,
+        replaceUnits,
+        replaceContent,
+        reset,
+        rename,
+        remove,
+        exists,
+        releaseOwner
+      })
     })
   )
 }
