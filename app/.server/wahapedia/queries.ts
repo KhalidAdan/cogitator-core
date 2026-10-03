@@ -3,10 +3,15 @@
  * that hangs off them, as the rest of the app wants to see them. Rule text is
  * returned as plain text; numbers stay as the export's strings until a caller
  * needs them as numbers.
+ *
+ * A snapshot never changes once loaded, so what is read from one is kept in
+ * memory (see `memo.ts`): the first page that needs a datasheet reads it, and
+ * every later one gets it without touching the database.
  */
 import { Effect, Option } from "effect"
 import { SqlClient } from "effect/sql"
 import { norm, stripHtml } from "~/domain/text"
+import { memo, memoMany } from "../memo"
 
 export interface DatasheetSummary {
   readonly id: string
@@ -109,38 +114,52 @@ export const currentSnapshotId = Effect.gen(function*() {
 
 const LEGACY = /legends|forge world/i
 
-/** Every datasheet in a snapshot, lightly. ~1,700 rows; cheap enough to index in memory per request. */
+/** Every datasheet in a snapshot, lightly. ~1,700 rows. */
 export const allDatasheets = Effect.fn("wahapedia.allDatasheets")(function*(snapshotId: number) {
   const sql = yield* SqlClient.SqlClient
-  const rows = yield* sql<Record<string, string>>`
-    SELECT d.id, d.name, d.faction_id, d.role, d."virtual" AS is_virtual,
-           COALESCE(f.name, d.faction_id) AS faction, COALESCE(s.name, '') AS source
-    FROM wh_datasheets d
-    LEFT JOIN wh_factions f ON f.snapshot_id = d.snapshot_id AND f.id = d.faction_id
-    LEFT JOIN wh_sources s ON s.snapshot_id = d.snapshot_id AND s.id = d.source_id
-    WHERE d.snapshot_id = ${snapshotId}
-    ORDER BY d.name, d.id
-  `.pipe(Effect.orDie)
-  return rows.map((r): DatasheetSummary => ({
-    id: r.id,
-    name: r.name,
-    factionId: r.faction_id,
-    faction: r.faction,
-    role: r.role,
-    source: r.source,
-    legacy: LEGACY.test(r.source),
-    virtual: r.is_virtual === "true"
-  }))
+  return yield* memo(
+    "allDatasheets",
+    snapshotId,
+    sql<Record<string, string>>`
+      SELECT d.id, d.name, d.faction_id, d.role, d."virtual" AS is_virtual,
+             COALESCE(f.name, d.faction_id) AS faction, COALESCE(s.name, '') AS source
+      FROM wh_datasheets d
+      LEFT JOIN wh_factions f ON f.snapshot_id = d.snapshot_id AND f.id = d.faction_id
+      LEFT JOIN wh_sources s ON s.snapshot_id = d.snapshot_id AND s.id = d.source_id
+      WHERE d.snapshot_id = ${snapshotId}
+      ORDER BY d.name, d.id
+    `.pipe(
+      Effect.orDie,
+      Effect.map((rows) =>
+        rows.map((r): DatasheetSummary => ({
+          id: r.id,
+          name: r.name,
+          factionId: r.faction_id,
+          faction: r.faction,
+          role: r.role,
+          source: r.source,
+          legacy: LEGACY.test(r.source),
+          virtual: r.is_virtual === "true"
+        }))
+      )
+    ),
+    2
+  )
 })
 
 export const factions = Effect.fn("wahapedia.factions")(function*(snapshotId: number) {
   const sql = yield* SqlClient.SqlClient
-  return yield* sql<{ id: string; name: string; datasheets: number }>`
-    SELECT f.id, f.name, COUNT(d.id) AS datasheets
-    FROM wh_factions f LEFT JOIN wh_datasheets d ON d.snapshot_id = f.snapshot_id AND d.faction_id = f.id
-    WHERE f.snapshot_id = ${snapshotId}
-    GROUP BY f.id ORDER BY f.name
-  `.pipe(Effect.orDie)
+  return yield* memo(
+    "factions",
+    snapshotId,
+    sql<{ id: string; name: string; datasheets: number }>`
+      SELECT f.id, f.name, COUNT(d.id) AS datasheets
+      FROM wh_factions f LEFT JOIN wh_datasheets d ON d.snapshot_id = f.snapshot_id AND d.faction_id = f.id
+      WHERE f.snapshot_id = ${snapshotId}
+      GROUP BY f.id ORDER BY f.name
+    `.pipe(Effect.orDie),
+    2
+  )
 })
 
 const group = (rows: Rows, key = "datasheet_id") => {
@@ -167,15 +186,56 @@ export function costLines(rows: Rows): Array<CostLine> {
   return out.filter((c, i) => out.findIndex((o) => o.tier === c.tier && o.description === c.description && o.cost === c.cost) === i)
 }
 
+/** Shared abilities (Abilities.csv) by id: the text a datasheet ability with an `ability_id` points at. */
+const sharedAbilities = (snapshotId: number) =>
+  Effect.gen(function*() {
+    const sql = yield* SqlClient.SqlClient
+    return yield* memo(
+      "sharedAbilities",
+      snapshotId,
+      sql<Record<string, string>>`SELECT id, name, description, faction_id FROM wh_abilities WHERE snapshot_id = ${snapshotId}`.pipe(
+        Effect.orDie,
+        Effect.map((rows) => group(rows, "id"))
+      ),
+      2
+    )
+  })
+
+/** Index of `allDatasheets` by id. */
+const summariesById = (snapshotId: number) =>
+  Effect.flatMap(allDatasheets(snapshotId), (all) => memo("summariesById", snapshotId, Effect.sync(() => new Map(all.map((s) => [s.id, s]))), 2))
+
 /** Full datasheets for the given ids. Unknown ids are simply absent from the result. */
 export const datasheets = Effect.fn("wahapedia.datasheets")(function*(snapshotId: number, ids: ReadonlyArray<string>) {
-  if (ids.length === 0) return new Map<string, Datasheet>()
+  const out = new Map<string, Datasheet>()
+  if (ids.length === 0) return out
+  // every datasheet a page has asked for is kept, so a page reads only the ones it is the first to need
+  const cache = yield* memoMany<Datasheet>("datasheet")
+  const missing: Array<string> = []
+  for (const id of new Set(ids)) {
+    const hit = cache.get(`${snapshotId}:${id}`)
+    if (hit) out.set(id, hit)
+    else missing.push(id)
+  }
+  if (missing.length) {
+    const read = yield* readDatasheets(snapshotId, missing)
+    // a whole snapshot's worth is a few megabytes; past that, an older snapshot's are what's being dropped
+    cache.clearIfOver(4_000)
+    for (const [id, d] of read) {
+      cache.set(`${snapshotId}:${id}`, d)
+      out.set(id, d)
+    }
+  }
+  return out
+})
+
+const readDatasheets = Effect.fn("wahapedia.readDatasheets")(function*(snapshotId: number, ids: ReadonlyArray<string>) {
   const sql = yield* SqlClient.SqlClient
   const inIds = sql.in(ids)
   const q = <A extends object = Record<string, string>>(table: string, column = "datasheet_id", order = "row_num") =>
     sql<A>`SELECT * FROM ${sql.literal(table)} WHERE snapshot_id = ${snapshotId} AND ${sql.literal(column)} IN ${inIds} ORDER BY ${sql.literal(order)}`
 
-  const [heads, models, wargear, abilities, keywords, costs, composition, options, leads, ledBy, shared, summaries] = yield* Effect.all([
+  const [heads, models, wargear, abilities, keywords, costs, composition, options, leads, ledBy] = yield* Effect.all([
     q("wh_datasheets", "id"),
     q("wh_datasheet_models"),
     q("wh_datasheet_wargear"),
@@ -185,13 +245,10 @@ export const datasheets = Effect.fn("wahapedia.datasheets")(function*(snapshotId
     q("wh_datasheet_unit_composition"),
     q("wh_datasheet_options"),
     q("wh_datasheet_leaders", "leader_id"),
-    q("wh_datasheet_leaders", "attached_id"),
-    sql<Record<string, string>>`SELECT id, name, description, faction_id FROM wh_abilities WHERE snapshot_id = ${snapshotId}`,
-    allDatasheets(snapshotId)
+    q("wh_datasheet_leaders", "attached_id")
   ]).pipe(Effect.orDie)
-
-  const summary = new Map(summaries.map((s) => [s.id, s]))
-  const sharedById = group(shared, "id")
+  const summary = yield* summariesById(snapshotId)
+  const sharedById = yield* sharedAbilities(snapshotId)
   const byLine = (rows: Array<Record<string, string>> | undefined) => [...(rows ?? [])].sort((a, b) => +a.line - +b.line)
   const g = {
     models: group(models),
@@ -288,35 +345,51 @@ export const exportManualVersion = Effect.fn("wahapedia.exportManualVersion")(fu
 
 export const enhancements = Effect.fn("wahapedia.enhancements")(function*(snapshotId: number) {
   const sql = yield* SqlClient.SqlClient
-  const rows = yield* sql<Record<string, string>>`
-    SELECT id, name, faction_id, cost, detachment, description FROM wh_enhancements WHERE snapshot_id = ${snapshotId}
-  `.pipe(Effect.orDie)
-  return rows.map((r): EnhancementInfo => ({
-    id: r.id,
-    name: r.name,
-    factionId: r.faction_id,
-    cost: parseInt(r.cost, 10) || 0,
-    detachment: r.detachment,
-    text: stripHtml(r.description)
-  }))
+  return yield* memo(
+    "enhancements",
+    snapshotId,
+    sql<Record<string, string>>`
+      SELECT id, name, faction_id, cost, detachment, description FROM wh_enhancements WHERE snapshot_id = ${snapshotId}
+    `.pipe(
+      Effect.orDie,
+      Effect.map((rows) =>
+        rows.map((r): EnhancementInfo => ({
+          id: r.id,
+          name: r.name,
+          factionId: r.faction_id,
+          cost: parseInt(r.cost, 10) || 0,
+          detachment: r.detachment,
+          text: stripHtml(r.description)
+        }))
+      )
+    ),
+    2
+  )
 })
 
 export const detachments = Effect.fn("wahapedia.detachments")(function*(snapshotId: number) {
   const sql = yield* SqlClient.SqlClient
-  const [dets, abilities] = yield* Effect.all([
-    sql<Record<string, string>>`SELECT id, name, faction_id, type, dp, force_disposition FROM wh_detachments WHERE snapshot_id = ${snapshotId}`,
-    sql<Record<string, string>>`SELECT name, description, detachment_id FROM wh_detachment_abilities WHERE snapshot_id = ${snapshotId} ORDER BY row_num`
-  ]).pipe(Effect.orDie)
-  const byDet = group(abilities, "detachment_id")
-  return dets.map((d): DetachmentInfo => ({
-    id: d.id,
-    name: d.name,
-    factionId: d.faction_id,
-    type: d.type,
-    dp: d.dp,
-    forceDisposition: d.force_disposition,
-    abilities: (byDet.get(d.id) ?? []).map((a) => ({ name: a.name, text: stripHtml(a.description) }))
-  }))
+  return yield* memo(
+    "detachments",
+    snapshotId,
+    Effect.gen(function*() {
+      const [dets, abilities] = yield* Effect.all([
+        sql<Record<string, string>>`SELECT id, name, faction_id, type, dp, force_disposition FROM wh_detachments WHERE snapshot_id = ${snapshotId}`,
+        sql<Record<string, string>>`SELECT name, description, detachment_id FROM wh_detachment_abilities WHERE snapshot_id = ${snapshotId} ORDER BY row_num`
+      ]).pipe(Effect.orDie)
+      const byDet = group(abilities, "detachment_id")
+      return dets.map((d): DetachmentInfo => ({
+        id: d.id,
+        name: d.name,
+        factionId: d.faction_id,
+        type: d.type,
+        dp: d.dp,
+        forceDisposition: d.force_disposition,
+        abilities: (byDet.get(d.id) ?? []).map((a) => ({ name: a.name, text: stripHtml(a.description) }))
+      }))
+    }),
+    2
+  )
 })
 
 /** Datasheet browser: name contains `q`, optionally within one faction. */

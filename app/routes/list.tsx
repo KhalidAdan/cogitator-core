@@ -4,7 +4,7 @@
  * the list's options, and hands its children a `Ledger` to compute from.
  */
 import { Effect } from "effect"
-import { useMemo } from "react"
+import { useMemo, useRef } from "react"
 import { data, Link, Outlet, type ShouldRevalidateFunctionArgs, useFetchers, useMatches, useNavigate } from "react-router"
 import { parseRoster } from "~/.server/importer/roster"
 import { Lists } from "~/.server/repos/Lists"
@@ -95,6 +95,17 @@ export const meta: Route.MetaFunction = ({ data }) => [{ title: data ? `${data.l
 
 export const handle = { controls: true }
 
+/**
+ * `value`, unless its content (`key`) is what it was last render, in which case
+ * the object from then. Loader data arrives as new objects even when nothing in
+ * it changed, and everything the views compute is memoised on identity.
+ */
+function useStable<T>(value: T, key: string): T {
+  const held = useRef<{ key: string; value: T } | null>(null)
+  if (!held.current || held.current.key !== key) held.current = { key, value }
+  return held.current.value
+}
+
 export default function ListLayout({ loaderData, params }: Route.ComponentProps) {
   const { list, book, targets, lists, hasRoster, drift, calibration } = loaderData
   const action = `/lists/${params.listId}`
@@ -112,10 +123,24 @@ export default function ListLayout({ loaderData, params }: Route.ComponentProps)
   }
   const optsKey = JSON.stringify(opts)
 
+  // After an option change the server sends the list back with the options the page already shows. Keeping the
+  // previous objects when their content is the same means that confirmation recomputes nothing.
+  const stableList = useStable(list, useMemo(() => JSON.stringify({ ...list, opts: null }), [list]))
+  const stableBook = useStable(book, useMemo(() => JSON.stringify(book), [book]))
+  const stableTargets = useStable(targets, useMemo(() => JSON.stringify(targets), [targets]))
+
   const ledger = useMemo<LedgerContext>(
-    () => ({ list, units: list.units, rules: { ...book, ...list.rules }, targets, opts, groups: list.groups, action }),
+    () => ({
+      list: stableList,
+      units: stableList.units,
+      rules: { ...stableBook, ...stableList.rules },
+      targets: stableTargets,
+      opts,
+      groups: stableList.groups,
+      action
+    }),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `optsKey` stands in for `opts`, which is rebuilt every render
-    [list, book, targets, optsKey, action]
+    [stableList, stableBook, stableTargets, optsKey, action]
   )
 
   return (

@@ -20,6 +20,12 @@ npm run dev
 
 Open http://localhost:5173. The first start creates and seeds `data/cogitator.db`, and loads a Wahapedia export if one has been downloaded.
 
+That's the development server, which is slow to load pages by design (unbundled modules, development React). To use the app at full speed, build it and serve the result on http://localhost:3000:
+
+```bash
+npm run preview
+```
+
 Points come from Games Workshop's Munitorum Field Manual; datasheets, profiles and rules text come from the Wahapedia export. The app checks both once a day while it's running. To check now, use "Check for updates" on the Database page, or:
 
 ```bash

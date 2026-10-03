@@ -15,6 +15,7 @@ app/
 
   .server/           never bundled for the browser (React Router enforces this)
     runtime.ts         the ManagedRuntime, and run(): Effect → loader/action result
+    memo.ts            in-memory caches for what can't change: a snapshot's datasheets, a stored Field Manual page
     updates.ts         one "check for updates" over both sources, and whether they agree
     db/                SqlClient layer on node:sqlite, migrations
     repos/             Lists, Rules, Targets, Settings, Imports: one Effect service each

@@ -217,6 +217,34 @@ The panel leaves out ability differences, which the Database check tab still lis
 
 Dragging a file over /lists dims the page and says "Drop to import". The dropped roster goes to the import page's own "read" action, so there is one import path, not two. A readable file lands on its review; an unreadable one shows the reason on the Lists page. Drop the text export (.txt) together with the roster to bring its points. A text export on its own, or any other kind of file, gets a sentence saying what to drop instead. Dragging text or links is left to the browser. Only the Lists page has this; the import page keeps its file picker.
 
+### D-37. Speed: under 100 ms for everything but imports and updates (2 October, your call)
+
+The second-long load in your capture was the **dev server**, not the app: the server answered in 12 ms, and the rest was the browser loading Vite's unbundled development build (a 3 MB development copy of React, ~30 modules fetched one after another, the hot-reload runtime). A production build doesn't do that. `npm run preview` builds and serves one at http://localhost:3000. Use it to judge speed; `npm run dev` will always feel slower.
+
+Measured on the production build (medians of 7, server time; toggles in the browser):
+
+| | Before | After |
+|---|---|---|
+| Matrix page, full load | 65 ms | 38–50 ms |
+| Database check tab | 145–222 ms | 18–29 ms |
+| Database page | 52–57 ms | 10–18 ms |
+| Import review | 187–218 ms | 35–40 ms |
+| Datasheet browser | 16 ms | 4–6 ms |
+| Toggling a switch: new numbers on screen | 30–100 ms | 20–44 ms |
+| Toggling a switch: settled | 90–230 ms | 46–122 ms |
+
+Lists, the library, and moving between a list's tabs were already 4–21 ms and are unchanged; tab moves don't touch the server at all.
+
+What changed:
+
+- **Read caches for data that can't change** (`app/.server/memo.ts`). A Wahapedia snapshot never changes once loaded and a stored Field Manual page never changes, and their ids are never reused. So everything read from them is kept in memory, per database connection: datasheets, enhancements, detachments, shared abilities, the name index, decoded Field Manual pages, and the agreement between the two sources. A new export or a new page has a new id and simply misses. The check went from 74 ms to 6 ms; the agreement from 45 ms to 3 ms.
+- **Warm at start-up.** The server fills those caches in the background right after it starts, so the first visit is as quick as the rest.
+- **The engine keeps what doesn't depend on the target.** Which rules reach a unit, which list-wide marks exist, and which marks the list can't set were worked out again for each of the ~380 cells; now once per unit or per list. The matrix went from 22 ms to 12 ms and the findings from 8 ms to 4.5 ms. The numbers are unchanged: the 72,618-cell parity test against the POC still passes.
+- **A toggle computes the matrix once, not twice.** The page shows the new numbers before the server answers. When the server's copy of the list arrives, it was being treated as new data and everything was recomputed, to the same result. The list layout now keeps the previous objects when the content is the same.
+- **Header links prefetch on hover**, as the list tabs already did.
+
+Not done: skipping the server round trip after a toggle entirely. It would save a background request nobody sees, and needs the page to track settled changes by hand.
+
 ---
 
 ## Things I chose not to do

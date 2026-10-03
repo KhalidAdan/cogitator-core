@@ -163,6 +163,35 @@ export function effectiveRules(unit: Unit, allUnits: ReadonlyArray<Unit>, rules:
   return out
 }
 
+/*
+ * A matrix asks for the same unit against every target, so the parts of an
+ * attack that don't depend on the target are kept between calls: which rules
+ * reach a unit, and which list-wide marks exist in a rule book. Both caches are
+ * keyed on the objects they were computed from and only ever read, so a new
+ * list, unit or rule book simply misses.
+ */
+const reachCache = new WeakMap<Unit, { units: ReadonlyArray<Unit>; rules: RuleBook; out: ReadonlyArray<EffectiveRule> }>()
+function rulesReaching(unit: Unit, units: ReadonlyArray<Unit>, rules: RuleBook): ReadonlyArray<EffectiveRule> {
+  const hit = reachCache.get(unit)
+  if (hit && hit.units === units && hit.rules === rules) return hit.out
+  const out = effectiveRules(unit, units, rules)
+  reachCache.set(unit, { units, rules, out })
+  return out
+}
+
+const globalMarkCache = new WeakMap<RuleBook, ReadonlyArray<EffectiveRule>>()
+/** Every rule in the book that, when its mark is on, reaches every attacker. */
+function globalMarks(rules: RuleBook): ReadonlyArray<EffectiveRule> {
+  let out = globalMarkCache.get(rules)
+  if (!out) {
+    out = Object.entries(rules)
+      .filter(([, r]) => r.mark && r.global && r.fx)
+      .map(([id, r]) => ({ id, owner: "mark", r }))
+    globalMarkCache.set(rules, out)
+  }
+  return out
+}
+
 export function ruleActive(er: EffectiveRule, opts: Opts): boolean {
   if (er.r.mark) return !!opts.flags[er.r.mark]
   return !opts.off[ruleKey(er.owner, er.id)]
@@ -235,14 +264,11 @@ export interface EngineContext {
 
 export function attackUnit(unit: Unit, tgt: Target, opts: Opts, ctx: EngineContext, phase?: Opts["phase"]): AttackResult {
   phase = phase || opts.phase
-  const er = effectiveRules(unit, ctx.units, ctx.rules).filter((x) => ruleActive(x, opts))
+  const er = rulesReaching(unit, ctx.units, ctx.rules).filter((x) => ruleActive(x, opts))
   // Target marks with a list-wide effect reach every attacker. They are applied
   // once, from here, so the unit that sets the mark does not get it twice (the
   // POC double-counted Shattered Defences on the Thunderstrike itself).
-  const marks: Array<EffectiveRule> = []
-  for (const [id, r] of Object.entries(ctx.rules)) {
-    if (r.mark && r.global && r.fx && opts.flags[r.mark]) marks.push({ id, owner: "mark", r })
-  }
+  const marks = globalMarks(ctx.rules).filter((x) => opts.flags[x.r.mark!])
   const own = er.filter((x) => !(x.r.mark && x.r.global))
   const rows: Array<AttackRow> = []
   for (const w of unit.w) {

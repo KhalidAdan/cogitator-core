@@ -73,12 +73,36 @@ export function situations(units: ReadonlyArray<Unit>, rules: RuleBook): Array<S
 /** Every key that is a target mark anywhere in the rule book. */
 const allMarkKeys = (rules: RuleBook) => new Set(Object.values(rules).flatMap((r) => (r.mark ? [r.mark] : [])))
 
+/*
+ * `attack` is called once per matrix cell with the same list, rules and
+ * options, so what it derives from them is kept, keyed on those objects (a new
+ * list, rule book or set of options misses and is worked out afresh).
+ */
+const unsettableCache = new WeakMap<RuleBook, WeakMap<ReadonlyArray<Unit>, ReadonlyArray<string>>>()
+/** Mark keys in the rule book that no unit in this list can set. */
+function unsettableMarks(units: ReadonlyArray<Unit>, rules: RuleBook): ReadonlyArray<string> {
+  let byUnits = unsettableCache.get(rules)
+  if (!byUnits) unsettableCache.set(rules, (byUnits = new WeakMap()))
+  let out = byUnits.get(units)
+  if (!out) {
+    const available = new Set(availableMarks(units, rules).map((m) => m.key))
+    out = [...allMarkKeys(rules)].filter((k) => !available.has(k))
+    byUnits.set(units, out)
+  }
+  return out
+}
+
+const effectiveCache = new WeakMap<Opts, { units: ReadonlyArray<Unit>; rules: RuleBook; out: Opts }>()
+
 /** The options the engine sees: marks nobody in this list can set are forced off. */
 export function effectiveOpts(l: Pick<Ledger, "units" | "rules">, opts: Opts): Opts {
-  const available = new Set(availableMarks(l.units, l.rules).map((m) => m.key))
+  const hit = effectiveCache.get(opts)
+  if (hit && hit.units === l.units && hit.rules === l.rules) return hit.out
   const flags = { ...opts.flags }
-  for (const k of allMarkKeys(l.rules)) if (!available.has(k)) flags[k] = false
-  return { ...opts, flags }
+  for (const k of unsettableMarks(l.units, l.rules)) flags[k] = false
+  const out = { ...opts, flags }
+  effectiveCache.set(opts, { units: l.units, rules: l.rules, out })
+  return out
 }
 
 export const attack = (l: Ledger, u: Unit, t: Target, opts: Opts = l.opts): AttackResult =>

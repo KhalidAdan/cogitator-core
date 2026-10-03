@@ -10,8 +10,9 @@
  */
 import { DateTime, Effect, Option } from "effect"
 import { norm } from "~/domain/text"
+import { memo } from "./memo"
 import { type RefreshResult, refreshManyLive, slugsInUse } from "./mfm/refresh"
-import { latestManual, manualStatuses } from "./mfm/store"
+import { latestManual, type ManualStatus, manualStatuses } from "./mfm/store"
 import { Settings, UPDATES_CHECKED_AT, WAHAPEDIA_CHECK } from "./repos/Settings"
 import { modelCount, tierRange } from "./wahapedia/check"
 import { reportHasChanges } from "./wahapedia/diff"
@@ -144,11 +145,39 @@ export const sourceStatus = Effect.gen(function*() {
   const lastCheck = Option.getOrUndefined(yield* settings.get(WAHAPEDIA_CHECK))
   const wahapediaCheck = lastCheck ? (JSON.parse(lastCheck) as { ok?: boolean; message?: string }) : null
 
-  const agreement: Array<FactionAgreement> = []
-  if (snapshotId !== undefined) {
+  const compared = statuses.filter((st) => st.latest && inUse.has(st.slug))
+  // the comparison only changes when a new export or a new Field Manual page is stored
+  const agreement = snapshotId === undefined
+    ? []
+    : yield* memo("agreement", `${snapshotId}|${compared.map((st) => `${st.slug}:${st.latest!.id}`).join(",")}`, agreementWith(snapshotId, compared), 4)
+
+  return {
+    points: statuses
+      .filter((s) => s.latest)
+      .map((s) => ({ slug: s.slug, faction: s.latest!.faction, version: s.latest!.version, storedAt: s.latest!.fetchedAt, ok: s.ok, message: s.message })),
+    datasheets: current && snapshotId !== undefined
+      ? {
+          snapshotId: current.id,
+          lastUpdate: current.lastUpdate,
+          loadedAt: current.loadedAt,
+          rows: current.rows,
+          manualVersion: yield* exportManualVersion(snapshotId),
+          ok: wahapediaCheck?.ok ?? true,
+          message: wahapediaCheck?.ok === false ? (wahapediaCheck.message ?? "") : ""
+        }
+      : null,
+    agreement,
+    inStep: agreement.length ? agreement.every((a) => a.differing === 0) : null,
+    checkedAt: Option.getOrNull(yield* settings.get(UPDATES_CHECKED_AT))
+  } satisfies SourceStatus
+})
+
+/** For each faction page, how many of its units Wahapedia's export prices differently. */
+const agreementWith = (snapshotId: number, statuses: ReadonlyArray<ManualStatus>) =>
+  Effect.gen(function*() {
+    const agreement: Array<FactionAgreement> = []
     const sheets = yield* allDatasheets(snapshotId)
     for (const st of statuses) {
-      if (!st.latest || !inUse.has(st.slug)) continue
       const manual = Option.getOrUndefined(yield* latestManual(st.slug))?.manual
       if (!manual) continue
       const factionName = WAHAPEDIA_FACTION[st.slug] ?? norm(manual.faction)
@@ -178,25 +207,5 @@ export const sourceStatus = Effect.gen(function*() {
       }
       agreement.push({ slug: st.slug, faction: manual.faction, version: manual.version, compared: matched.length, differing, examples })
     }
-  }
-
-  return {
-    points: statuses
-      .filter((s) => s.latest)
-      .map((s) => ({ slug: s.slug, faction: s.latest!.faction, version: s.latest!.version, storedAt: s.latest!.fetchedAt, ok: s.ok, message: s.message })),
-    datasheets: current && snapshotId !== undefined
-      ? {
-          snapshotId: current.id,
-          lastUpdate: current.lastUpdate,
-          loadedAt: current.loadedAt,
-          rows: current.rows,
-          manualVersion: yield* exportManualVersion(snapshotId),
-          ok: wahapediaCheck?.ok ?? true,
-          message: wahapediaCheck?.ok === false ? (wahapediaCheck.message ?? "") : ""
-        }
-      : null,
-    agreement,
-    inStep: agreement.length ? agreement.every((a) => a.differing === 0) : null,
-    checkedAt: Option.getOrNull(yield* settings.get(UPDATES_CHECKED_AT))
-  } satisfies SourceStatus
-})
+    return agreement
+  })

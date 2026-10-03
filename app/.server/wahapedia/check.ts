@@ -16,6 +16,7 @@ import { Effect, Option } from "effect"
 import { keywordText, parseDice, parseNum, parseWeaponKeywords } from "~/domain/keywords"
 import type { ArmyList, RuleBook, Unit, Weapon } from "~/domain/schema"
 import { norm } from "~/domain/text"
+import { memo } from "../memo"
 import { fieldManualSlug } from "../mfm/factions"
 import type { FieldManual, ManualUnit } from "../mfm/parse"
 import { latestManual } from "../mfm/store"
@@ -235,11 +236,30 @@ export function tierRange(tier: string): readonly [number, number] {
   return /\+/.test(tier) ? [nums[0], Infinity] : [nums[0], nums[0]]
 }
 
+/** Positions of a Field Manual's units by normalised name, built once per (cached, unchanging) manual. */
+const manualIndexes = new WeakMap<FieldManual, Map<string, Array<number>>>()
+function manualIndex(manual: FieldManual): Map<string, Array<number>> {
+  let index = manualIndexes.get(manual)
+  if (!index) {
+    index = new Map()
+    manual.units.forEach((u, i) => {
+      const k = norm(u.name)
+      const at = index!.get(k)
+      if (at) at.push(i)
+      else index!.set(k, [i])
+    })
+    manualIndexes.set(manual, index)
+  }
+  return index
+}
+
 /** A unit in the Field Manual by the list's name for it ("Outrider Squad B") or its datasheet's. */
 export function manualUnitFor(manual: FieldManual | null, unit: Unit, sheetName?: string): ManualUnit | null {
   if (!manual) return null
   const keys = new Set([...unitNameKeys(unit.nm), ...(sheetName ? [norm(sheetName)] : [])])
-  const found = manual.units.filter((u) => keys.has(norm(u.name)))
+  const index = manualIndex(manual)
+  // in the page's own order, as a scan of its units would find them
+  const found = [...new Set([...keys].flatMap((k) => index.get(k) ?? []))].sort((a, b) => a - b).map((i) => manual.units[i])
   if (found.length <= 1) return found[0] ?? null
   // Some pages price a unit twice (Imperial Agents: in its own detachment, and as an assigned agent).
   // The list doesn't say which applies, so every price is an acceptable one.
@@ -428,6 +448,18 @@ export function checkUnit(unit: Unit, sheet: Datasheet | null, ctx: CheckContext
   }
 }
 
+/** Datasheets by normalised name; several share a name across factions. */
+function nameIndex(all: ReadonlyArray<DatasheetSummary>): ReadonlyMap<string, ReadonlyArray<DatasheetSummary>> {
+  const index = new Map<string, Array<DatasheetSummary>>()
+  for (const d of all) {
+    const k = norm(d.name)
+    const l = index.get(k)
+    if (l) l.push(d)
+    else index.set(k, [d])
+  }
+  return index
+}
+
 /** Where each unit sits among units of the same kind, for tiered prices ("your 3rd+ unit costs…"). */
 function positions(units: ReadonlyArray<Unit>, keyOf: (u: Unit, i: number) => string | null): Array<number> {
   const seen = new Map<string, number>()
@@ -456,13 +488,7 @@ export const checkList = Effect.fn("wahapedia.checkList")(function*(list: Pick<A
   const detachmentNames = list.meta.detachments ?? []
 
   const all = snapshot === undefined ? [] : yield* allDatasheets(snapshot)
-  const index = new Map<string, Array<DatasheetSummary>>()
-  for (const d of all) {
-    const k = norm(d.name)
-    const l = index.get(k)
-    if (l) l.push(d)
-    else index.set(k, [d])
-  }
+  const index = snapshot === undefined ? new Map<string, Array<DatasheetSummary>>() : yield* memo("datasheetIndex", snapshot, Effect.sync(() => nameIndex(all)), 2)
   const factionId = factionIdFor(list.meta.faction, all)
   const picks = list.units.map((u) => {
     const known = u.datasheetId ? all.find((d) => d.id === u.datasheetId) : undefined

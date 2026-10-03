@@ -73,7 +73,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <footer className="credit">
             Datasheets and rules text are <a href="https://wahapedia.ru/wh40k11ed/the-rules/data-export" rel="noreferrer">powered by Wahapedia</a>;
             if the export is useful to you, consider <a href="https://wahapedia.ru/wh40k11ed/the-rules/author/#Support" rel="noreferrer">supporting the project</a>.
-            Points are read from the <a href="https://mfm.warhammer-community.com" rel="noreferrer">Munitorum Field Manual</a>.
+            Points are read from the <a href="https://mfm.warhammer-community.com" rel="noreferrer">Munitorum Field Manual</a>. This idea was done
+            first at the <a href="https://cullingcogitator.app" rel="noreferrer">Culling Cogitator</a>, give them a look for a productized version that
+            is very affordable!
           </footer>
         </div>
         <ScrollRestoration />
@@ -92,9 +94,9 @@ function TopBar({ theme }: { theme: Theme }) {
         Cogitator core
       </Link>
       <div className="toplinks">
-        <NavLink to="/lists">Lists</NavLink>
-        <NavLink to="/library">Rules library</NavLink>
-        <NavLink to="/database">Database</NavLink>
+        <NavLink to="/lists" prefetch="intent">Lists</NavLink>
+        <NavLink to="/library" prefetch="intent">Rules library</NavLink>
+        <NavLink to="/database" prefetch="intent">Database</NavLink>
       </div>
       <span className={"busy" + (navigation.state === "idle" ? "" : " on")} aria-hidden="true" />
       <fetcher.Form method="post" action="/theme">

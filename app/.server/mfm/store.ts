@@ -6,6 +6,7 @@
 import { DateTime, Effect, Option, Schema } from "effect"
 import { SqlClient } from "effect/sql"
 import { createHash } from "node:crypto"
+import { memo } from "../memo"
 import { FieldManual } from "./parse"
 
 export interface ManualChange {
@@ -126,11 +127,26 @@ const toSnapshot = (r: Row): ManualSnapshot => ({
   changesFrom: r.changes_from === "previous" ? "previous" : "page"
 })
 
-/** The newest snapshot for a faction page. */
+/**
+ * The newest snapshot for a faction page. A stored snapshot never changes, so
+ * it is decoded once and kept (see `memo.ts`); finding the newest id is an
+ * index lookup.
+ */
 export const latestManual = Effect.fn("mfm.latestManual")(function*(slug: string) {
   const sql = yield* SqlClient.SqlClient
-  const rows = yield* sql<Row>`SELECT * FROM mfm_snapshots WHERE slug = ${slug} ORDER BY id DESC LIMIT 1`.pipe(Effect.orDie)
-  return Option.fromNullishOr(rows[0]).pipe(Option.map(toSnapshot))
+  const ids = yield* sql<{ id: number }>`SELECT id FROM mfm_snapshots WHERE slug = ${slug} ORDER BY id DESC LIMIT 1`.pipe(Effect.orDie)
+  const id = ids[0]?.id
+  if (id === undefined) return Option.none<ManualSnapshot>()
+  const snapshot = yield* memo(
+    "manual",
+    id,
+    sql<Row>`SELECT * FROM mfm_snapshots WHERE id = ${id}`.pipe(
+      Effect.orDie,
+      Effect.map((rows) => toSnapshot(rows[0]))
+    ),
+    64
+  )
+  return Option.some(snapshot)
 })
 
 /**

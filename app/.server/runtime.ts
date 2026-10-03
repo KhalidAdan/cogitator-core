@@ -15,7 +15,8 @@ import { Rules } from "./repos/Rules"
 import { Settings } from "./repos/Settings"
 import { Targets } from "./repos/Targets"
 import { SeedLive } from "./seed/Seed"
-import { checkForUpdates } from "./updates"
+import { checkForUpdates, sourceStatus } from "./updates"
+import { checkList, pointsDrift } from "./wahapedia/check"
 import { exportFolders } from "./wahapedia/folders"
 import { Snapshots } from "./wahapedia/Snapshots"
 import { syncRules } from "./wahapedia/sync"
@@ -66,8 +67,32 @@ const UpdateWatch = Layer.effectDiscard(
   })
 )
 
+/**
+ * Fill the read caches (see `memo.ts`) in the background right after start-up,
+ * by doing once what the slowest pages do: compare the two sources, and check
+ * every list. The first visit to the Database page or a list's check tab is
+ * then as quick as every later one. Failures are only logged; a page that
+ * finds the cache empty just reads the database itself.
+ */
+const Warmup = Layer.effectDiscard(
+  Effect.forkScoped(
+    Effect.gen(function*() {
+      const started = Date.now()
+      yield* sourceStatus
+      const lists = yield* Lists
+      const book = yield* (yield* Rules).book
+      for (const summary of yield* lists.all) {
+        const list = yield* lists.get(summary.id)
+        yield* checkList(list, book)
+        yield* pointsDrift(list)
+      }
+      yield* Effect.logDebug(`Read caches warm in ${Date.now() - started} ms`)
+    }).pipe(Effect.catchCause((cause) => Effect.logWarning("Warming the read caches failed", cause)))
+  )
+)
+
 /** Everything the app's loaders and actions can ask for. */
-export const AppLayer = Layer.mergeAll(FirstSnapshot, UpdateWatch).pipe(
+export const AppLayer = Layer.mergeAll(FirstSnapshot, UpdateWatch, Warmup).pipe(
   // seed first: linking rules to their official text needs the library in place
   Layer.provideMerge(SeedLive),
   Layer.provideMerge(Repos),
