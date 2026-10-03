@@ -1,5 +1,7 @@
 /**
- * Download the Wahapedia data export.
+ * Node only (the local scripts). Download the Wahapedia data export to disk,
+ * where the tests and the local database read it from. The app reads the
+ * export straight from Wahapedia instead (`wahapedia/remote.ts`).
  *
  * The export is a set of static CSV files that the site's author regenerates
  * whenever the site changes; `Last_update.csv` says when. Each download goes
@@ -13,9 +15,10 @@ import { NodeFileSystem } from "@effect/platform-node"
 import { Effect, FileSystem, Schedule } from "effect"
 import { FetchHttpClient, HttpClient } from "effect/http"
 import { join } from "node:path"
+import { stampOf, unreachable, USER_AGENT } from "../wahapedia/remote"
+import { SnapshotError } from "../wahapedia/Snapshots"
+import { WH_ALL_FILES, WH_BASE_URL, WH_EXPORT_PAGE, WH_LAST_UPDATE_FILE } from "../wahapedia/tables"
 import { ExportRoot, folderForStamp } from "./folders"
-import { SnapshotError } from "./Snapshots"
-import { WH_ALL_FILES, WH_BASE_URL, WH_EXPORT_PAGE, WH_LAST_UPDATE_FILE } from "./tables"
 
 export interface FetchResult {
   readonly status: "downloaded" | "up-to-date"
@@ -23,15 +26,6 @@ export interface FetchResult {
   readonly lastUpdate: string
   readonly files: number
 }
-
-const USER_AGENT = "cogitator-core/0.1 (personal list analysis tool; uses the Wahapedia data export)"
-
-const unreachable = (what: string) => (cause: unknown) =>
-  new SnapshotError({
-    message:
-      `Couldn’t download ${what} from wahapedia.ru (${cause instanceof Error ? cause.message : String(cause)}). ` +
-      "If you are on a VPN, try without it: some VPN resolvers fail to look up wahapedia.ru."
-  })
 
 export const fetchExport = Effect.fn("wahapedia.fetchExport")(function*(options?: { readonly force?: boolean }) {
   const fs = yield* FileSystem.FileSystem
@@ -48,8 +42,8 @@ export const fetchExport = Effect.fn("wahapedia.fetchExport")(function*(options?
     )
 
   const stampBytes = yield* download(`${WH_BASE_URL}/${WH_LAST_UPDATE_FILE}.csv`, "the export timestamp")
-  const lastUpdate = new TextDecoder().decode(stampBytes).replace(/^﻿/, "").split("\n")[1]?.replace(/\|\s*$/, "").trim()
-  if (!lastUpdate || !/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(lastUpdate)) {
+  const lastUpdate = stampOf(new TextDecoder().decode(stampBytes))
+  if (!lastUpdate) {
     return yield* new SnapshotError({ message: "Last_update.csv didn’t contain a timestamp; the export may have moved or changed format." })
   }
 

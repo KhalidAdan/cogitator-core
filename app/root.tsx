@@ -21,7 +21,7 @@ import {
   useNavigation,
   useRouteLoaderData
 } from "react-router"
-import { runtime } from "~/.server/runtime"
+import { run } from "~/.server/runtime"
 import { readTheme } from "~/.server/theme"
 import { nextTheme, type Theme } from "~/theme"
 import type { Route } from "./+types/root"
@@ -32,9 +32,7 @@ export const middleware: Route.MiddlewareFunction[] = [
     const start = performance.now()
     const response = await next()
     const url = new URL(request.url)
-    runtime.runFork(
-      Effect.logDebug(`${request.method} ${url.pathname}${url.search} → ${response.status} in ${Math.round(performance.now() - start)}ms`)
-    )
+    void run(Effect.logDebug(`${request.method} ${url.pathname}${url.search} → ${response.status} in ${Math.round(performance.now() - start)}ms`))
     return response
   }
 ]
@@ -44,14 +42,15 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 // the theme only changes through its own action
-export const shouldRevalidate = ({ formAction }: { formAction?: string }) => formAction === "/theme"
+export const shouldRevalidate = ({ formAction }: { formAction?: string }) => !!formAction?.endsWith("/theme")
 
 export const meta: Route.MetaFunction = () => [
   { title: "Cogitator Core" },
   { name: "description", content: "How many enemy points does each unit remove per point it costs?" }
 ]
 
-export const links: Route.LinksFunction = () => [{ rel: "icon", href: "/favicon.svg", type: "image/svg+xml" }]
+// under the app's prefix, like the built assets, so Cloudflare serves it without running the Worker
+export const links: Route.LinksFunction = () => [{ rel: "icon", href: "/cogitator-core/favicon.svg", type: "image/svg+xml" }]
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const data = useRouteLoaderData<typeof loader>("root")

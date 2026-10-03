@@ -14,25 +14,29 @@ app/
     text.ts            name normalisation, HTML → text, text hashing
 
   .server/           never bundled for the browser (React Router enforces this)
-    runtime.ts         the ManagedRuntime, and run(): Effect → loader/action result
+    runtime.ts         the ManagedRuntime (installed by the Durable Object), run(), and the scheduled update
     memo.ts            in-memory caches for what can't change: a snapshot's datasheets, a stored Field Manual page
     updates.ts         one "check for updates" over both sources, and whether they agree
-    db/                SqlClient layer on node:sqlite, migrations
+    db/                migrations; the Durable Object's SQLite (DurableDb.ts) and node:sqlite for tests (Db.ts)
     repos/             Lists, Rules, Targets, Settings, Imports: one Effect service each
     seed/              first-run data: the POC's library, lists and targets, plus rules translated since (library.ts)
     importer/          roster (.ros/.rosz) and text-export parser
-    wahapedia/         the data export: tables, csv, fetch, Snapshots, diff, queries, check, sync
+    wahapedia/         the data export: tables, csv, remote (read from wahapedia.ru), Snapshots, diff, queries, check, sync
     mfm/               points from the Munitorum Field Manual: flight, parse, store, refresh, factions
+    node/              Node only, never imported by the app: downloading test data to disk
 
   routes/            React Router route modules: loader, action, component
   components/        controls, rule chips and card, shared hooks
   root.tsx           document shell, theme, request-logging middleware, error boundary
+  entry.server.tsx   server rendering with web streams, for Workers
   routes.ts          the route table
 
-scripts/             wahapedia:fetch, wahapedia:load, db:migrate, db:reset, poc-export
-tests/               engine parity, importer parity, database, Wahapedia pipeline, domain
+workers/app.ts       the Cloudflare Worker, and the Durable Object that holds the database and runs the app
+wrangler.jsonc       what gets deployed: Worker, Durable Object, routes on khld.dev (see cloudflare.md)
+scripts/             wahapedia:fetch and mfm:fetch (test data), poc-export
+tests/               engine parity, importer parity, database, Wahapedia pipeline, domain, your rosters
 kill-ledger/         the POC, untouched; the tests' oracle
-data/                cogitator.db and downloaded exports (git-ignored)
+data/                downloaded exports and Field Manual pages for the tests (git-ignored)
 ```
 
 ## How a request flows
@@ -103,7 +107,7 @@ Not used: `clientLoader`/`clientAction` (nothing needs browser-only data), prere
 
 ## Database
 
-SQLite, one file, `data/cogitator.db`. Migrations are in `app/.server/db/migrations.ts` and run on start.
+SQLite: the Durable Object's own storage on Cloudflare, and an in-memory `node:sqlite` database in the tests. Migrations are in `app/.server/db/migrations.ts` and run when the object starts.
 
 | Table | Holds |
 |---|---|
@@ -139,14 +143,12 @@ The Wahapedia integration tests skip themselves when no export has been download
 ## Commands
 
 ```bash
-npm run dev               # develop, http://localhost:5173
+npm run dev               # develop in workerd, http://localhost:5173/cogitator-core/
+npm run preview           # the production build, locally, in workerd
+npm run deploy            # build and deploy to Cloudflare (wrangler login first)
 npm test                  # all tests
-npm run typecheck         # route types + tsc
-npm run build && npm start   # production build and server
-npm run wahapedia:fetch   # download the export if it changed, load it, re-link the rules
-npm run wahapedia:load    # load the newest downloaded export (or a folder you name)
-npm run update            # check for updates: Field Manual points, then the Wahapedia export
-npm run mfm:fetch         # only the Field Manual (your factions, or name some, or --all)
-npm run db:reset          # delete the database; the next start rebuilds it
+npm run typecheck         # Worker types + route types + tsc
+npm run wahapedia:fetch   # download the export into data/wahapedia for the tests
+npm run mfm:fetch         # download Field Manual pages into data/mfm for the tests
 node scripts/poc-export.mjs   # regenerate the seed from kill-ledger/src
 ```

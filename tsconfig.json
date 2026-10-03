@@ -1,5 +1,5 @@
 {
-  "include": ["app/**/*", "app/.server/**/*", "scripts/**/*", "tests/**/*", "*.ts", ".react-router/types/**/*"],
+  "include": ["app/**/*", "app/.server/**/*", "workers/**/*", "scripts/**/*", "tests/**/*", "*.ts", ".react-router/types/**/*", "worker-configuration.d.ts"],
   "exclude": ["node_modules", "build", "kill-ledger"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2023"],

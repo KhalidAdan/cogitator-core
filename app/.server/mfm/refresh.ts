@@ -9,15 +9,20 @@
  *
  * It asks for one page per faction, a second apart, and only for factions that
  * have a list in the app unless told otherwise.
+ *
+ * Nothing here touches the disk, so it runs the same on Cloudflare and in Node.
+ * Keeping a copy of each page a snapshot was built from is optional (`archive`);
+ * the local scripts pass one that writes to `data/mfm`.
  */
-import { NodeFileSystem } from "@effect/platform-node"
-import { Config, DateTime, Effect, FileSystem, Schedule } from "effect"
+import { DateTime, Effect, Schedule } from "effect"
 import { FetchHttpClient, HttpClient } from "effect/http"
-import { join } from "node:path"
 import { Lists } from "../repos/Lists"
 import { fieldManualSlug, mfmUrl } from "./factions"
-import { parseFieldManual } from "./parse"
+import { type FieldManual, parseFieldManual } from "./parse"
 import { lastChecked, type ManualSnapshot, manualStatuses, recordCheck, saveManual } from "./store"
+
+/** Somewhere to keep the page a new snapshot was read from. */
+export type PageArchive = (slug: string, manual: FieldManual, html: string) => Effect.Effect<void>
 
 export interface RefreshResult {
   readonly slug: string
@@ -29,17 +34,13 @@ export interface RefreshResult {
   readonly changes: number
 }
 
-/** `COGITATOR_MFM_DIR` overrides where fetched pages are kept. */
-const PagesRoot = Config.String("COGITATOR_MFM_DIR").pipe(Config.withDefault("data/mfm"))
-
 // The site serves its app shell to anything, but answers plain clients more reliably with a browser-like agent.
 const USER_AGENT = "Mozilla/5.0 (compatible; cogitator-core/0.1; personal list analysis tool)"
 
 const describe = (cause: unknown) => (cause instanceof Error ? cause.message : String(cause))
 
 /** Fetch and store one faction page. Never fails: a problem becomes a `failed` result and a recorded check. */
-export const refreshFaction = Effect.fn("mfm.refreshFaction")(function*(slug: string) {
-  const fs = yield* FileSystem.FileSystem
+export const refreshFaction = Effect.fn("mfm.refreshFaction")(function*(slug: string, archive?: PageArchive) {
   const client = (yield* HttpClient.HttpClient).pipe(
     HttpClient.filterStatusOk,
     HttpClient.retryTransient({ schedule: Schedule.exponential("500 millis"), times: 2 })
@@ -48,15 +49,7 @@ export const refreshFaction = Effect.fn("mfm.refreshFaction")(function*(slug: st
     const html = yield* client.get(mfmUrl(slug), { headers: { "User-Agent": USER_AGENT } }).pipe(Effect.flatMap((r) => r.text))
     const manual = yield* parseFieldManual(html)
     const stored: ManualSnapshot | null = yield* saveManual(slug, manual)
-    if (stored) {
-      // keep the page a snapshot was built from, next to the database
-      const dir = join(yield* Effect.orDie(PagesRoot), slug)
-      const day = DateTime.formatIso(yield* DateTime.now).slice(0, 10)
-      yield* fs.makeDirectory(dir, { recursive: true }).pipe(
-        Effect.andThen(fs.writeFileString(join(dir, `${manual.version}_${day}.html`), html)),
-        Effect.ignore
-      )
-    }
+    if (stored && archive) yield* archive(slug, manual, html)
     const message = stored
       ? `${manual.faction} ${manual.version}: ${stored.changes.length} price${stored.changes.length === 1 ? "" : "s"} changed.`
       : `${manual.faction} ${manual.version}: no change.`
@@ -95,8 +88,13 @@ export const slugsInUse = Effect.gen(function*() {
  * recently than that many hours ago are skipped, which is what lets the app
  * check on start-up without asking again every time the server restarts.
  */
+export interface RefreshOptions {
+  readonly olderThanHours?: number
+  readonly archive?: PageArchive
+}
+
 export const refreshMany = Effect.fn("mfm.refreshMany")(
-  function*(slugs: ReadonlyArray<string>, options?: { readonly olderThanHours?: number }) {
+  function*(slugs: ReadonlyArray<string>, options?: RefreshOptions) {
     const results: Array<RefreshResult> = []
     const now = DateTime.toEpochMillis(yield* DateTime.now)
     let first = true
@@ -110,12 +108,12 @@ export const refreshMany = Effect.fn("mfm.refreshMany")(
       }
       if (!first) yield* Effect.sleep("1 second")
       first = false
-      results.push(yield* refreshFaction(slug))
+      results.push(yield* refreshFaction(slug, options?.archive))
     }
     return results
   }
 )
 
-/** `refreshMany` with its HTTP client and file system supplied. */
-export const refreshManyLive = (slugs: ReadonlyArray<string>, options?: { readonly olderThanHours?: number }) =>
-  refreshMany(slugs, options).pipe(Effect.provide(FetchHttpClient.layer), Effect.provide(NodeFileSystem.layer))
+/** `refreshMany` with its HTTP client supplied (the platform's `fetch`). */
+export const refreshManyLive = (slugs: ReadonlyArray<string>, options?: RefreshOptions) =>
+  refreshMany(slugs, options).pipe(Effect.provide(FetchHttpClient.layer))

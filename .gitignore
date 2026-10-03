@@ -7,3 +7,9 @@ data/
 
 .env
 .DS_Store
+
+# Cloudflare: local Durable Object state and secrets for wrangler dev
+.wrangler/
+.dev.vars
+# generated from wrangler.jsonc by `wrangler types` (npm run typecheck does it)
+worker-configuration.d.ts

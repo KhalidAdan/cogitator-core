@@ -11,12 +11,11 @@ import { data, Link, useFetcher } from "react-router"
 import { isMfmSlug, MFM_SLUGS, mfmUrl } from "~/.server/mfm/factions"
 import { refreshManyLive } from "~/.server/mfm/refresh"
 import { type ManualChange, manualStatuses } from "~/.server/mfm/store"
+import { Settings, UPDATES_CHECKED_AT } from "~/.server/repos/Settings"
 import { run } from "~/.server/runtime"
 import { checkForUpdates, type SourceStatus, sourceStatus } from "~/.server/updates"
 import type { ChangeKind, ChangeReport, FieldChanges } from "~/.server/wahapedia/diff"
-import { exportFolders } from "~/.server/wahapedia/folders"
 import { Snapshots } from "~/.server/wahapedia/Snapshots"
-import { syncRules } from "~/.server/wahapedia/sync"
 import { plural } from "~/components/ledger"
 import type { Route } from "./+types/database"
 
@@ -32,7 +31,6 @@ export async function loader({ request }: Route.LoaderArgs) {
       snapshots: all,
       shown,
       report: shown ? Option.getOrNull(yield* snapshots.report(shown.id)) : null,
-      canReload: (yield* exportFolders).length > 0,
       manuals: manuals.filter((m) => m.latest).map((m) => ({ ...m, url: mfmUrl(m.slug) })),
       untracked: MFM_SLUGS.filter((s) => !manuals.some((m) => m.slug === s && m.latest))
     }
@@ -42,15 +40,29 @@ export async function loader({ request }: Route.LoaderArgs) {
 const sentence = (parts: ReadonlyArray<string | null | false | undefined>) => parts.filter(Boolean).join(" ")
 
 /**
+ * The site is public, and a check makes a few dozen requests to Wahapedia and
+ * Games Workshop. One every ten minutes is plenty for a person and keeps the
+ * button from being used to hammer them.
+ */
+const COOLDOWN_MINUTES = 10
+
+/**
  * `update` is the one a person uses. `track` adds a faction that no list uses
- * yet, and `reload` rebuilds the datasheets from the files already on disk;
- * both live under "History and tools".
+ * yet; it lives under "History and tools".
  */
 export async function action({ request }: Route.ActionArgs) {
   const form = await request.formData()
   const intent = form.get("intent")
 
   if (intent === "update") {
+    const wait = await run(Effect.gen(function*() {
+      const last = Option.getOrUndefined(yield* (yield* Settings).get(UPDATES_CHECKED_AT))
+      const minutes = last ? (Date.now() - Date.parse(last)) / 60_000 : Infinity
+      return minutes < COOLDOWN_MINUTES ? Math.ceil(COOLDOWN_MINUTES - minutes) : 0
+    }))
+    if (wait) {
+      return { ok: true, message: `Both sources were checked a few minutes ago. Try again in ${wait} ${plural(wait, "minute")}.` }
+    }
     const r = await run(checkForUpdates())
     const moved = r.points.filter((p) => p.status === "new")
     const failed = r.points.filter((p) => p.status === "failed")
@@ -74,19 +86,9 @@ export async function action({ request }: Route.ActionArgs) {
   if (intent === "track") {
     const slug = String(form.get("slug") ?? "")
     if (!isMfmSlug(slug)) throw data({ message: "That isn’t a Field Manual faction page." }, { status: 400 })
-    const [r] = await run(refreshManyLive([slug]))
-    return { ok: r.status !== "failed", message: r.message }
-  }
-
-  if (intent === "reload") {
-    return run(Effect.gen(function*() {
-      const folders = yield* exportFolders
-      const latest = folders[folders.length - 1]
-      if (!latest) return { ok: false, message: "There is no downloaded export on disk to reload." }
-      const result = yield* (yield* Snapshots).loadDirectory(latest, { force: true })
-      yield* syncRules
-      return { ok: true, message: sentence([`Reloaded snapshot ${result.snapshot.id} from ${latest}.`, ...result.warnings]) }
-    }).pipe(Effect.catchTag("SnapshotError", (e) => Effect.succeed({ ok: false, message: e.message }))))
+    // a page checked in the last hour is answered from what was stored, not fetched again
+    const [r] = await run(refreshManyLive([slug], { olderThanHours: 1 }))
+    return { ok: r.status !== "failed", message: r.status === "skipped" ? "That faction was checked within the hour." : r.message }
   }
 
   throw data({ message: "Unknown action." }, { status: 400 })
@@ -95,7 +97,7 @@ export async function action({ request }: Route.ActionArgs) {
 export const meta: Route.MetaFunction = () => [{ title: "Database · Cogitator Core" }]
 
 export default function Database({ loaderData }: Route.ComponentProps) {
-  const { status, snapshots, shown, report, canReload, manuals, untracked } = loaderData
+  const { status, snapshots, shown, report, manuals, untracked } = loaderData
   // a fetcher: checking can take a minute when there is a new export to download, and it shouldn't be a navigation
   const fetcher = useFetcher<typeof action>()
   const busy = fetcher.state !== "idle"
@@ -287,15 +289,6 @@ export default function Database({ loaderData }: Route.ComponentProps) {
           ) : (
             <p className="hint">None yet.</p>
           )}
-          <fetcher.Form method="post" action="/database?index" className="presets" style={{ paddingTop: 12 }}>
-            <button className="btn" type="submit" name="intent" value="reload" disabled={busy || !canReload}>
-              {working === "reload" ? "Reloading…" : "Rebuild the datasheets from the last download"}
-            </button>
-          </fetcher.Form>
-          <p className="hint">
-            Rebuilding re-reads the export files already on disk; use it if the database was reset. From a terminal, <code>npm run update</code>{" "}
-            does the same as “Check for updates”.
-          </p>
         </div>
       </details>
     </main>

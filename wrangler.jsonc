@@ -1,0 +1,36 @@
+/**
+ * Cogitator Core on Cloudflare Workers.
+ *
+ * Static files (the client build, under /cogitator-core/assets) are served by
+ * Cloudflare before the Worker runs. Every other request goes to one Durable
+ * Object, which holds the app's SQLite database and renders the pages; see
+ * workers/app.ts.
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cogitator-core",
+  "main": "./workers/app.ts",
+  "compatibility_date": "2026-09-15",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "durable_objects": {
+    "bindings": [{ "name": "APP", "class_name": "CogitatorCore" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["CogitatorCore"] }],
+
+  "vars": {
+    // "off": no scheduled checks; only "Check for updates" on the Database page
+    "COGITATOR_AUTO_UPDATE": "on"
+  },
+
+  // khld.dev/cogitator-core and everything under it; the rest of khld.dev is left for other sites
+  "routes": [
+    { "pattern": "khld.dev/cogitator-core", "zone_name": "khld.dev" },
+    { "pattern": "khld.dev/cogitator-core/*", "zone_name": "khld.dev" }
+  ],
+  // also at cogitator-core.<account>.workers.dev/cogitator-core, which works before the domain has moved
+  "workers_dev": true,
+
+  "observability": { "enabled": true },
+  "upload_source_maps": true
+}

@@ -245,6 +245,17 @@ What changed:
 
 Not done: skipping the server round trip after a toggle entirely. It would save a background request nobody sees, and needs the page to track settled changes by hand.
 
+### D-38. Hosted on Cloudflare Workers Paid, in one Durable Object (2 October, your call)
+
+You wanted khld.dev on Cloudflare with this as its first site, always on. The free plan was ruled out by its 10 ms CPU limit per request, which several pages exceed every time (the matrix, the database check, reading a roster), and by its 100,000 rows written a day, which one Wahapedia load uses up. The free-plan alternative was a rewrite that moves the heavy work into the browser and builds the reference data in a GitHub Action. You chose the $5 Workers Paid plan instead, which runs the app as it is.
+
+- **One Durable Object runs the app**: its SQLite storage is the database, it renders the pages, and its alarm runs the scheduled update. This is the closest match to the app's design (one process, one SQLite file, in-memory caches, a background schedule), so only the database driver, the disk access and the schedule changed. See [cloudflare.md](cloudflare.md).
+- **Served at khld.dev/cogitator-core** through routes, leaving the rest of the domain for other sites.
+- **Public, no login**, for now and at your request. The update button has a ten-minute cooldown so it can't be used to hammer Wahapedia or Games Workshop.
+- **Wrangler builds and deploys; `cf` manages the account.** `cf migrate` converted the project, but `cf build` can't yet build a React Router app (the details are in cloudflare.md), so the migration was reverted.
+- **Local development runs in Cloudflare's runtime** (workerd, through Cloudflare's Vite plugin), with its own local database. Your old `data/cogitator.db` is no longer used by the app. The tests still run in Node.
+- **Removed:** the Node server (`npm start`), the scripts that only fed the old local database (`update`, `wahapedia:load`, `db:migrate`, `db:reset`), and "Rebuild the datasheets from the last download" on the Database page (there's no disk to rebuild from). `wahapedia:fetch` and `mfm:fetch` stay, to download the data the integration tests read.
+
 ---
 
 ## Things I chose not to do

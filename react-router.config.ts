@@ -1,6 +1,8 @@
 import type { Config } from "@react-router/dev/config"
 
 export default {
+  // served at khld.dev/cogitator-core, one site among others on the domain
+  basename: "/cogitator-core",
   ssr: true,
   future: {
     v8_middleware: true,

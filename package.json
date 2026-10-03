@@ -10,25 +10,18 @@
   "scripts": {
     "dev": "react-router dev",
     "build": "react-router build",
-    "start": "react-router-serve ./build/server/index.js",
-    "preview": "react-router build && react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc --noEmit",
+    "preview": "react-router build && vite preview",
+    "deploy": "react-router build && wrangler deploy",
+    "typecheck": "wrangler types && react-router typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:migrate": "tsx scripts/migrate.ts",
-    "db:reset": "tsx scripts/reset.ts",
     "wahapedia:fetch": "tsx scripts/wahapedia-fetch.ts",
-    "wahapedia:load": "tsx scripts/wahapedia-load.ts",
-    "mfm:fetch": "tsx scripts/mfm-fetch.ts",
-    "update": "tsx scripts/update.ts"
+    "mfm:fetch": "tsx scripts/mfm-fetch.ts"
   },
   "dependencies": {
-    "@effect/platform-node": "^4.0.0",
-    "@effect/sql-sqlite-node": "^4.0.0",
+    "@effect/sql-sqlite-do": "^4.0.0",
     "@fontsource/cormorant-garamond": "^5.3.0",
     "@fontsource/ibm-plex-sans-condensed": "^5.3.0",
-    "@react-router/node": "^7.18.4",
-    "@react-router/serve": "^7.18.4",
     "effect": "^4.0.0",
     "fast-xml-parser": "^5.11.2",
     "fflate": "^0.8.3",
@@ -38,6 +31,9 @@
     "react-router": "^7.18.4"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.62.5",
+    "@effect/platform-node": "^4.0.0",
+    "@effect/sql-sqlite-node": "^4.0.0",
     "@effect/vitest": "^4.0.0",
     "@react-router/dev": "^7.18.4",
     "@types/node": "^26.6.4",
@@ -46,6 +42,7 @@
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "vite": "^8.3.2",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.3",
+    "wrangler": "^4.147.0"
   }
 }

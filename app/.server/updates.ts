@@ -9,15 +9,16 @@
  * status that says whether they agree.
  */
 import { DateTime, Effect, Option } from "effect"
+import { FetchHttpClient } from "effect/http"
 import { norm } from "~/domain/text"
 import { memo } from "./memo"
-import { type RefreshResult, refreshManyLive, slugsInUse } from "./mfm/refresh"
+import { type PageArchive, type RefreshResult, refreshManyLive, slugsInUse } from "./mfm/refresh"
 import { latestManual, type ManualStatus, manualStatuses } from "./mfm/store"
 import { Settings, UPDATES_CHECKED_AT, WAHAPEDIA_CHECK } from "./repos/Settings"
 import { modelCount, tierRange } from "./wahapedia/check"
 import { reportHasChanges } from "./wahapedia/diff"
-import { fetchExportLive } from "./wahapedia/fetch"
 import { allDatasheets, costsFor, currentSnapshotId, exportManualVersion } from "./wahapedia/queries"
+import { remoteExport } from "./wahapedia/remote"
 import { Snapshots } from "./wahapedia/Snapshots"
 import { syncRules } from "./wahapedia/sync"
 
@@ -37,12 +38,15 @@ const hoursSince = (iso: string | null, now: number) => (iso ? (now - Date.parse
 
 /**
  * Look for updates to both sources: the Field Manual for every faction that
- * has a list, then the Wahapedia export. Never fails; whatever went wrong is in
- * the result. With `olderThanHours`, anything checked more recently is left
- * alone, which is how the app checks on start-up without asking again on every
- * restart.
+ * has a list, then the Wahapedia export, read straight from Wahapedia. Never
+ * fails; whatever went wrong is in the result. With `olderThanHours`, anything
+ * checked more recently is left alone, which is how the scheduled check skips
+ * what was just checked by hand. `archive` keeps the Field Manual pages read
+ * (the local scripts keep them on disk; the app keeps none).
  */
-export const checkForUpdates = Effect.fn("updates.checkForUpdates")(function*(options?: { readonly olderThanHours?: number }) {
+export const checkForUpdates = Effect.fn("updates.checkForUpdates")(function*(
+  options?: { readonly olderThanHours?: number; readonly archive?: PageArchive }
+) {
   const settings = yield* Settings
   const now = yield* DateTime.now
   const nowMs = DateTime.toEpochMillis(now)
@@ -59,19 +63,29 @@ export const checkForUpdates = Effect.fn("updates.checkForUpdates")(function*(op
     datasheets = { status: "skipped", message: "Checked recently." }
   } else {
     datasheets = yield* Effect.gen(function*() {
-      const fetched = yield* fetchExportLive()
-      const loaded = yield* (yield* Snapshots).loadDirectory(fetched.dir)
+      const snapshots = yield* Snapshots
+      const remote = yield* remoteExport
+      // the timestamp is one small file; the rest is only downloaded when it has moved
+      const stamp = yield* remote.stamp
+      const current = Option.getOrUndefined(yield* snapshots.current)
+      if (current?.lastUpdate === stamp) {
+        return { status: "unchanged" as const, message: `Wahapedia’s export hasn’t changed since ${stamp.slice(0, 10)}.` }
+      }
+      const loaded = yield* snapshots.load(remote.source)
       const sync = yield* syncRules
       reworded = sync.changed.map((c) => c.name)
       if (loaded.status === "unchanged") {
-        return { status: "unchanged" as const, message: `Wahapedia’s export hasn’t changed since ${fetched.lastUpdate.slice(0, 10)}.` }
+        return { status: "unchanged" as const, message: `Wahapedia’s export hasn’t changed since ${stamp.slice(0, 10)}.` }
       }
       const r = loaded.report
       const what = r && reportHasChanges(r)
         ? `${r.totals.points} points lines, ${r.totals.weapons} weapon profiles and ${r.totals.abilities} abilities changed.`
         : ""
-      return { status: "new" as const, message: `Loaded Wahapedia’s export of ${fetched.lastUpdate.slice(0, 10)}. ${what}`.trim() }
-    }).pipe(Effect.catchTag("SnapshotError", (e) => Effect.succeed({ status: "failed" as const, message: e.message })))
+      return { status: "new" as const, message: `Loaded Wahapedia’s export of ${stamp.slice(0, 10)}. ${what}`.trim() }
+    }).pipe(
+      Effect.provide(FetchHttpClient.layer),
+      Effect.catchTag("SnapshotError", (e) => Effect.succeed({ status: "failed" as const, message: e.message }))
+    )
     yield* settings.set(WAHAPEDIA_CHECK, JSON.stringify({ at: DateTime.formatIso(now), ok: datasheets.status !== "failed", message: datasheets.message }))
   }
 

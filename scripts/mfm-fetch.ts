@@ -1,5 +1,7 @@
 /**
- * Check the Munitorum Field Manual for new points.
+ * Fetch Munitorum Field Manual pages into data/mfm/<faction>/, where the tests
+ * read them, keeping a local record (data/cogitator.db) of what was already
+ * fetched. The app checks the Field Manual by itself; this is for test data.
  *
  *   npm run mfm:fetch                       # the factions your lists use
  *   npm run mfm:fetch -- aeldari orks       # particular faction pages
@@ -11,6 +13,7 @@ import { DbLive } from "../app/.server/db/Db.ts"
 import { isMfmSlug, MFM_SLUGS } from "../app/.server/mfm/factions.ts"
 import { refreshManyLive, slugsInUse } from "../app/.server/mfm/refresh.ts"
 import { latestManual } from "../app/.server/mfm/store.ts"
+import { diskArchive } from "../app/.server/node/archive.ts"
 import { Lists } from "../app/.server/repos/Lists.ts"
 
 const args = process.argv.slice(2)
@@ -27,7 +30,7 @@ const program = Effect.gen(function*() {
     yield* Effect.log("No lists yet, so there is no faction to check. Name one: npm run mfm:fetch -- aeldari")
     return
   }
-  for (const r of yield* refreshManyLive(slugs)) {
+  for (const r of yield* refreshManyLive(slugs, { archive: diskArchive })) {
     yield* r.status === "failed" ? Effect.logWarning(r.message) : Effect.log(r.message)
     if (r.status !== "new") continue
     const snapshot = yield* latestManual(r.slug)

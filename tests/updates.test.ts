@@ -18,6 +18,7 @@ import { Targets } from "~/.server/repos/Targets"
 import { seed } from "~/.server/seed/Seed"
 import { sourceStatus } from "~/.server/updates"
 import { Snapshots } from "~/.server/wahapedia/Snapshots"
+import { loadDirectory } from "~/.server/node/directory"
 
 const newest = (dir: string, test: (name: string) => boolean) => (existsSync(dir) ? readdirSync(dir).filter(test).sort().at(-1) : undefined)
 const exportFolder = newest("data/wahapedia", (n) => /^\d{4}-\d{2}-\d{2}_\d{6}$/.test(n))
@@ -36,7 +37,7 @@ describe.skipIf(!exportFolder || !page)("whether the two sources agree", () => {
         expect(none.inStep).toBeNull()
         expect(none.datasheets).toBeNull()
         expect(none.points).toEqual([])
-        yield* (yield* Snapshots).loadDirectory(join("data/wahapedia", exportFolder!))
+        yield* loadDirectory(join("data/wahapedia", exportFolder!))
         const half = yield* sourceStatus
         expect(half.datasheets?.manualVersion).toMatch(/^v\d/)
         expect(half.inStep).toBeNull()

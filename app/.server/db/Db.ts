@@ -1,7 +1,8 @@
 /**
- * The SQLite layer: a `SqlClient` on `node:sqlite` with migrations applied.
- * Everything that touches the database depends on `SqlClient` and is given
- * this layer at the edge (the app runtime, a script, a test).
+ * Node only: a `SqlClient` on `node:sqlite` with migrations applied, for the
+ * tests and the local scripts. The app itself runs on Cloudflare, on the
+ * Durable Object's SQLite (`DurableDb.ts`). Everything that touches the
+ * database depends only on `SqlClient`, so the same code runs on both.
  */
 import { SqliteClient, SqliteMigrator } from "@effect/sql-sqlite-node"
 import { Config, Effect, Layer } from "effect"

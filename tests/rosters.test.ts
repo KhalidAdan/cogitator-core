@@ -20,6 +20,7 @@ import { LIBRARY_RULES } from "~/.server/seed/library"
 import { seed, seedData } from "~/.server/seed/Seed"
 import { checkList } from "~/.server/wahapedia/check"
 import { Snapshots } from "~/.server/wahapedia/Snapshots"
+import { loadDirectory } from "~/.server/node/directory"
 import { attackerList, attackUnit } from "~/domain/engine"
 import { defaultOpts } from "~/domain/options"
 import type { RuleBook } from "~/domain/schema"
@@ -188,7 +189,7 @@ describe.skipIf(!exportDir)("real rosters against the downloaded export", () => 
   layer(TestLayer, { timeout: "120 seconds" })("snapshot", (it) => {
     it.effect("loads the export", () =>
       Effect.gen(function*() {
-        expect((yield* (yield* Snapshots).loadDirectory(exportDir!)).status).toBe("loaded")
+        expect((yield* loadDirectory(exportDir!)).status).toBe("loaded")
       }), 120_000)
 
     for (const r of ROSTERS) {

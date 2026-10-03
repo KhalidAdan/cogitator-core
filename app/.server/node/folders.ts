@@ -1,8 +1,8 @@
-/** Where downloaded exports live on disk: one folder per export timestamp. */
+/** Node only (the local scripts and tests). Where downloaded exports live on disk: one folder per export timestamp. */
 import { NodeFileSystem } from "@effect/platform-node"
 import { Config, Effect, FileSystem } from "effect"
 import { join } from "node:path"
-import { SnapshotError } from "./Snapshots"
+import { SnapshotError } from "../wahapedia/Snapshots"
 
 /** `COGITATOR_WAHAPEDIA_DIR` overrides the folder downloads are kept in. */
 export const ExportRoot = Config.String("COGITATOR_WAHAPEDIA_DIR").pipe(Config.withDefault("data/wahapedia"))

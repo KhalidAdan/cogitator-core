@@ -24,6 +24,7 @@ import { costLines, currentSnapshotId, type Datasheet, datasheets, searchDatashe
 import { Snapshots } from "~/.server/wahapedia/Snapshots"
 import { syncRules } from "~/.server/wahapedia/sync"
 import { WH_ALL_FILES, WH_TABLES, whTableByFile } from "~/.server/wahapedia/tables"
+import { loadDirectory } from "~/.server/node/directory"
 import type { Unit, Weapon } from "~/domain/schema"
 import { stripHtml, textHash } from "~/domain/text"
 
@@ -277,11 +278,11 @@ describe.skipIf(!exportDir)("with the downloaded export", () => {
     it.effect("loads the export, and loading it again is a no-op", () =>
       Effect.gen(function*() {
         const snapshots = yield* Snapshots
-        const first = yield* snapshots.loadDirectory(exportDir!)
+        const first = yield* loadDirectory(exportDir!)
         expect(first.status).toBe("loaded")
         expect(first.report).toBeNull()
         expect(first.snapshot.rows).toBeGreaterThan(50_000)
-        const again = yield* snapshots.loadDirectory(exportDir!)
+        const again = yield* loadDirectory(exportDir!)
         expect(again.status).toBe("unchanged")
         expect(yield* snapshots.all).toHaveLength(1)
       }), 120_000)
@@ -298,7 +299,7 @@ describe.skipIf(!exportDir)("with the downloaded export", () => {
         writeFileSync(join(copy, "Last_update.csv"), "﻿last_update|\n2099-01-01 00:00:00|\n")
 
         const snapshots = yield* Snapshots
-        const result = yield* snapshots.loadDirectory(copy)
+        const result = yield* loadDirectory(copy)
         expect(result.status).toBe("loaded")
         expect(result.report?.points).toEqual([
           { datasheetId: "000004193", datasheet: "Prince Yriel", faction: "Aeldari", line: "1 model", from: "95", to: "105" }
@@ -306,7 +307,7 @@ describe.skipIf(!exportDir)("with the downloaded export", () => {
         expect(result.report?.tables.filter((t) => t.added + t.removed + t.changed > 0).map((t) => t.file)).toEqual(["Datasheets_models_cost"])
         expect(Option.isSome(yield* snapshots.report(result.snapshot.id))).toBe(true)
         // put the real export back as the current snapshot for the tests that follow
-        yield* snapshots.loadDirectory(exportDir!, { force: true })
+        yield* loadDirectory(exportDir!, { force: true })
       }), 120_000)
 
     it.effect("resolves datasheets with profiles, weapons, abilities and tiered points", () =>

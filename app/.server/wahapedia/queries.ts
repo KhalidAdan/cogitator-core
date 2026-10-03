@@ -217,17 +217,26 @@ export const datasheets = Effect.fn("wahapedia.datasheets")(function*(snapshotId
     if (hit) out.set(id, hit)
     else missing.push(id)
   }
-  if (missing.length) {
-    const read = yield* readDatasheets(snapshotId, missing)
-    // a whole snapshot's worth is a few megabytes; past that, an older snapshot's are what's being dropped
-    cache.clearIfOver(4_000)
-    for (const [id, d] of read) {
+  // a whole snapshot's worth is a few megabytes; past that, an older snapshot's are what's being dropped
+  if (missing.length) cache.clearIfOver(4_000)
+  for (const ids of batches(missing)) {
+    for (const [id, d] of yield* readDatasheets(snapshotId, ids)) {
       cache.set(`${snapshotId}:${id}`, d)
       out.set(id, d)
     }
   }
   return out
 })
+
+/**
+ * `IN (…)` lists in batches: Durable Object SQLite takes at most 100 bound
+ * parameters per statement, and these queries bind the snapshot id too.
+ */
+const batches = <A>(items: ReadonlyArray<A>, size = 90): Array<ReadonlyArray<A>> => {
+  const out: Array<ReadonlyArray<A>> = []
+  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size))
+  return out
+}
 
 const readDatasheets = Effect.fn("wahapedia.readDatasheets")(function*(snapshotId: number, ids: ReadonlyArray<string>) {
   const sql = yield* SqlClient.SqlClient
@@ -324,13 +333,14 @@ const readDatasheets = Effect.fn("wahapedia.readDatasheets")(function*(snapshotI
 /** Just the price lines for some datasheets: the cheap query behind comparing Wahapedia's points with the Field Manual's. */
 export const costsFor = Effect.fn("wahapedia.costsFor")(function*(snapshotId: number, ids: ReadonlyArray<string>) {
   const out = new Map<string, Array<CostLine>>()
-  if (ids.length === 0) return out
   const sql = yield* SqlClient.SqlClient
-  const rows = yield* sql<Record<string, string>>`
-    SELECT datasheet_id, line, description, cost FROM wh_datasheet_models_cost
-    WHERE snapshot_id = ${snapshotId} AND datasheet_id IN ${sql.in(ids)}
-  `.pipe(Effect.orDie)
-  for (const [id, list] of group(rows)) out.set(id, costLines(list))
+  for (const batch of batches(ids)) {
+    const rows = yield* sql<Record<string, string>>`
+      SELECT datasheet_id, line, description, cost FROM wh_datasheet_models_cost
+      WHERE snapshot_id = ${snapshotId} AND datasheet_id IN ${sql.in(batch)}
+    `.pipe(Effect.orDie)
+    for (const [id, list] of group(rows)) out.set(id, costLines(list))
+  }
   return out
 })
 

@@ -6,13 +6,6 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 5173
-    },
-    {
-      "name": "cogitator-core-prod",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start"],
-      "env": { "PORT": "3100", "COGITATOR_AUTO_UPDATE": "off", "NODE_ENV": "production" },
-      "port": 3100
     }
   ]
 }

@@ -1,16 +1,15 @@
 /**
  * Versioned snapshots of the Wahapedia data export.
  *
- * `loadDirectory` reads a folder of export CSVs, checks every file against the
- * spec, stores the rows under a new snapshot id and writes a change report
+ * `load` reads the export's CSVs from a source (Wahapedia itself in the app, a
+ * downloaded folder in the local scripts and tests), checks every file against
+ * the spec, stores the rows under a new snapshot id and writes a change report
  * against the previous snapshot. The newest snapshot is "current"; a few older
  * ones are kept so a dataslate can be compared with what came before.
  */
-import { NodeFileSystem } from "@effect/platform-node"
-import { Context, DateTime, Effect, FileSystem, Layer, Option, Schema } from "effect"
+import { Context, DateTime, Effect, Layer, Option, Schema } from "effect"
 import { SqlClient } from "effect/sql"
 import { createHash } from "node:crypto"
-import { join } from "node:path"
 import { parseExportCsv } from "./csv"
 import { buildReport, type ChangeReport, type Row, type TableRows } from "./diff"
 import { q, WH_LAST_UPDATE_FILE, WH_TABLES, type WhTable } from "./tables"
@@ -44,9 +43,18 @@ export interface LoadResult {
   readonly warnings: ReadonlyArray<string>
 }
 
+/** Where an export's files are read from. */
+export interface ExportSource {
+  /** Recorded with the snapshot: a URL or a folder. */
+  readonly label: string
+  /** The text of one file, by its name without `.csv`. */
+  read(file: string): Effect.Effect<string, SnapshotError>
+}
+
 /** Older snapshots beyond this many are dropped after a load. */
 const KEEP = 3
-const CHUNK = 200
+/** Durable Object SQLite takes at most 100 bound parameters per statement; inserts are batched to fit. */
+const MAX_PARAMS = 100
 
 // the byte-order mark is not content: a file saved with or without one is the same export
 const sha256 = (s: string) => createHash("sha256").update(s.replace(/^﻿/, "")).digest("hex")
@@ -68,14 +76,13 @@ export class Snapshots extends Context.Service<Snapshots, {
   readonly current: Effect.Effect<Option.Option<SnapshotInfo>>
   readonly all: Effect.Effect<Array<SnapshotInfo>>
   report(id: number): Effect.Effect<Option.Option<ChangeReport>>
-  /** Load a folder of export CSVs as a new snapshot. A folder identical to the current snapshot is a no-op unless forced. */
-  loadDirectory(dir: string, options?: { readonly force?: boolean }): Effect.Effect<LoadResult, SnapshotError>
+  /** Load an export as a new snapshot. An export identical to the current snapshot is a no-op unless forced. */
+  load(source: ExportSource, options?: { readonly force?: boolean }): Effect.Effect<LoadResult, SnapshotError>
 }>()("cogitator/wahapedia/Snapshots") {
   static readonly layer = Layer.effect(
     Snapshots,
     Effect.gen(function*() {
       const sql = yield* SqlClient.SqlClient
-      const fs = yield* FileSystem.FileSystem
 
       type SnapshotRow = { id: number; last_update: string; loaded_at: string; source: string; files: string; has_report: number }
       const all = sql<SnapshotRow>`
@@ -103,8 +110,10 @@ export class Snapshots extends Context.Service<Snapshots, {
         Effect.gen(function*() {
           const cols = ["snapshot_id", "row_num", ...t.columns.map(q)].join(", ")
           const one = `(${new Array(t.columns.length + 2).fill("?").join(", ")})`
-          for (let i = 0; i < rows.length; i += CHUNK) {
-            const chunk = rows.slice(i, i + CHUNK)
+          // as many rows per statement as the parameter limit allows; full chunks share one statement text
+          const chunkSize = Math.max(1, Math.floor(MAX_PARAMS / (t.columns.length + 2)))
+          for (let i = 0; i < rows.length; i += chunkSize) {
+            const chunk = rows.slice(i, i + chunkSize)
             const params: Array<unknown> = []
             chunk.forEach((r, j) => {
               params.push(snapshotId, i + j)
@@ -120,13 +129,10 @@ export class Snapshots extends Context.Service<Snapshots, {
           yield* sql`DELETE FROM wh_snapshots WHERE id = ${id}`
         })
 
-      const loadDirectory = Effect.fn("Snapshots.loadDirectory")(
-        function*(dir: string, options?: { readonly force?: boolean }) {
+      const load = Effect.fn("Snapshots.load")(
+        function*(source: ExportSource, options?: { readonly force?: boolean }) {
           const warnings: Array<string> = []
-          const read = (file: string) =>
-            fs.readFileString(join(dir, `${file}.csv`)).pipe(
-              Effect.mapError(() => new SnapshotError({ message: `${file}.csv is missing from ${dir}.` }))
-            )
+          const read = (file: string) => source.read(file)
           const parse = (file: string, text: string) =>
             parseExportCsv(file, text).pipe(Effect.mapError((e) => new SnapshotError({ message: `${e.file}.csv: ${e.message}` })))
 
@@ -174,13 +180,13 @@ export class Snapshots extends Context.Service<Snapshots, {
             }
             yield* sql`
               INSERT INTO wh_snapshots (last_update, loaded_at, source, files, report)
-              VALUES (${lastUpdate}, ${loadedAt}, ${dir}, ${JSON.stringify(files)}, ${changes ? JSON.stringify(changes) : null})
+              VALUES (${lastUpdate}, ${loadedAt}, ${source.label}, ${JSON.stringify(files)}, ${changes ? JSON.stringify(changes) : null})
             `
             const id = (yield* sql<{ id: number }>`SELECT MAX(id) AS id FROM wh_snapshots`)[0].id
             for (const t of WH_TABLES) yield* insertTable(t, id, next[t.file])
             const stale = yield* sql<{ id: number }>`SELECT id FROM wh_snapshots ORDER BY id DESC LIMIT -1 OFFSET ${KEEP}`
             for (const s of stale) yield* dropSnapshot(s.id)
-            const row = { id, last_update: lastUpdate, loaded_at: loadedAt, source: dir, files: JSON.stringify(files), has_report: changes ? 1 : 0 }
+            const row = { id, last_update: lastUpdate, loaded_at: loadedAt, source: source.label, files: JSON.stringify(files), has_report: changes ? 1 : 0 }
             return { info: toInfo(row), changes }
           })).pipe(Effect.orDie)
 
@@ -189,7 +195,7 @@ export class Snapshots extends Context.Service<Snapshots, {
         }
       )
 
-      return Snapshots.of({ current, all, report, loadDirectory })
+      return Snapshots.of({ current, all, report, load })
     })
-  ).pipe(Layer.provide(NodeFileSystem.layer))
+  )
 }
