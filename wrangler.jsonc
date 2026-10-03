@@ -28,8 +28,9 @@
     { "pattern": "khld.dev/cogitator-core", "zone_name": "khld.dev" },
     { "pattern": "khld.dev/cogitator-core/*", "zone_name": "khld.dev" }
   ],
-  // also at cogitator-core.<account>.workers.dev/cogitator-core, which works before the domain has moved
-  "workers_dev": true,
+  // only on khld.dev, where the zone's rate-limit rule covers it: no workers.dev address, no per-version preview links
+  "workers_dev": false,
+  "preview_urls": false,
 
   "observability": { "enabled": true },
   "upload_source_maps": true

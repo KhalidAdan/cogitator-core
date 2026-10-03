@@ -37,15 +37,31 @@ wrangler login    # once
 npm run deploy    # build, then wrangler deploy
 ```
 
-`wrangler.jsonc` describes everything that gets created: the Worker, the Durable Object class (`CogitatorCore`, SQLite storage), the routes `khld.dev/cogitator-core` and `khld.dev/cogitator-core/*`, and a `workers.dev` address.
+`wrangler.jsonc` describes everything that gets created: the Worker, the Durable Object class (`CogitatorCore`, SQLite storage), and the routes `khld.dev/cogitator-core` and `khld.dev/cogitator-core/*`. There is no `workers.dev` address and no per-version preview links (`workers_dev` and `preview_urls` are off), so the only way in is khld.dev, where the rate-limit rule applies.
 
 For the routes to receive traffic, khld.dev needs a proxied (orange cloud) DNS record. Logs: `npx wrangler tail cogitator-core`.
 
 **First deployed 3 October 2026** (version `e1508785`), from the `cloudflare` branch: the Worker `cogitator-core`, its Durable Object, the routes `khld.dev/cogitator-core` and `khld.dev/cogitator-core/*`, and https://cogitator-core.khalid-adan.workers.dev. The first scheduled update loaded the Wahapedia export (77,689 rows) and the Aeldari Field Manual v1.5 from Cloudflare.
 
-What's on khld.dev's DNS, all left as it was: the root `A` record (proxied) and `www` still point at Vercel, and the `MX` and SPF records are Namecheap's email forwarding. The routes only need the root record to be proxied.
+khld.dev's DNS, as of 3 October 2026, after the domain left Vercel:
 
-To do: once khld.dev resolves everywhere, set `"workers_dev": false` and redeploy. The rate-limit rule belongs to the khld.dev zone, so the workers.dev address isn't covered by it.
+| Record | Points at | Why |
+|---|---|---|
+| `AAAA khld.dev` | `100::`, proxied | Cloudflare's "no origin" placeholder. Everything on khld.dev is served by Workers or redirect rules, and the routes need the name proxied |
+| `CNAME www` | `khld.dev`, proxied | So the redirect rule below can catch it |
+| `TXT khld.dev` | `v=spf1 -all` | khld.dev sends no mail |
+| `TXT _dmarc` | `v=DMARC1; p=reject; …` | So mail forged as khld.dev is rejected |
+
+No mail is received at khld.dev. The five `eforward` MX records and their SPF entry, Namecheap's default email forwarding, were removed on 3 October: the forwarding only works with Namecheap's own nameservers, and nothing used it. If mail is wanted later, Cloudflare Email Routing (free) is the way to add it.
+
+Redirect rules on the zone (free plan, Single Redirects):
+
+- `www.khld.dev/<path>` → `https://khld.dev/<path>`, 301.
+- `khld.dev/` → `https://khld.dev/cogitator-core/`, 302, until the domain has a homepage. Replace this rule when it does.
+
+To see how Cloudflare handles a URL without sending traffic, use `cf request-tracers traces create --url <url> --method GET` (with `CLOUDFLARE_ACCOUNT_ID` set).
+
+The workers.dev address was switched off on 3 October (version `65c0d552`), once khld.dev was serving the app.
 
 ## Cost and safeguards
 
