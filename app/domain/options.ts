@@ -113,6 +113,9 @@ function modWith(m: Mod, key: keyof Mod, value: string): Mod {
     case "a":
     case "d":
       return { ...m, [key]: bounded(value, -1, 2) }
+    case "order":
+      // a rule's id; which Orders a list offers is the bar's business
+      return { ...m, order: /^[a-z0-9-]{1,60}$/.test(value) ? value : "" }
     case "rrHit":
       return { ...m, rrHit: oneOf(REROLLS, value, "off") }
     case "rrWound":

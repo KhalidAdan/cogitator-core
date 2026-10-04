@@ -290,7 +290,7 @@ Judgment calls:
 
 - *Daring Recon* reaches every unit in the list. It says Astra Militarum models, but the importer drops faction keywords, and every unit in an Astra Militarum list is one. Only Shooting-phase attacks, so ranged.
 - *Rearm, Reload, Fire* has two wordings: the battery's gives its Heavy weapons Sustained Hits 1; the Heavy Mortar Team's gives all its ranged weapons, and its only one is the Heavy mortar. One translation covers both.
-- *The Orders themselves aren't modelled* (open question 14).
+- *The Orders themselves aren't modelled* (open question 14). *Since D-45 they are, and "Under an Order" is set per unit by the Order you give it, not by a switch.*
 
 ### D-41. The engine reads every effect through one vocabulary (4 October, your call)
 
@@ -326,6 +326,17 @@ A field added to the vocabulary gets its input here without touching the editor.
 ### D-44. Strength, Attacks and Damage in the modifier bar (4 October, your call)
 
 The modifier bar gained **Strength**, **Attacks** and **Damage**, each −1 to +2, for stratagems like Ruthless Killers (+1 Damage for a Corsair Voidscarred unit). Like the rest of the bar they can be set for all units, one datasheet or an attached unit, and limited to ranged or melee. They're characteristic changes, so they aren't capped and they stack with rules; a target's damage reduction still applies. The bar becomes an effect clause in the engine (D-41), so they combine with rules exactly as a rule's `s`, `a` and `d` do. Options saved before they existed still load.
+
+### D-45. Astra Militarum Orders, unit by unit (4 October, your call)
+
+Orders are modelled. **Pick a unit in the modifier bar and give it an Order**; the bar shows an Order menu only on lists that can issue them.
+
+- **The Orders are library rules** (source "Order"), so they can be read and edited like any other. Take Aim! improves BS by 1 at range, Fix Bayonets! WS by 1 in melee, First Rank, Fire! Second Rank, Fire! gives Rapid Fire weapons +1 Attack. Move! Move! Move!, Take Cover! and Duty and Honour! don't change damage dealt, but the unit is still under an Order.
+- **Voice of Command names the Orders** a list can issue (a new `orders` field on a rule), so a detachment rule that adds an Order only has to name it too.
+- **A new effect field, `skill`**, improves BS or WS. It's a characteristic change, so it adds to a +1 to hit rather than being capped with it.
+- **"Under an Order" is per unit.** Rules that wait for an Order, like Rearm, Reload, Fire, wake for the unit that has one; the list-wide "Under an Order" switch from D-40 is gone. The most specific Order counts: a datasheet's over its attached unit's over all units'.
+- **The app doesn't police who can receive which Order**, how many an Officer can issue, or whether one is within 6". That's left to you, as marks are.
+- **Seeded rules nobody has edited now follow the seed**, so corrected wording (Rearm, Reload, Fire's, here) reaches the live site. Rules you've edited are left alone.
 
 ---
 

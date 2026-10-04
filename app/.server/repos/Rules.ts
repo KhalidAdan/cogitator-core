@@ -77,7 +77,12 @@ export class Rules extends Context.Service<Rules, {
   resetToSeed(id: string): Effect.Effect<void, RuleNotFound>
   remove(id: string): Effect.Effect<void>
   /** Insert seeds that are not in the library yet; never overwrites. */
-  seed(entries: ReadonlyArray<RuleSeed>): Effect.Effect<number>
+  /**
+   * Insert seeded rules that are missing, and bring seeded rules nobody has
+   * edited up to date with the seed, so a corrected translation reaches
+   * existing databases. Edited rules are left alone.
+   */
+  seed(entries: ReadonlyArray<RuleSeed>): Effect.Effect<{ readonly added: number; readonly updated: number }>
   link(id: string, wh: { kind: string; text: string; hash: string; snapshotId: number }): Effect.Effect<void>
 }>()("cogitator/repos/Rules") {
   static readonly layer = Layer.effect(
@@ -147,18 +152,29 @@ export class Rules extends Context.Service<Rules, {
 
       const seed = Effect.fn("Rules.seed")(function*(entries: ReadonlyArray<RuleSeed>) {
         const ts = yield* now
-        const have = new Set((yield* sql<{ id: string }>`SELECT id FROM rules`.pipe(Effect.orDie)).map((r) => r.id))
+        const rows = yield* sql<{ id: string; data: string; seed: string | null }>`SELECT id, data, seed FROM rules`.pipe(Effect.orDie)
+        const have = new Map(rows.map((r) => [r.id, r]))
         const missing = entries.filter((e) => !have.has(e.id))
+        const stale = entries.filter((e) => {
+          const r = have.get(e.id)
+          return !!r && r.seed !== null && r.data === r.seed && r.seed !== encRule(e.rule)
+        })
         yield* sql.withTransaction(
-          Effect.forEach(missing, (e) => {
-            const data = encRule(e.rule)
-            return sql`
-              INSERT INTO rules (id, name, faction, status, data, seed, notes, updated_at)
-              VALUES (${e.id}, ${e.rule.nm}, ${e.faction ?? null}, ${e.status}, ${data}, ${data}, '', ${ts})
-            `
-          }, { discard: true })
+          Effect.gen(function*() {
+            for (const e of missing) {
+              const data = encRule(e.rule)
+              yield* sql`
+                INSERT INTO rules (id, name, faction, status, data, seed, notes, updated_at)
+                VALUES (${e.id}, ${e.rule.nm}, ${e.faction ?? null}, ${e.status}, ${data}, ${data}, '', ${ts})
+              `
+            }
+            for (const e of stale) {
+              const data = encRule(e.rule)
+              yield* sql`UPDATE rules SET name = ${e.rule.nm}, data = ${data}, seed = ${data}, updated_at = ${ts} WHERE id = ${e.id}`
+            }
+          })
         ).pipe(Effect.orDie)
-        return missing.length
+        return { added: missing.length, updated: stale.length }
       })
 
       const link = Effect.fn("Rules.link")(

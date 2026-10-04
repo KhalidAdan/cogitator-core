@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest"
 import { LIBRARY_RULES } from "~/.server/seed/library"
 import { attackerList, attackUnit, MOD0 } from "~/domain/engine"
 import { describeRule } from "~/domain/fx"
-import { availableMarks, effectiveOpts, ruleState, situations } from "~/domain/ledger"
+import { availableMarks, availableOrders, effectiveOpts, ruleState, situations } from "~/domain/ledger"
 import { defaultOpts } from "~/domain/options"
 import { Fx, type Opts, Rule, type RuleBook, type Target, type Unit, type Weapon } from "~/domain/schema"
 
@@ -29,7 +29,7 @@ describe("the library's own rules", () => {
     for (const r of LIBRARY_RULES) {
       expect(() => Schema.decodeUnknownSync(Rule, strict)(r.rule), r.id).not.toThrow()
       for (const e of r.rule.fx ?? []) expect(() => Schema.decodeUnknownSync(Fx, strict)(e), r.id).not.toThrow()
-      expect(r.rule.dmg && describeRule(r.rule), r.id).not.toMatch(/nothing|no effect/i)
+      if (r.rule.dmg) expect(describeRule(r.rule), r.id).not.toMatch(/nothing|no effect/i)
     }
     expect(new Set(LIBRARY_RULES.map((r) => r.id)).size).toBe(LIBRARY_RULES.length)
   })
@@ -169,17 +169,93 @@ describe("Astra Militarum", () => {
     expect(availableMarks(all, rules).map((m) => m.key)).toEqual(["recon"])
   })
 
-  it("Rearm, Reload, Fire: Sustained Hits 1 on Heavy weapons, only under an Order and stationary", () => {
+  it("Rearm, Reload, Fire: Sustained Hits 1 on Heavy weapons, only while the battery is under an Order and stationary", () => {
     const gunline = [gun({ nm: "Bombast field gun", kw: { heavy: 1, blast: 1 } }), gun({ nm: "Lasgun", kw: { rf: 1 } })]
     const battery = unit("battery", { rules: ["rearm-reload-fire"], w: gunline })
-    const all = [battery]
-    const sus = (flags: Record<string, boolean>, weapon: string) => row(battery, all, opts(flags), weapon).susExtra ?? 0
-    expect(sus({ order: true, stationary: true }, "Bombast field gun")).toBeGreaterThan(0)
-    expect(sus({ order: true, stationary: true }, "Lasgun")).toBe(0)
-    expect(sus({ stationary: true }, "Bombast field gun")).toBe(0)
-    expect(sus({ order: true }, "Bombast field gun")).toBe(0)
-    expect(ruleState(rules["rearm-reload-fire"], "battery", "rearm-reload-fire", opts())).toBe("idle")
-    expect(ruleState(rules["rearm-reload-fire"], "battery", "rearm-reload-fire", opts({ order: true }))).toBe("on")
-    expect(situations(all, rules).map((s) => s.key)).toContain("order")
+    const squad = unit("squad")
+    const all = [battery, squad]
+    const ordered = (scope: string, flags: Record<string, boolean> = {}) => opts(flags, { [scope]: { ...MOD0, order: "move-move-move" } })
+    const sus = (o: Opts, weapon: string) => row(battery, all, o, weapon).susExtra ?? 0
+    expect(sus(ordered("battery", { stationary: true }), "Bombast field gun")).toBeGreaterThan(0)
+    expect(sus(ordered("battery", { stationary: true }), "Lasgun")).toBe(0)
+    expect(sus(ordered("all", { stationary: true }), "Bombast field gun")).toBeGreaterThan(0)
+    // another unit's Order, no Order, or not stationary: nothing
+    expect(sus(ordered("squad", { stationary: true }), "Bombast field gun")).toBe(0)
+    expect(sus(opts({ stationary: true }), "Bombast field gun")).toBe(0)
+    expect(sus(ordered("battery"), "Bombast field gun")).toBe(0)
+    // the old list-wide switch no longer counts as an Order
+    expect(sus(opts({ order: true, stationary: true }), "Bombast field gun")).toBe(0)
+    // its chip waits for the battery's own Order, and there is no switch for it
+    const rrf = rules["rearm-reload-fire"]
+    expect(ruleState(rrf, "battery", "rearm-reload-fire", ordered("squad"), battery)).toBe("idle")
+    expect(ruleState(rrf, "battery", "rearm-reload-fire", ordered("battery"), battery)).toBe("on")
+    expect(situations(all, rules).map((s) => s.key)).not.toContain("order")
+  })
+})
+
+describe("Astra Militarum Orders", () => {
+  const officer = unit("officer", { rules: ["voice-of-command"], models: 1 })
+  const order = (id: string, scope = "squad", mods: Opts["mods"] = {}) => opts({}, { ...mods, [scope]: { ...MOD0, ...mods[scope], order: id } })
+
+  it("are offered by Voice of Command, with what each does to damage", () => {
+    const offered = availableOrders([officer], rules)
+    expect(offered.map((o) => o.label)).toEqual([
+      "Take Aim!",
+      "First Rank, Fire! Second Rank, Fire!",
+      "Fix Bayonets!",
+      "Move! Move! Move!",
+      "Take Cover!",
+      "Duty and Honour!"
+    ])
+    expect(offered[0].hint).toBe("ranged: BS/WS improved by 1")
+    expect(offered[3].hint).toMatch(/No effect on damage/)
+    expect(availableOrders([unit("squad")], rules)).toEqual([])
+  })
+
+  it("Take Aim!: BS improves by 1 at range, on top of a +1 to hit, and melee is untouched", () => {
+    const squad = unit("squad")
+    const all = [officer, squad]
+    expect(row(squad, all, opts(), "Gun").hitChance).toBeCloseTo(4 / 6)
+    const aimed = row(squad, all, order("take-aim"), "Gun")
+    expect(aimed.hitChance).toBeCloseTo(5 / 6)
+    expect(aimed.notes).toEqual(["Take Aim!", "+1 BS/WS"])
+    expect(row(squad, all, order("take-aim"), "Blade").hitChance).toBeCloseTo(4 / 6)
+    // a characteristic change, so it adds to the modifier bar's +1 to hit rather than being capped with it: BS 4+ hits on 2+
+    const guards = unit("guards", { w: [gun({ sk: 4 })] })
+    expect(row(guards, [officer, guards], order("take-aim", "guards", { guards: { ...MOD0, hit: 1 } }), "Gun").hitChance).toBeCloseTo(5 / 6)
+  })
+
+  it("First Rank, Fire!: one more attack for Rapid Fire weapons only", () => {
+    const squad = unit("squad", { w: [gun({ nm: "Lasgun", n: 10, A: 1, kw: { rf: 1 } }), gun({ nm: "Flamer", n: 1, A: 1 })] })
+    const all = [officer, squad]
+    expect(row(squad, all, order("first-rank-fire"), "Lasgun").attacks).toBe(20)
+    expect(row(squad, all, order("first-rank-fire"), "Flamer").attacks).toBe(1)
+    expect(row(squad, all, order("first-rank-fire"), "Flamer").notes).toEqual([])
+  })
+
+  it("Fix Bayonets!: WS improves by 1 in melee", () => {
+    const squad = unit("squad")
+    expect(row(squad, [officer, squad], opts(), "Blade").hitChance).toBeCloseTo(4 / 6)
+    expect(row(squad, [officer, squad], order("fix-bayonets"), "Blade").hitChance).toBeCloseTo(5 / 6)
+    expect(row(squad, [officer, squad], order("fix-bayonets"), "Gun").hitChance).toBeCloseTo(4 / 6)
+  })
+
+  it("follow the most specific scope: a datasheet's Order over its attached unit's over all units'", () => {
+    const leader = unit("leader", { grp: "A", role: "Leader", models: 1 })
+    const guards = unit("guards", { grp: "A", role: "Bodyguard" })
+    const others = unit("others")
+    const all = [officer, leader, guards, others]
+    const hit = (u: typeof leader, o: Opts) => row(u, all, o, "Gun").hitChance
+    const everyone = order("take-aim", "all")
+    expect(hit(others, everyone)).toBeCloseTo(5 / 6)
+    // a unit's own Order replaces the one given to everyone
+    expect(hit(others, order("move-move-move", "others", everyone.mods))).toBeCloseTo(4 / 6)
+    // an Order for the attached unit reaches both datasheets, split or as one row
+    const grp = order("take-aim", "grp-A")
+    expect(hit(leader, grp)).toBeCloseTo(5 / 6)
+    expect(hit(guards, grp)).toBeCloseTo(5 / 6)
+    const combined = attackerList(all, { combine: true }).find((u) => u.combined)!
+    const rows = run(combined, all, { ...grp, combine: true }).rows
+    expect(rows.every((r) => r.hitChance === undefined || Math.abs(r.hitChance - (r.w.t === "r" ? 5 / 6 : 4 / 6)) < 1e-9)).toBe(true)
   })
 })

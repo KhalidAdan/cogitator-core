@@ -151,6 +151,8 @@ export const Fx = Schema.Struct({
   hit: opt(Schema.Number),
   wound: opt(Schema.Number),
   /** Characteristic changes: uncapped, they stack. */
+  /** Improve Ballistic or Weapon Skill by this much (Take Aim!): 1 turns a 4+ into a 3+. */
+  skill: opt(Schema.Number),
   s: opt(Schema.Number),
   ap: opt(Schema.Number),
   a: opt(Schema.Number),
@@ -201,7 +203,9 @@ export const Rule = Schema.Struct({
   txt: Schema.String,
   fx: opt(Schema.Array(Fx)),
   /** Who the rule reaches, for army and detachment rules. */
-  reach: opt(Schema.String)
+  reach: opt(Schema.String),
+  /** Orders (rule ids) this rule lets the list issue; they make up the modifier bar's Order menu. */
+  orders: opt(Schema.Array(Schema.String))
 })
 export type Rule = typeof Rule.Type
 export type RuleBook = Readonly<Record<string, Rule>>
@@ -247,7 +251,9 @@ export const Mod = Schema.Struct({
   /** Characteristic changes: Strength, Attacks per model, Damage. Optional, as options saved before 4 October don't have them. */
   s: opt(Schema.Number),
   a: opt(Schema.Number),
-  d: opt(Schema.Number)
+  d: opt(Schema.Number),
+  /** The Order (a rule's id) units in this scope are under; "" for none. */
+  order: opt(Schema.String)
 })
 export type Mod = typeof Mod.Type
 

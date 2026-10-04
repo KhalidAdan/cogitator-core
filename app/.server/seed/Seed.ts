@@ -15,7 +15,7 @@ import { Targets } from "../repos/Targets"
 import { LIBRARY_RULES } from "./library"
 import raw from "./poc-seed.json"
 
-const VERSION = 5
+const VERSION = 6
 
 /** Built-in lists that used to be seeded and are removed from existing databases on upgrade. */
 const RETIRED_LISTS = ["builtin-cophasta", "builtin-burning-v1"]
@@ -59,7 +59,7 @@ export const seed = Effect.gen(function*() {
   const targets = yield* Targets
   const lists = yield* Lists
 
-  const added = yield* rules.seed([
+  const { added, updated } = yield* rules.seed([
     ...Object.entries(seedData.rules).map(([id, rule]) => ({
       id,
       rule,
@@ -83,7 +83,7 @@ export const seed = Effect.gen(function*() {
   const active = Option.getOrUndefined(yield* settings.get(ACTIVE_LIST))
   if (!active || RETIRED_LISTS.includes(active)) yield* settings.set(ACTIVE_LIST, seedData.defaultListId)
   yield* settings.set(SEED_VERSION, String(VERSION))
-  yield* Effect.logInfo(`Seeded the database: ${added} new rules, ${seedData.targets.length} targets, ${seedData.lists.length} built-in ${seedData.lists.length === 1 ? "list" : "lists"}`)
+  yield* Effect.logInfo(`Seeded the database: ${added} new rules, ${updated} updated, ${seedData.targets.length} targets, ${seedData.lists.length} built-in ${seedData.lists.length === 1 ? "list" : "lists"}`)
 }).pipe(Effect.withSpan("seed"))
 
 export const SeedLive = Layer.effectDiscard(seed)

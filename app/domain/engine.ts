@@ -37,7 +37,8 @@ export const MOD0: Mod = {
   rf: 0,
   s: 0,
   a: 0,
-  d: 0
+  d: 0,
+  order: ""
 }
 
 const RR_RANK = { off: 0, "1s": 1, full: 2 } as const
@@ -55,7 +56,29 @@ export function modScopes(unit: Unit, w?: Weapon): Array<string> {
   return [...new Set(s)]
 }
 
-export type ResolvedMod = Required<Omit<Mod, "apply">>
+/** The modifier bar's settings for one weapon. The Order is resolved separately (`orderFor`). */
+export type ResolvedMod = Required<Omit<Mod, "apply" | "order">>
+
+/** The situation flag that is on while a unit is under an Order. It isn't a switch: the modifier bar's Order sets it. */
+export const ORDER = "order"
+
+/**
+ * The Order a unit is under: the most specific scope's, a datasheet's over its
+ * attached unit's over all units'. In an attached unit shown as one row, a
+ * weapon belongs to the datasheet that carries it.
+ */
+export function orderFor(unit: Unit, opts: Pick<Opts, "mods">, w?: Weapon): string {
+  const mods = opts.mods || {}
+  const own = unit.combined ? (w?._owner ?? null) : unit.id
+  const grp = unit.combined ? unit.id : unit.grp ? "grp-" + unit.grp : null
+  return (own && mods[own]?.order) || (grp && mods[grp]?.order) || mods.all?.order || ""
+}
+
+/** The situation flags as one unit (or one of its weapons) sees them. */
+export function unitFlags(unit: Unit | undefined, opts: Pick<Opts, "flags" | "mods">, w?: Weapon): Readonly<Record<string, boolean>> {
+  const under = !!unit && !!orderFor(unit, opts, w)
+  return !!opts.flags[ORDER] === under ? opts.flags : { ...opts.flags, [ORDER]: under }
+}
 
 export function modsFor(unit: Unit, w: Weapon, opts: Opts): ResolvedMod {
   const mods = opts.mods || {}
@@ -161,10 +184,11 @@ function globalMarks(rules: RuleBook): ReadonlyArray<EffectiveRule> {
   return out
 }
 
-export function ruleActive(er: EffectiveRule, opts: Opts): boolean {
+/** Is the rule switched on? `flags` are the attacker's (see unitFlags). */
+export function ruleActive(er: EffectiveRule, opts: Opts, flags: Readonly<Record<string, boolean>> = opts.flags): boolean {
   if (er.r.mark) return !!opts.flags[er.r.mark]
   // a rule waiting for a situation is idle while its switch is off, whatever its clauses say
-  if (er.r.cond && !opts.flags[er.r.cond]) return false
+  if (er.r.cond && !flags[er.r.cond]) return false
   return !opts.off[ruleKey(er.owner, er.id)]
 }
 
@@ -214,24 +238,34 @@ const preparedCache = new WeakMap<Unit, Prepared>()
 function prepare(unit: Unit, opts: Opts, ctx: EngineContext): Prepared {
   const hit = preparedCache.get(unit)
   if (hit && hit.opts === opts && hit.rules === ctx.rules && hit.units === ctx.units) return hit
-  const active = rulesReaching(unit, ctx.units, ctx.rules).filter((x) => ruleActive(x, opts))
+  const reaching = rulesReaching(unit, ctx.units, ctx.rules)
+  const active = reaching.filter((x) => ruleActive(x, opts, unitFlags(unit, opts)))
   // Target marks with a list-wide effect reach every attacker. They are applied
   // once, from here, so the unit that sets the mark does not get it twice (the
   // POC double-counted Shattered Defences on the Thunderstrike itself).
   const marks = globalMarks(ctx.rules).filter((x) => opts.flags[x.r.mark!])
-  const own = active.filter((x) => !(x.r.mark && x.r.global))
+  const own = reaching.filter((x) => !(x.r.mark && x.r.global))
   const weapons = unit.w.map((w): Armed => {
     // the datasheet this weapon belongs to: the unit itself, or the member of an attached unit that carries it
     const carrier = unit.combined && w._owner ? ctx.units.find((x) => x.id === w._owner) : unit
+    // in an attached unit shown as one row, each datasheet can be under its own Order
+    const flags = unitFlags(unit, opts, w)
+    const order = orderFor(unit, opts, w)
+    const orderRule = order ? ctx.rules[order] : undefined
     return {
       w,
       md: modsFor(unit, w, opts),
-      // in a combined unit, a rule that isn't shared only covers its own datasheet's weapons
-      rules: own.filter((x) => !unit.combined || x.r.scope === "unit" || !w._owner || w._owner === x.owner).concat(marks),
+      rules: own
+        // in a combined unit, a rule that isn't shared only covers its own datasheet's weapons
+        .filter((x) => !unit.combined || x.r.scope === "unit" || !w._owner || w._owner === x.owner)
+        .filter((x) => ruleActive(x, opts, flags))
+        .concat(marks)
+        .concat(orderRule?.fx ? [{ id: order, owner: "order", r: orderRule }] : []),
       attackerKw: (carrier?.kw ?? []).join(" ").toUpperCase(),
       name: String(w.nm || "")
         .replace(/^[^:]*:\s*/, "")
-        .toLowerCase()
+        .toLowerCase(),
+      flags
     }
   })
   const out = { opts, rules: ctx.rules, units: ctx.units, active, weapons }

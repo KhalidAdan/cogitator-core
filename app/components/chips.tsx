@@ -18,11 +18,11 @@ const withParam = (params: URLSearchParams, key: string, value: string | null) =
 }
 
 export function Chip({ owner, id, label }: { owner: string; id: string; label?: string }) {
-  const { rules, opts } = useLedger()
+  const { rules, opts, units } = useLedger()
   const [params] = useSearchParams()
   const r = rules[id]
   if (!r) return null
-  const st = ruleState(r, owner, id, opts)
+  const st = ruleState(r, owner, id, opts, units.find((u) => u.id === owner))
   const key = `${owner}:${id}`
   const selected = params.get("rule") === key
   const title = st === "idle" && r.condNm ? `Waiting for: ${r.condNm}` : RULE_STATE_TITLE[st]
@@ -67,8 +67,8 @@ export function RuleDrawer({ ledger }: { ledger: LedgerContext }) {
   const { rules, opts, units, groups, action } = ledger
   const r = rules[id]
   if (!r) return null
-  const st = ruleState(r, owner, id, opts)
   const ownerUnit = units.find((u) => u.id === owner)
+  const st = ruleState(r, owner, id, opts, ownerUnit)
   const group = ownerUnit?.grp ? groups[ownerUnit.grp] : undefined
   const who = owner === "army" ? "" : r.scope === "unit" && ownerUnit && group ? `${ownerUnit.nm} and the rest of ${group.short}` : ownerUnit?.nm ?? ""
   const mark = r.mark ? availableMarks(units, rules).find((m) => m.key === r.mark) : undefined

@@ -191,6 +191,7 @@ table.dt{border-collapse:collapse; width:100%; font-size:13.5px; min-width:640px
 .mcluster{min-width:0; max-width:100%}
 .ml{font-size:12.5px; color:var(--muted)}
 .mnote{font-size:11.5px; color:var(--muted); max-width:190px; line-height:1.3}
+.mselect{box-sizing:border-box; padding:5px 8px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink); font-size:14px; min-width:190px}
 .seg{max-width:100%; flex-wrap:wrap}
 .seg.sm button{padding:4px 10px; font-size:13px}
 .seg.sm button[aria-pressed="true"]:not([data-mval="0"]):not([data-mval="false"]):not([data-mval="off"]):not([data-mval="both"]){background:var(--jade); color:var(--bg)}

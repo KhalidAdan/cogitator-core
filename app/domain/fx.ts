@@ -36,6 +36,8 @@ export interface Profile {
   hitPlus: number
   hitMinus: number
   wound: number
+  /** Improvement to BS/WS. */
+  skill: number
   s: number
   ap: number
   a: number
@@ -50,7 +52,7 @@ export interface Profile {
   /** The weapon's abilities against this target, with what the clauses granted. */
   readonly kw: Record<string, any>
   /** What the rules changed, without the modifier bar, which has its own note. */
-  readonly shown: { a: number; s: number; ap: number; d: number }
+  readonly shown: { skill: number; a: number; s: number; ap: number; d: number }
   /** Rules that changed something, for the notes. */
   readonly named: Array<string>
   /** Core abilities that applied as modifiers (Heavy, Lance, Twin-linked). */
@@ -61,6 +63,7 @@ export const startProfile = (kw: Record<string, any>): Profile => ({
   hitPlus: 0,
   hitMinus: 0,
   wound: 0,
+  skill: 0,
   s: 0,
   ap: 0,
   a: 0,
@@ -71,7 +74,7 @@ export const startProfile = (kw: Record<string, any>): Profile => ({
   critHit: 6,
   ignoresPenalties: [],
   kw,
-  shown: { a: 0, s: 0, ap: 0, d: 0 },
+  shown: { skill: 0, a: 0, s: 0, ap: 0, d: 0 },
   named: [],
   core: []
 })
@@ -132,7 +135,7 @@ const signed = (n: number) => (n > 0 ? `+${n}` : `−${Math.abs(n)}`)
 const RANK = { none: 0, ones: 1, all: 2 } as const
 const stronger = (have: Reroll | null, v: Reroll) => (RANK[v] > RANK[have ?? "none"] ? v : have)
 /** A characteristic change that the notes show when a rule made it. */
-const shownSum = (k: "a" | "s" | "ap" | "d") => (p: Profile, v: number, _source: string, fromBar: boolean) => {
+const shownSum = (k: "skill" | "a" | "s" | "ap" | "d") => (p: Profile, v: number, _source: string, fromBar: boolean) => {
   p[k] += v
   if (!fromBar) p.shown[k] += v
 }
@@ -234,6 +237,14 @@ export const CLAUSE: { readonly [K in keyof Fx]-?: When<NonNullable<Fx[K]>> | Do
       p.wound += v
     },
     says: (v) => [`${signed(v)} to wound`]
+  },
+  skill: {
+    label: "BS / WS",
+    input: number(-2, 2),
+    blank: 1,
+    add: shownSum("skill"),
+    says: (v) => [v > 0 ? `BS/WS improved by ${v}` : `BS/WS worsened by ${-v}`],
+    help: ["skill", "improve Ballistic or Weapon Skill by this much (1: a 4+ hits on 3+); a characteristic change, so not capped like hit"]
   },
   s: {
     label: "Strength",

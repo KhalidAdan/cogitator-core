@@ -59,7 +59,7 @@ Moving between the matrix, a dossier and the rules matrix, or opening a rule car
 
 `attackUnit(unit, target, opts)` is called once per matrix cell, so the work that doesn't depend on the target is done once per unit and set of options (`prepare` in engine.ts): which rules reach each weapon, the modifier bar's settings for it, the attacker's keywords. Then each weapon goes through the attack sequence in attack.ts:
 
-1. **Resolve.** Everything that changes the attack is an effect clause: each rule's `fx`, the modifier bar (translated into a clause once), and the core abilities that work as modifiers (Heavy, Lance, Twin-linked). Clauses whose *when* fields match are added into one `Profile` by the vocabulary in fx.ts, which says how each field combines: hit and wound modifiers summed and capped at ±1, the strongest re-roll, the best of a granted ability.
+1. **Resolve.** Everything that changes the attack is an effect clause: each rule's `fx`, the modifier bar (translated into a clause once), the Order the unit is under (a library rule, picked in the bar), and the core abilities that work as modifiers (Heavy, Lance, Twin-linked). Clauses whose *when* fields match are added into one `Profile` by the vocabulary in fx.ts, which says how each field combines: hit and wound modifiers summed and capped at ±1, the strongest re-roll, the best of a granted ability.
 2. **Roll.** Attacks, hit, wound, save and damage are small functions of the weapon, the target and the profile. No text.
 3. **Explain.** The breakdown's notes are written last, from the profile and what each roll found.
 

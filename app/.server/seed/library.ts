@@ -196,9 +196,37 @@ export const LIBRARY_RULES: ReadonlyArray<LibraryRule> = [
       def: true,
       cond: "order",
       condNm: "Under an Order",
-      condTxt: "For rules that work while a unit is affected by an Order, like Rearm, Reload, Fire. The Orders themselves (Take Aim!, Fix Bayonets!…) aren’t added by this switch.",
-      txt: "While the unit is affected by an Order and Remained Stationary this turn, its Heavy weapons have Sustained Hits 1. It needs both switches: “Under an Order” and “Remained stationary”.",
+      condTxt: "Give the unit an Order in the modifier bar.",
+      txt: "While the unit is under an Order and Remained Stationary this turn, its Heavy weapons have Sustained Hits 1. Give it an Order in the modifier bar and switch on “Remained stationary”.",
       fx: [{ when: "stationary", phase: "ranged", weaponKw: "heavy", grant: { sus: 1 } }]
     }
-  }
+  },
+  {
+    id: "voice-of-command",
+    faction: "AM",
+    status: "draft",
+    rule: {
+      nm: "Voice of Command",
+      src: "Datasheet",
+      dmg: false,
+      txt: "Officers issue Orders to eligible units within 6\": each lasts until your next Command phase, one at a time per unit, and ends if the unit is Battle-shocked. Give a unit its Order in the modifier bar; the Officer’s datasheet says how many it can issue and to whom, which the app leaves to you.",
+      orders: ["take-aim", "first-rank-fire", "fix-bayonets", "move-move-move", "take-cover", "duty-and-honour"]
+    }
+  },
+  ...order("take-aim", "Take Aim!", "Improve the Ballistic Skill of the unit’s ranged weapons by 1.", [{ phase: "ranged", skill: 1 }]),
+  ...order(
+    "first-rank-fire",
+    "First Rank, Fire! Second Rank, Fire!",
+    "Improve the Attacks of the unit’s Rapid Fire weapons by 1.",
+    [{ phase: "ranged", weaponKw: "rf", a: 1 }]
+  ),
+  ...order("fix-bayonets", "Fix Bayonets!", "Improve the Weapon Skill of the unit’s melee weapons by 1.", [{ phase: "melee", skill: 1 }]),
+  ...order("move-move-move", "Move! Move! Move!", "Add 3\" to the unit’s Move. No effect on damage, but the unit is under an Order."),
+  ...order("take-cover", "Take Cover!", "Improve the unit’s Save by 1 (not better than 3+). No effect on damage dealt, but the unit is under an Order."),
+  ...order("duty-and-honour", "Duty and Honour!", "Add 1 to the unit’s Leadership and Objective Control. No effect on damage, but the unit is under an Order.")
 ]
+
+/** An Astra Militarum Order: picked per unit in the modifier bar, offered by Voice of Command. */
+function order(id: string, nm: string, txt: string, fx?: Rule["fx"]): Array<LibraryRule> {
+  return [{ id, faction: "AM", status: "draft", rule: { nm, src: "Order", dmg: !!fx, txt, ...(fx ? { fx } : {}) } }]
+}

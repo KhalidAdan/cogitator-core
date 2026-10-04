@@ -60,5 +60,5 @@ Checked against the Munitorum Field Manual, Space Marines v1.5. Eight units and 
 
 At Field Manual prices the list is 1,980, not 1,990. Possible causes: the roster was exported before v1.5, 40k.app uses the codex's printed points, or there is chapter pricing I didn't see (the page has a White Scars section, but it only listed the chapter's own characters). Not investigated further. You're fixing the list yourself, so the built-in copy has been removed from the app (decision D-27); import the corrected roster when it's ready.
 
-**14. Should Astra Militarum Orders be modelled?**
+**14. Should Astra Militarum Orders be modelled?** *Answered on 4 October: yes, unit by unit in the modifier bar (D-45).*
 Voice of Command has no text in the roster file, so the importer doesn't flag it, but three Orders change damage: Take Aim! (+1 Ballistic Skill), Fix Bayonets! (+1 Weapon Skill) and First Rank, Fire! Second Rank, Fire! (+1 Attack on Rapid Fire weapons). An Order is a choice per unit, a bit like a mark that only one unit gets. Until then, the modifier bar's +1 to hit stands in for Take Aim! and Fix Bayonets!, and nothing for the extra attack. The new "Under an Order" switch (D-40) only drives rules that wait for an Order.

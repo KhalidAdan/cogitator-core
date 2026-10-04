@@ -68,6 +68,12 @@ describe("option intents", () => {
     expect(applyIntent(o, { intent: "mod", scope: "all", key: "s", value: "9" }, []).mods.all).toMatchObject({ s: 2, d: 1 })
   })
 
+  it("takes an Order by its rule id, and nothing else", () => {
+    const set = (value: string) => applyIntent(defaultOpts(), { intent: "mod", scope: "squad", key: "order", value }, []).mods.squad
+    expect(set("take-aim")).toMatchObject({ order: "take-aim" })
+    expect(set("<script>")?.order ?? "").toBe("")
+  })
+
   it("rejects posts that aren’t intents", () => {
     expect(intentFromForm(form({ intent: "set", key: "units", value: "[]" }))).toBeNull()
     expect(intentFromForm(form({ intent: "mod", scope: "all", key: "nope", value: "1" }))).toBeNull()

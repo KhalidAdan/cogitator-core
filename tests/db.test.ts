@@ -100,6 +100,26 @@ describe("database", () => {
       expect(error.id).toBe("nope")
     }).pipe(Effect.provide(TestLayer)))
 
+  it.effect("brings seeded rules nobody edited up to date with the seed, and leaves edited ones", () =>
+    Effect.gen(function*() {
+      const rules = yield* Rules
+      const settings = yield* Settings
+      yield* seed
+      // as an older seed left them: one rule never touched, one edited since
+      const old = (id: string) => LIBRARY_RULES.find((r) => r.id === id)!
+      const stale = { ...old("daring-recon"), rule: { ...old("daring-recon").rule, txt: "older wording" } }
+      const edited = { ...old("stand-vigil"), rule: { ...old("stand-vigil").rule, txt: "older wording" } }
+      yield* rules.remove("daring-recon")
+      yield* rules.remove("stand-vigil")
+      yield* rules.seed([stale, edited])
+      yield* rules.save("stand-vigil", { rule: { ...edited.rule, txt: "my wording" }, status: "draft" })
+      yield* settings.set(SEED_VERSION, "5")
+      yield* seed
+      expect((yield* rules.get("daring-recon")).rule.txt).toBe(old("daring-recon").rule.txt)
+      expect((yield* rules.get("daring-recon")).edited).toBe(false)
+      expect((yield* rules.get("stand-vigil")).rule.txt).toBe("my wording")
+    }).pipe(Effect.provide(Unseeded)))
+
   it.effect("keeps rule edits separate from the seed, and can undo them", () =>
     Effect.gen(function*() {
       const rules = yield* Rules

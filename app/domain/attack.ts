@@ -115,6 +115,8 @@ export interface Armed {
   readonly attackerKw: string
   /** The weapon's name, lower case, without an attached unit's "Member: " prefix. */
   readonly name: string
+  /** Situation switches as this weapon's unit sees them: the list's, plus "order" while it is under one. */
+  readonly flags: Readonly<Record<string, boolean>>
 }
 
 export function scoreWeapon(a: Armed, tgt: Target, opts: Opts): Omit<AttackRow, "w"> {
@@ -124,7 +126,7 @@ export function scoreWeapon(a: Armed, tgt: Target, opts: Opts): Omit<AttackRow, 
   const kw = abilitiesAgainst(w, targetKw)
   const c: ClauseCtx = {
     ranged,
-    flags: opts.flags,
+    flags: a.flags,
     targetKw,
     attackerKw: a.attackerKw,
     weaponName: a.name,
@@ -296,7 +298,7 @@ function hitRoll(w: Weapon, p: Profile, ranged: boolean, cover: boolean): HitRol
   } else {
     const ignorePenalty = p.ignoresPenalties.length > 0
     const hitMod = clamp(p.hitPlus + (ignorePenalty ? 0 : p.hitMinus), -1, 1)
-    let bs = w.sk
+    let bs = w.sk - p.skill
     if (ranged && cover) {
       if (p.kw.ic) outcome = "ic"
       else if (ignorePenalty) outcome = "rule"
@@ -430,6 +432,7 @@ function explain(md: ResolvedMod, baseRf: number, ranged: boolean, p: Profile, r
 
   const ignoring = p.ignoresPenalties[0]
   if (p.core.includes("Heavy")) notes.push("Heavy")
+  if (p.shown.skill) notes.push(`${p.shown.skill > 0 ? "+" : "−"}${Math.abs(p.shown.skill)} BS/WS`)
   if (ignoring && p.hitMinus < 0 && !r.hit.torrent) notes.push(`${ignoring}: ignores the penalty to hit`)
   if (r.hit.torrent) notes.push("Torrent")
   else {

@@ -3,7 +3,8 @@
  * state of each rule chip. Pure functions over a list, the rules that apply to
  * it, the targets and the options — the same on the server and in the browser.
  */
-import { attackerList, attackUnit, type AttackResult, effectiveRules, ruleKey, unitPts } from "./engine"
+import { attackerList, attackUnit, type AttackResult, effectiveRules, ORDER, ruleKey, unitFlags, unitPts } from "./engine"
+import { describeRule } from "./fx"
 import { SITUATION } from "./options"
 import type { Group, Opts, Rule, RuleBook, Target, Unit } from "./schema"
 
@@ -22,6 +23,28 @@ export interface MarkInfo {
   readonly hint: string
   /** Unit in this list that can set it. */
   readonly by: string | null
+}
+
+/** An Order the list can issue (Voice of Command names them). */
+export interface OrderInfo {
+  readonly id: string
+  readonly label: string
+  /** What it does to damage, in a few words. */
+  readonly hint: string
+}
+
+/**
+ * The Orders this list can issue: the ones its rules name (an Officer's Voice
+ * of Command, or a detachment rule that adds one), in the order they are named.
+ */
+export function availableOrders(units: ReadonlyArray<Unit>, rules: RuleBook): Array<OrderInfo> {
+  const ids: Array<string> = []
+  for (const u of units) for (const id of u.rules) for (const o of rules[id]?.orders ?? []) if (!ids.includes(o)) ids.push(o)
+  return ids.flatMap((id) => {
+    const r = rules[id]
+    if (!r) return []
+    return [{ id, label: r.nm, hint: r.dmg && r.fx?.length ? describeRule(r) : "No effect on damage, but the unit is under an Order." }]
+  })
 }
 
 /** Target marks only count when a unit in this list can set them. */
@@ -58,7 +81,8 @@ export interface SituationInfo {
  */
 export function situations(units: ReadonlyArray<Unit>, rules: RuleBook): Array<SituationInfo> {
   const out: Array<SituationInfo> = SITUATION.map(([key, label, hint]) => ({ key, label, hint }))
-  const seen = new Set(out.map((s) => s.key))
+  // being under an Order isn't a switch: the modifier bar's Order sets it, unit by unit
+  const seen = new Set([...out.map((s) => s.key), ORDER])
   for (const u of units) {
     for (const id of u.rules) {
       const r = rules[id]
@@ -136,12 +160,13 @@ export const phaseLabel = (p: Opts["phase"]) => ({ all: "Shooting and melee", ra
 
 export type RuleState = "on" | "off" | "idle" | "mark-on" | "mark-off" | "note" | "todo"
 
-export function ruleState(rule: Rule | undefined, owner: string, id: string, opts: Opts): RuleState {
+/** `unit`: the rule's owner, so a rule waiting for an Order reads that unit's. */
+export function ruleState(rule: Rule | undefined, owner: string, id: string, opts: Opts, unit?: Unit): RuleState {
   if (!rule) return "note"
   if (rule.mark) return opts.flags[rule.mark] ? "mark-on" : "mark-off"
   if (!rule.dmg) return rule.todo ? "todo" : "note"
   if (opts.off[ruleKey(owner, id)]) return "off"
-  return rule.cond && !opts.flags[rule.cond] ? "idle" : "on"
+  return rule.cond && !unitFlags(unit, opts)[rule.cond] ? "idle" : "on"
 }
 
 export const RULE_STATE_TITLE: Record<RuleState, string> = {

@@ -6,7 +6,7 @@
 import { useState } from "react"
 import { NavLink, useFetcher } from "react-router"
 import { MOD0, modIsSet } from "~/domain/engine"
-import { allAttackers, availableMarks, findUnit, situations } from "~/domain/ledger"
+import { allAttackers, availableMarks, availableOrders, findUnit, type OrderInfo, situations } from "~/domain/ledger"
 import { ACCOUNTING } from "~/domain/options"
 import type { Mod } from "~/domain/schema"
 import type { LedgerContext } from "./ledger"
@@ -76,6 +76,35 @@ export function Toggle({
         <input type="checkbox" name={field} value="true" checked={checked} onChange={() => {}} />
         <span>{children}</span>
       </label>
+    </fetcher.Form>
+  )
+}
+
+/** A menu that posts as soon as a choice is made. */
+export function PostSelect({
+  action,
+  fields,
+  value,
+  options,
+  label
+}: {
+  action: string
+  fields: Record<string, string>
+  value: string
+  options: ReadonlyArray<readonly [value: string, label: string]>
+  label: string
+}) {
+  const fetcher = useFetcher()
+  return (
+    <fetcher.Form method="post" action={action} onChange={(e) => fetcher.submit(e.currentTarget)}>
+      <Hidden fields={fields} />
+      <select name="value" value={value} aria-label={label} onChange={() => {}} className="mselect">
+        {options.map(([v, l]) => (
+          <option key={v} value={v}>
+            {l}
+          </option>
+        ))}
+      </select>
     </fetcher.Form>
   )
 }
@@ -182,8 +211,9 @@ const MOD_GROUPS: ReadonlyArray<ReadonlyArray<ModControl>> = [
   ]
 ]
 
-function modSummary(m: Mod): string {
+function modSummary(m: Mod, orders: ReadonlyArray<OrderInfo>): string {
   const p: Array<string> = []
+  if (m.order) p.push(`under ${orders.find((o) => o.id === m.order)?.label ?? m.order}`)
   if (m.hit) p.push(`${m.hit > 0 ? "+" : "−"}1 hit`)
   if (m.wound) p.push(`${m.wound > 0 ? "+" : "−"}1 wound`)
   if (m.ap) p.push(`${m.ap > 0 ? "+" : "−"}${Math.abs(m.ap)} AP`)
@@ -210,6 +240,8 @@ function ModBar({ ledger }: { ledger: LedgerContext }) {
   const sc = scope === "all" || attackers.some((u) => u.id === scope) ? scope : "all"
   const m: Mod = { ...MOD0, ...opts.mods[sc] }
   const combined = attackers.filter((u) => u.combined)
+  const orders = availableOrders(units, ledger.rules)
+  const orderNote = orders.find((o) => o.id === m.order)?.hint
   const active = Object.keys(opts.mods).filter((k) => modIsSet(opts.mods[k]))
   const dot = (id: string) => (modIsSet(opts.mods[id]) ? " •" : "")
   const scopeName = (id: string) => {
@@ -265,6 +297,21 @@ function ModBar({ ledger }: { ledger: LedgerContext }) {
             />
           </div>
         </div>
+        {orders.length ? (
+          <div className="mcluster corder">
+            <div className="mg">
+              <span className="ml">Order</span>
+              <PostSelect
+                action={action}
+                label="Order"
+                fields={{ intent: "mod", scope: sc, key: "order" }}
+                value={m.order ?? ""}
+                options={[["", "None"], ...orders.map((o): readonly [string, string] => [o.id, o.label])]}
+              />
+              <span className="mnote">{orderNote || "Rules that wait for an Order wake up for this unit."}</span>
+            </div>
+          </div>
+        ) : null}
         {MOD_GROUPS.map((g, gi) => (
           <div key={gi} className={`mcluster c${gi + 2}`}>
             {g.map(([k, l, options, note]) => (
@@ -289,7 +336,7 @@ function ModBar({ ledger }: { ledger: LedgerContext }) {
             {active.map((k, i) => (
               <span key={k}>
                 {i ? ". " : ""}
-                <b>{scopeName(k)}</b> {modSummary({ ...MOD0, ...opts.mods[k] })}
+                <b>{scopeName(k)}</b> {modSummary({ ...MOD0, ...opts.mods[k] }, orders)}
               </span>
             ))}
             .
