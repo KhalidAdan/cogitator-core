@@ -12,6 +12,7 @@ import { DurableObject } from "cloudflare:workers"
 import { createRequestHandler } from "react-router"
 import { installAuth } from "~/.server/auth/auth"
 import { durableDb } from "~/.server/db/DurableDb"
+import { MCP_PATH, serveCogitatorMcp } from "~/.server/mcp/server"
 import { appLayer, executeSql, installRuntime, run, scheduledUpdate } from "~/.server/runtime"
 
 const handler = createRequestHandler(() => import("virtual:react-router/server-build"), import.meta.env.MODE)
@@ -42,6 +43,9 @@ export class CogitatorCore extends DurableObject<Env> {
   }
 
   override fetch(request: Request): Promise<Response> {
+    // the MCP endpoint for AI agents isn't a page: no cookies, no form checks, its own CORS (see .server/mcp)
+    const path = new URL(request.url).pathname
+    if (path === MCP_PATH || path === `${MCP_PATH}/`) return serveCogitatorMcp(request)
     return handler(request)
   }
 

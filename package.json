@@ -37,6 +37,7 @@
     "@effect/platform-node": "^4.0.0",
     "@effect/sql-sqlite-node": "^4.0.0",
     "@effect/vitest": "^4.0.0",
+    "@modelcontextprotocol/sdk": "^1.32.0",
     "@react-router/dev": "^7.18.4",
     "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",

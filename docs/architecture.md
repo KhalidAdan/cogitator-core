@@ -18,6 +18,7 @@ app/
     runtime.ts         the ManagedRuntime (installed by the Durable Object), run(), and the scheduled update
     auth/              better-auth (accounts, sessions, sign-in throttling) and the Kysely dialect it runs on
     access.ts          the checks actions make: signed in, the site's owner, this list's owner
+    mcp/               the MCP endpoint for AI agents (/mcp): a small Streamable HTTP server, and the six read-only tools
     cookies.ts         a visitor's switches on lists they can't change, and their last-opened list
     memo.ts            in-memory caches for what can't change: a snapshot's datasheets, a stored Field Manual page
     updates.ts         one "check for updates" over both sources, and whether they agree
@@ -148,6 +149,7 @@ The `wh_*` tables, the loader and the change report are all generated from one r
 | `importer-parity.test.ts` | the POC importer's output for both fixture rosters, and the 684 / 532 / 570 cell regression |
 | `library-rules.test.ts` | each rule added since the POC does what its wording says, and only then |
 | `rosters.test.ts` | your real rosters (`tests/fixtures/rosters`): read, fully translated, scored; and against the export, which weapons aren't on their datasheets |
+| `mcp.test.ts` | the MCP endpoint, driven by the official MCP SDK's client: every tool, mistakes, and the transport |
 | `fx.test.ts` | the effect vocabulary's words and help, and how clauses from the bar, rules and core abilities combine |
 | `domain.test.ts` | option intents, the matrix and findings (including the handoff's headline numbers), keywords, effect descriptions |
 | `db.test.ts` | migrations, seed (and upgrading an older database's built-in lists), repositories, typed errors |

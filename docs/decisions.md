@@ -338,6 +338,16 @@ Orders are modelled. **Pick a unit in the modifier bar and give it an Order**; t
 - **The app doesn't police who can receive which Order**, how many an Officer can issue, or whether one is within 6". That's left to you, as marks are.
 - **Seeded rules nobody has edited now follow the seed**, so corrected wording (Rearm, Reload, Fire's, here) reaches the live site. Rules you've edited are left alone.
 
+### D-46. AI agents use the app through an MCP endpoint (4 October, your call)
+
+You asked for the app to be usable by agents. The `cf` CLI had little to offer: khld.dev already lets every AI bot in (bot protection, AI crawler blocking and training/search/user-agent blocking are all off), Markdown for Agents needs a Pro plan and only converts origin responses (every page here comes from the Worker), and AI Search with NLWeb would only index crawled pages, not the scores the app computes under switches and modifiers. So the app now has its own **MCP endpoint at `https://khld.dev/cogitator-core/mcp`**, which Claude, ChatGPT and coding agents can add as a connector.
+
+- **Six read-only tools:** `list_lists`, `get_list` (units, weapons, rules, and the switches, marks and Orders a list can use), `score_list` (the matrix, under any switches, modifiers, Orders and rule switches), `explain_matchup` (one unit against one target, weapon by weapon), `list_targets`, and `search_rules`.
+- **It sees what a signed-out visitor sees**: the built-in list by name, any other list by its link or id. Nothing an agent sets is saved. No sign-in, so no OAuth; writing to lists through it would need one.
+- **The same engine and view model as the pages**, so its numbers are the page's numbers; options are applied the way the controls apply a click.
+- **Served by the Durable Object before React Router** (no cookies, no form checks, open CORS), with a small hand-written MCP layer: stateless Streamable HTTP, JSON responses, the four methods a tools server needs. The official SDK would have brought an HTTP framework and a JSON Schema compiler that generates code, which Workers forbid. The tests drive the endpoint with the SDK's own client, so they're known to agree.
+- **Agents' guesses are forgiven**: units and targets can be named by id, name, or a part of the name only one has, and a wrong one is answered with the valid choices.
+
 ---
 
 ## Things I chose not to do
