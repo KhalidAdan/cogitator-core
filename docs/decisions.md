@@ -272,6 +272,57 @@ better-auth, email and password, and **no sign-up**: everyone uses the site as b
 - **Sessions** last 30 days. The session cookie is scoped to `/cogitator-core` (khld.dev will host other sites). There's no cached copy of the session in a cookie, so a removed account or a new password takes effect at once. Sign-in is throttled after 8 failures per address or email in 15 minutes.
 - **"Last opened list"** moved from a site-wide setting to a per-browser cookie, now that more than one person uses the site.
 
+### D-40. Two rules translated for Astra Militarum (4 October, your call)
+*By Writ of the Lord Solar!* had two rules flagged "not modelled". Both are in the library now, as drafts, and the roster is a test fixture:
+
+| Rule | Who has it | Effect in the engine |
+|---|---|---|
+| Daring Recon | Scout Sentinels | a mark ("Spotted by the Scout Sentinels"): every unit's ranged attacks re-roll hit rolls of 1 against it |
+| Rearm, Reload, Fire | Field Ordnance Battery, Heavy Mortar Team | under an Order and stationary: Sustained Hits 1 on Heavy weapons |
+
+What had to grow:
+
+- **An effect can be limited to weapons with an ability** (`weaponKw`, e.g. `"heavy"`), in the rule editor too.
+- **A rule waiting for a situation is idle in the maths while its switch is off.** The switch was already shown that way, but only the rule's own clauses did the waiting. Every rule so far gated all its clauses on its condition, so nothing else changes. Rearm, Reload, Fire waits for "Under an Order" (a new switch) and its clause for "Remained stationary".
+- **Re-reading a roster file keeps the list's prices** where the file has none. A roster file without its text export has no points, so re-reading one used to put every unit at 0 pts.
+
+Judgment calls:
+
+- *Daring Recon* reaches every unit in the list. It says Astra Militarum models, but the importer drops faction keywords, and every unit in an Astra Militarum list is one. Only Shooting-phase attacks, so ranged.
+- *Rearm, Reload, Fire* has two wordings: the battery's gives its Heavy weapons Sustained Hits 1; the Heavy Mortar Team's gives all its ranged weapons, and its only one is the Heavy mortar. One translation covers both.
+- *The Orders themselves aren't modelled* (open question 14).
+
+### D-41. The engine reads every effect through one vocabulary (4 October, your call)
+
+Before Orders, the engine got a cleanup. `attackWeapon` was one 240-line function that collected effects, merged the modifier bar's settings with the rules' by hand (they spelled the same things differently), did the dice, and wrote the notes as it went. Each new effect field touched five places.
+
+- **One vocabulary** (`app/domain/fx.ts`): a table with one entry per effect field, holding its test (for *when* fields) or how it adds to the attack, its words and its editor help. The rule editor's description and help, and the engine, are all read from it.
+- **Everything is a clause.** The modifier bar becomes one clause, translated once from its own settings. Heavy, Lance and Twin-linked are clauses too, checked after the rules (which can grant them). So they all combine by the same rules.
+- **The attack sequence** (`app/domain/attack.ts`) is resolve, then small functions for attacks, hit, wound, save and damage with no text in them, then the notes written in one place.
+- **Not Effect.** `Effect.fn` would have added about 13 µs to each of the roughly 1,400 weapon scorings in a matrix and bought nothing: none of this can fail, waits on anything, or needs a service.
+
+The rebuilt engine was compared with a copy of the old one on 225,000 cells (eight lists, 50 option settings, 20 targets, split and combined): every number, every note and every skip reason is the same. It is also faster, because what doesn't depend on the target is now worked out once per matrix row: a full matrix takes about 3 ms instead of 5.
+
+### D-42. Anti-X: every one a weapon has, and rules can grant it (4 October, your call)
+
+A weapon could only hold one Anti ability, so the 33 Wahapedia weapons with two (Concussion Maul: Anti-Monster 3+, Anti-Vehicle 3+) kept only the last one read. Rules couldn't grant Anti at all, though 26 abilities, stratagems and enhancements in the export do, often two at different rolls ("[ANTI-INFANTRY 2+] and [ANTI-MONSTER 5+]").
+
+- **Several per weapon.** A weapon with one Anti ability still stores it as the `["INFANTRY", 2]` pair every saved list and the seed use, so nothing needed migrating; one with several stores a map, `{ "MONSTER": 3, "VEHICLE": 3 }`. Against a target, the best roll among the keywords it has counts. The dossier shows each one, and the loadout editor takes them as words (`anti-monster3 anti-vehicle3`).
+- **A rule can grant it**, with the new `anti` effect field: `{ "phase": "ranged", "anti": { "INFANTRY": 2, "MONSTER": 5 } }`. Where the weapon already has the keyword, the better roll wins.
+
+No screen control was added for it: a stratagem or ability that hands it out is written as a rule, and switched on like one.
+
+### D-43. The rule editor builds effects from menus (4 October, your call)
+
+The effect used to be JSON typed into a box, so writing one meant knowing the vocabulary by heart. Now each field in the vocabulary (fx.ts) also says what kind of input it takes and its starting value, and the rule editor builds each clause from that:
+
+- **Each clause** lists its conditions (When) and what it does (Does). "Add a condition…" and "Add an effect…" offer the fields it doesn't have yet. Each field gets the input its kind calls for: a menu (ranged or melee, re-roll 1s or all), a switch or mark picked from the ones that exist (or another key typed in), keyword lists, a number, ability checkboxes, or keyword-and-roll rows for Anti-X.
+- **It reads back in words** as you edit it ("melee: Lance").
+- **The JSON is still there**, under "As JSON". It's what the form saves, so saving and validation didn't change, and editing it by hand rebuilds the clauses.
+- **Empty fields aren't saved**: a weapon name not typed yet, or a keyword filter with no keywords, which would otherwise match no target at all.
+
+A field added to the vocabulary gets its input here without touching the editor.
+
 ---
 
 ## Things I chose not to do

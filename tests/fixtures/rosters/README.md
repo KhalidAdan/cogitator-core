@@ -8,6 +8,7 @@ Real lists, exported from 40k.app as BattleScribe roster files and imported into
 | `ten-thousand-and-no-more.ros` | Ten Thousand and No More | Adeptus Custodes |
 | `strike-force-cophasta.ros` | Strike Force Cophasta, as re-entered after the Field Manual v1.5 update | White Scars |
 | `the-wall-advances.ros` | The Wall Advances | Imperial Fists |
+| `by-writ-of-the-lord-solar.ros` | By Writ of the Lord Solar! (added 4 October) | Astra Militarum |
 
 None came with a text export, so they carry no points. The POC's own fixtures (`kill-ledger/fixtures`, including an older Cophasta) are separate; they are what the importer-parity tests compare against.
 

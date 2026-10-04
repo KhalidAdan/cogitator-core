@@ -587,6 +587,24 @@ export function parseRosterSync(xmlText: string, exportText: string | null | und
   return { meta, units: finished, groups: G, armyRules: army, rules, warnings, stats, gameSystem: attr(roster, "gameSystemName") || "" }
 }
 
+/**
+ * Units read again from a list's roster file, keeping the prices it was saved
+ * with wherever the file has none. A roster file without its text export
+ * carries no points (the import review prices it from the Field Manual), so
+ * re-reading it would otherwise put every unit back to 0 pts. Units are
+ * matched by id, which comes from the unit's name in the file.
+ */
+export function keepPrices(reread: ReadonlyArray<Unit>, saved: ReadonlyArray<Unit>): Array<Unit> {
+  const before = new Map(saved.map((u) => [u.id, u]))
+  return reread.map((u) => {
+    const was = before.get(u.id)
+    if (!was || u.pts) return u
+    // pts includes the enhancement's: keep the unit's own share, and the enhancement's price if it's the same one
+    const enh = u.enh && !u.enh.pts && was.enh?.nm === u.enh.nm ? { ...u.enh, pts: was.enh.pts } : u.enh
+    return { ...u, pts: was.pts - (was.enh?.pts ?? 0) + (enh?.pts ?? 0), enh, datasheetId: u.datasheetId ?? was.datasheetId }
+  })
+}
+
 /** `parseRosterSync` as an Effect with a typed failure. */
 export const parseRoster = (xmlText: string, exportText: string | null | undefined, ctx: ImportContext) =>
   Effect.try({

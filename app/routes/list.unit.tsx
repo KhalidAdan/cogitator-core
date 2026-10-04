@@ -430,7 +430,7 @@ function Loadout({ u, editing, canEdit }: { u: Unit; editing: boolean; canEdit: 
         </table>
       </div>
       <p className="hint">
-        Abilities are typed as words: torrent lethal sus1 tl dev lance blast melta2 heavy rf1 cleave1 anti-infantry2 pistol ic. Leave a
+        Abilities are typed as words: torrent lethal sus1 tl dev lance blast melta2 heavy rf1 cleave1 anti-infantry2 anti-monster4 pistol ic. Leave a
         weapon’s abilities untouched to keep conditions the short form can’t express. “Restore this list” at the foot of the page undoes
         every edit.
       </p>

@@ -165,5 +165,40 @@ export const LIBRARY_RULES: ReadonlyArray<LibraryRule> = [
       txt: "Ranged attacks that target a Psyker unit gain Precision and Devastating Wounds. None of the default benchmark targets is a Psyker; add PSYKER to a target’s keywords on its page to see this.",
       fx: [{ phase: "ranged", vs: { only: ["PSYKER"] }, grant: { dev: 1, precision: 1 } }]
     }
+  },
+
+  // ---------- Astra Militarum (4 October 2026, from "By Writ of the Lord Solar!")
+  {
+    id: "daring-recon",
+    faction: "AM",
+    status: "draft",
+    rule: {
+      nm: "Daring Recon",
+      src: "Datasheet",
+      dmg: true,
+      mark: "recon",
+      markNm: "Spotted by the Scout Sentinels",
+      markTxt: "Daring Recon: your ranged attacks against it re-roll hit rolls of 1.",
+      global: true,
+      txt: "At the start of your Shooting phase the Scout Sentinels pick one enemy unit within 18\" and visible to them. Until the end of the phase, every Astra Militarum attack against it re-rolls hit rolls of 1: ranged attacks, since it lasts only the Shooting phase.",
+      fx: [{ phase: "ranged", rrHit: "ones" }]
+    }
+  },
+  {
+    // The Heavy Mortar Team's version gives Sustained Hits 1 to all its ranged weapons, and its only one is the Heavy mortar.
+    id: "rearm-reload-fire",
+    faction: "AM",
+    status: "draft",
+    rule: {
+      nm: "Rearm, Reload, Fire",
+      src: "Datasheet",
+      dmg: true,
+      def: true,
+      cond: "order",
+      condNm: "Under an Order",
+      condTxt: "For rules that work while a unit is affected by an Order, like Rearm, Reload, Fire. The Orders themselves (Take Aim!, Fix Bayonets!…) aren’t added by this switch.",
+      txt: "While the unit is affected by an Order and Remained Stationary this turn, its Heavy weapons have Sustained Hits 1. It needs both switches: “Under an Order” and “Remained stationary”.",
+      fx: [{ when: "stationary", phase: "ranged", weaponKw: "heavy", grant: { sus: 1 } }]
+    }
   }
 ]

@@ -1,14 +1,15 @@
 /**
  * Rule editor: the paraphrase shown on rule cards, the official wording from
  * the database beside it, and the effect the engine applies. The effect is
- * JSON in the engine's `fx` vocabulary, validated against the schema on save.
+ * built as clauses from the effect vocabulary (components/effect-editor.tsx),
+ * posted as JSON and validated against the schema on save.
  */
 import { Effect, Schema } from "effect"
 import { data, Form, Link, redirect, useNavigation } from "react-router"
 import { requireOwner } from "~/.server/access"
 import { Rules } from "~/.server/repos/Rules"
 import { run } from "~/.server/runtime"
-import { describeFx, FX_HELP } from "~/domain/fx"
+import { EffectEditor } from "~/components/effect-editor"
 import { SITUATION } from "~/domain/options"
 import { Fx, Rule, RuleStatus } from "~/domain/schema"
 import { isOwner, useViewer } from "~/viewer"
@@ -19,9 +20,14 @@ export async function loader({ params }: Route.LoaderArgs) {
     const rules = yield* Rules
     const entry = yield* rules.get(params.ruleId)
     // conditions other rules already wait for, so a new rule can share one instead of inventing a second key
+    const all = yield* rules.all
     const known = new Map<string, string>(SITUATION.map(([k, l]) => [k, l]))
-    for (const e of yield* rules.all) if (e.rule.cond && !known.has(e.rule.cond)) known.set(e.rule.cond, e.rule.condNm ?? e.rule.cond)
-    return { entry, conditions: [...known].map(([key, label]) => ({ key, label })) }
+    for (const e of all) if (e.rule.cond && !known.has(e.rule.cond)) known.set(e.rule.cond, e.rule.condNm ?? e.rule.cond)
+    const conditions = [...known].map(([key, label]) => ({ key, label }))
+    // an effect can also wait for a mark
+    const marks = new Map<string, string>()
+    for (const e of all) if (e.rule.mark && !known.has(e.rule.mark) && !marks.has(e.rule.mark)) marks.set(e.rule.mark, `Mark: ${e.rule.markNm ?? e.rule.mark}`)
+    return { entry, conditions, switches: [...conditions, ...[...marks].map(([key, label]) => ({ key, label }))] }
   }))
 }
 
@@ -101,7 +107,7 @@ export async function action({ request, params, context }: Route.ActionArgs) {
 export const meta: Route.MetaFunction = ({ data }) => [{ title: `${data?.entry.rule.nm ?? "Rule"} · Rules library` }]
 
 export default function RuleEditor({ loaderData, actionData }: Route.ComponentProps) {
-  const { entry, conditions } = loaderData
+  const { entry, conditions, switches } = loaderData
   const r = entry.rule
   const customCond = !!r.cond && !SITUATION.some(([k]) => k === r.cond)
   const navigation = useNavigation()
@@ -212,36 +218,10 @@ export default function RuleEditor({ loaderData, actionData }: Route.ComponentPr
                 </label>
               </div>
             </details>
-            <label className="field">
-              Effect <span className="hint">a JSON list of clauses; every filter in a clause must pass for it to apply</span>
-              <textarea name="fx" rows={9} spellCheck={false} defaultValue={r.fx?.length ? JSON.stringify(r.fx, null, 2) : "[]"} />
-            </label>
-            {r.fx?.length ? (
-              <p className="hint">
-                Reads as: {r.fx.map((e, i) => (
-                  <span key={i}>
-                    {i ? "; " : ""}
-                    <b>{describeFx(e)}</b>
-                  </span>
-                ))}
-                .
-              </p>
-            ) : null}
-            <details className="assume" style={{ marginBottom: 14 }}>
-              <summary>Effect fields</summary>
-              <table className="dt" style={{ minWidth: 0, marginTop: 8 }}>
-                <tbody>
-                  {FX_HELP.map(([f, m]) => (
-                    <tr key={f}>
-                      <td>
-                        <code>{f}</code>
-                      </td>
-                      <td className="l">{m}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </details>
+            <h3 className="sh">
+              Effect <span>what the engine adds to each attack</span>
+            </h3>
+            <EffectEditor name="fx" initial={r.fx ?? []} switches={switches} />
 
             <h3 className="sh">
               Target mark <span>for rules that mark an enemy unit</span>

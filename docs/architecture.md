@@ -6,11 +6,12 @@ About 8,500 lines of TypeScript, plus the POC's stylesheet. Three layers, each o
 app/
   domain/            pure TypeScript, runs on server and in the browser
     schema.ts          the data model as Effect schemas (Unit, Weapon, Rule, Fx, Target, Opts…)
-    engine.ts          the damage maths (handoff section 5)
+    engine.ts          what reaches an attacker (modifier bar scopes, rules, marks), and a unit's total
+    attack.ts          one weapon against one target: resolve the effects, roll, explain
     ledger.ts          view model: matrix, findings, rule-chip states, heat colours
     options.ts         defaults, presets, and the intent reducer for option changes
     keywords.ts        weapon ability strings ↔ the engine's kw object
-    fx.ts              rule effects in words
+    fx.ts              the effect vocabulary: each field's test or addition, its words, its help
     text.ts            name normalisation, HTML → text, text hashing
 
   .server/           never bundled for the browser (React Router enforces this)
@@ -29,7 +30,7 @@ app/
     node/              Node only, never imported by the app: downloading test data to disk
 
   routes/            React Router route modules: loader, action, component
-  components/        controls, rule chips and card, shared hooks
+  components/        controls, rule chips and card, the rule editor's effect clauses, shared hooks
   root.tsx           document shell, theme, who's signed in (middleware), request logging, error boundary
   viewer.ts          who is looking and what they may do; shared by server and pages
   entry.server.tsx   server rendering with web streams, for Workers
@@ -53,6 +54,16 @@ Take "switch the phase to melee" on the matrix.
 4. React Router revalidates the layout's loader; the stored options arrive and replace the optimistic ones. They're equal, because both sides ran the same pure function.
 
 Moving between the matrix, a dossier and the rules matrix, or opening a rule card, doesn't reload anything: the layout's `shouldRevalidate` knows the list only changes through actions.
+
+## The damage engine
+
+`attackUnit(unit, target, opts)` is called once per matrix cell, so the work that doesn't depend on the target is done once per unit and set of options (`prepare` in engine.ts): which rules reach each weapon, the modifier bar's settings for it, the attacker's keywords. Then each weapon goes through the attack sequence in attack.ts:
+
+1. **Resolve.** Everything that changes the attack is an effect clause: each rule's `fx`, the modifier bar (translated into a clause once), and the core abilities that work as modifiers (Heavy, Lance, Twin-linked). Clauses whose *when* fields match are added into one `Profile` by the vocabulary in fx.ts, which says how each field combines: hit and wound modifiers summed and capped at ±1, the strongest re-roll, the best of a granted ability.
+2. **Roll.** Attacks, hit, wound, save and damage are small functions of the weapon, the target and the profile. No text.
+3. **Explain.** The breakdown's notes are written last, from the profile and what each roll found.
+
+A new effect field is a line in the `Fx` schema, an entry in fx.ts's table (the compiler requires one; it holds the field's test or addition, its words, its editor help and the kind of input the rule editor shows for it), and the arithmetic that reads it. The rule editor (`components/effect-editor.tsx`) builds its clauses from the same table.
 
 ## Effect
 
@@ -137,6 +148,7 @@ The `wh_*` tables, the loader and the change report are all generated from one r
 | `importer-parity.test.ts` | the POC importer's output for both fixture rosters, and the 684 / 532 / 570 cell regression |
 | `library-rules.test.ts` | each rule added since the POC does what its wording says, and only then |
 | `rosters.test.ts` | your real rosters (`tests/fixtures/rosters`): read, fully translated, scored; and against the export, which weapons aren't on their datasheets |
+| `fx.test.ts` | the effect vocabulary's words and help, and how clauses from the bar, rules and core abilities combine |
 | `domain.test.ts` | option intents, the matrix and findings (including the handoff's headline numbers), keywords, effect descriptions |
 | `db.test.ts` | migrations, seed (and upgrading an older database's built-in lists), repositories, typed errors |
 | `mfm.test.ts` | the Field Manual reader and parser, version comparison, and pricing lists from it (against the saved pages when present) |

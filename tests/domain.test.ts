@@ -140,6 +140,18 @@ describe("weapon keywords", () => {
     expect(keywordsFromInput(keywordsToInput(kw))).toEqual(kw)
     expect(keywordText({ kw })).toBe("Lethal Hits, Sustained 1, Twin-linked, Melta 2, Anti-infantry 2+")
   })
+
+  it("keeps every Anti ability a weapon has, stored as a pair when there is one", () => {
+    const kw = parseWeaponKeywords("anti-daemon 4+, anti-infantry 5+, devastating wounds, psychic")
+    expect(kw.anti).toEqual({ DAEMON: 4, INFANTRY: 5 })
+    expect(keywordText({ kw })).toBe("Devastating, Anti-daemon 4+, Anti-infantry 5+, Psychic")
+    expect(keywordsToInput(kw)).toBe("dev psychic anti-daemon4 anti-infantry5")
+    expect(keywordsFromInput(keywordsToInput(kw))).toEqual(kw)
+    // the same keyword twice keeps the better roll
+    expect(parseWeaponKeywords("Anti-Vehicle 4+, Anti-Vehicle 2+").anti).toEqual(["VEHICLE", 2])
+    // lists saved before could name several keywords at one roll
+    expect(keywordText({ kw: { anti: ["MONSTER/VEHICLE", 3] } })).toBe("Anti-monster 3+, Anti-vehicle 3+")
+  })
 })
 
 describe("rule effects in words", () => {

@@ -154,3 +154,32 @@ describe("Adeptus Custodes", () => {
     expect(row(prosecutors, [prosecutors], opts(), "Blade", psyker).notes).not.toContain("Devastating")
   })
 })
+
+describe("Astra Militarum", () => {
+  it("Daring Recon: every unit's ranged attacks re-roll hit rolls of 1 against the spotted unit, and melee doesn't", () => {
+    const sentinels = unit("sentinels", { rules: ["daring-recon"], models: 1, kw: ["VEHICLE"] })
+    const tank = unit("tank", { kw: ["VEHICLE"] })
+    const all = [sentinels, tank]
+    const on = opts({ recon: true })
+    // BS 3+: 4/6 to hit, and re-rolling the 1s adds 1/6 × 4/6
+    expect(row(tank, all, opts(), "Gun").hitChance).toBeCloseTo(4 / 6)
+    expect(row(tank, all, on, "Gun").hitChance).toBeCloseTo((4 / 6) * (7 / 6))
+    expect(row(sentinels, all, on, "Gun").hitChance).toBeCloseTo((4 / 6) * (7 / 6))
+    expect(row(tank, all, on, "Blade").hitChance).toBeCloseTo(4 / 6)
+    expect(availableMarks(all, rules).map((m) => m.key)).toEqual(["recon"])
+  })
+
+  it("Rearm, Reload, Fire: Sustained Hits 1 on Heavy weapons, only under an Order and stationary", () => {
+    const gunline = [gun({ nm: "Bombast field gun", kw: { heavy: 1, blast: 1 } }), gun({ nm: "Lasgun", kw: { rf: 1 } })]
+    const battery = unit("battery", { rules: ["rearm-reload-fire"], w: gunline })
+    const all = [battery]
+    const sus = (flags: Record<string, boolean>, weapon: string) => row(battery, all, opts(flags), weapon).susExtra ?? 0
+    expect(sus({ order: true, stationary: true }, "Bombast field gun")).toBeGreaterThan(0)
+    expect(sus({ order: true, stationary: true }, "Lasgun")).toBe(0)
+    expect(sus({ stationary: true }, "Bombast field gun")).toBe(0)
+    expect(sus({ order: true }, "Bombast field gun")).toBe(0)
+    expect(ruleState(rules["rearm-reload-fire"], "battery", "rearm-reload-fire", opts())).toBe("idle")
+    expect(ruleState(rules["rearm-reload-fire"], "battery", "rearm-reload-fire", opts({ order: true }))).toBe("on")
+    expect(situations(all, rules).map((s) => s.key)).toContain("order")
+  })
+})

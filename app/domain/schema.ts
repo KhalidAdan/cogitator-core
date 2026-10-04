@@ -37,7 +37,12 @@ export const WeaponKw = Schema.Struct({
   melta: opt(Schema.Number),
   heavy: opt(Schema.Number),
   rf: opt(Schema.Number),
-  anti: opt(Schema.Tuple([Schema.String, Schema.Number])),
+  /**
+   * Anti-X: target keyword → the unmodified wound roll that is a critical wound. One Anti ability is
+   * stored as a `["INFANTRY", 2]` pair, as the POC and every list saved before 4 October have it;
+   * several as a map, `{ "MONSTER": 3, "VEHICLE": 3 }`. Read it through `antiOf` (keywords.ts).
+   */
+  anti: opt(Schema.Union([Schema.Tuple([Schema.String, Schema.Number]), Schema.Record(Schema.String, Schema.Number)])),
   pistol: opt(Schema.Number),
   ic: opt(Schema.Number),
   precision: opt(Schema.Number),
@@ -140,6 +145,8 @@ export const Fx = Schema.Struct({
   /** Substring of the weapon name (lower case). */
   weapon: opt(Schema.String),
   weaponNot: opt(Schema.String),
+  /** Only weapons with this ability, by its key in the weapon's abilities ("heavy" for [HEAVY]). */
+  weaponKw: opt(Schema.String),
   /** Roll modifiers: summed with everything else, then capped at ±1. */
   hit: opt(Schema.Number),
   wound: opt(Schema.Number),
@@ -157,7 +164,9 @@ export const Fx = Schema.Struct({
   /** Ignore penalties to the hit roll and to BS/WS (a −1 to hit, the cover penalty); bonuses still count. */
   ignoreHitPenalty: opt(Schema.Boolean),
   /** Weapon abilities to add; numeric ones take the max. */
-  grant: opt(Schema.Record(Schema.String, Schema.Number))
+  grant: opt(Schema.Record(Schema.String, Schema.Number)),
+  /** Anti-X to add: target keyword → critical wound roll; the better roll wins. */
+  anti: opt(Schema.Record(Schema.String, Schema.Number))
 })
 export type Fx = typeof Fx.Type
 

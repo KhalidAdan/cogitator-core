@@ -5,11 +5,63 @@
  * profile or a Wahapedia wargear row (handoff section 4 has the table).
  */
 import type { Dice, KwCond, Weapon, WeaponKw } from "./schema"
-import { isMeleeChoice } from "./engine"
 
 type MutableKw = { -readonly [K in keyof WeaponKw]: WeaponKw[K] } & { when?: Record<string, KwCond>; other?: Array<string> }
 
 const diceNumber = (s: string) => (s === "d3" ? 2 : s === "d6" ? 3.5 : +s)
+
+/** `m0:melee` / `yriel:m0:melee` are per-model melee choices; `p…` are weapon profiles. */
+export const isMeleeChoice = (alt: string | null | undefined) => !!alt && /(^|:)m\d*:/.test(alt)
+
+/** Weapon abilities by the key the engine uses, for pickers. `n`: it takes a number (Sustained Hits 2). */
+export const ABILITIES: ReadonlyArray<{ readonly key: string; readonly label: string; readonly n?: true; readonly grant?: true }> = [
+  { key: "sus", label: "Sustained Hits", n: true, grant: true },
+  { key: "lethal", label: "Lethal Hits", grant: true },
+  { key: "dev", label: "Devastating Wounds", grant: true },
+  { key: "lance", label: "Lance", grant: true },
+  { key: "tl", label: "Twin-linked", grant: true },
+  { key: "ic", label: "Ignores Cover", grant: true },
+  { key: "precision", label: "Precision", grant: true },
+  { key: "cleave", label: "Cleave", n: true, grant: true },
+  { key: "rf", label: "Rapid Fire", n: true, grant: true },
+  { key: "melta", label: "Melta", n: true, grant: true },
+  { key: "heavy", label: "Heavy", grant: true },
+  { key: "blast", label: "Blast", grant: true },
+  { key: "torrent", label: "Torrent", grant: true },
+  { key: "pistol", label: "Pistol" },
+  { key: "indirect", label: "Indirect Fire" },
+  { key: "psychic", label: "Psychic" },
+  { key: "hazardous", label: "Hazardous" },
+  { key: "extra", label: "Extra Attacks" },
+  { key: "oneshot", label: "One Shot" }
+]
+
+// ---------- Anti-X ----------
+
+export type Anti = NonNullable<WeaponKw["anti"]>
+
+/** A weapon's Anti abilities as keyword → critical wound roll, whichever way they are stored. */
+export function antiOf(a: Anti | undefined | null): Record<string, number> {
+  if (!a) return {}
+  if (!Array.isArray(a)) return { ...(a as Record<string, number>) }
+  const [keywords, roll] = a as readonly [string, number]
+  // older data could name several keywords at one roll, "MONSTER/VEHICLE"
+  return Object.fromEntries(String(keywords).split("/").map((k) => [k.trim().toUpperCase(), roll]))
+}
+
+/** Both sets of Anti abilities; where both have a keyword, the better roll. */
+export function mergeAnti(a: Anti | undefined | null, b: Anti | undefined | null): Record<string, number> {
+  const out = antiOf(a)
+  for (const [k, n] of Object.entries(antiOf(b))) out[k] = k in out ? Math.min(out[k], n) : n
+  return out
+}
+
+/** How Anti abilities are stored: one as a pair, as lists always have; several as a map. */
+export function antiValue(m: Record<string, number>): Anti | undefined {
+  const entries = Object.entries(m)
+  if (!entries.length) return undefined
+  return entries.length === 1 ? entries[0] : m
+}
 
 export function parseWeaponKeywords(str: unknown): WeaponKw {
   const kw: MutableKw = {}
@@ -57,7 +109,7 @@ export function parseWeaponKeywords(str: unknown): WeaponKw {
     else if (l === "hazardous") kw.hazardous = 1
     else if (l === "extra attacks") kw.extra = 1
     else if (l === "indirect fire") kw.indirect = 1
-    else if ((m = l.match(/^anti-(.+?) (\d)\+$/))) kw.anti = [m[1].toUpperCase(), +m[2]]
+    else if ((m = l.match(/^anti-(.+?) (\d)\+$/))) kw.anti = antiValue(mergeAnti(kw.anti, { [m[1].toUpperCase()]: +m[2] }))
     else other.push(t0)
     if (cond) {
       const added = Object.keys(kw).filter((k) => !before.has(k))
@@ -105,7 +157,7 @@ export function keywordText(w: Pick<Weapon, "kw" | "alt">): string {
   if (k.melta) push(`Melta ${k.melta}`)
   if (k.heavy) push("Heavy")
   if (k.rf) push(`Rapid Fire ${k.rf}`)
-  if (k.anti) push(`Anti-${String(k.anti[0]).toLowerCase()} ${k.anti[1]}+`)
+  for (const [kw, n] of Object.entries(antiOf(k.anti))) push(`Anti-${kw.toLowerCase()} ${n}+`)
   if (k.pistol) push("Pistol / close-quarters")
   if (k.ic) push("Ignores Cover", "ic")
   if (k.precision) push("Precision", "precision")
@@ -130,7 +182,7 @@ export function keywordsToInput(k: WeaponKw | undefined): string {
   if (k.melta) t.push("melta" + k.melta)
   if (k.rf) t.push("rf" + k.rf)
   if (k.cleave) t.push("cleave" + k.cleave)
-  if (k.anti) t.push(`anti-${k.anti[0].toLowerCase()}${k.anti[1]}`)
+  for (const [kw, n] of Object.entries(antiOf(k.anti))) t.push(`anti-${kw.toLowerCase()}${n}`)
   return t.join(" ")
 }
 
@@ -147,7 +199,7 @@ export function keywordsFromInput(s: string): WeaponKw {
     else if ((m = tok.match(/^melta(\d)$/))) k.melta = +m[1]
     else if ((m = tok.match(/^(rf|rapidfire)(\d)$/))) k.rf = +m[2]
     else if ((m = tok.match(/^cleave(\d)$/))) k.cleave = +m[1]
-    else if ((m = tok.match(/^anti-([a-z/]+?)(\d)$/))) k.anti = [m[1].toUpperCase(), +m[2]]
+    else if ((m = tok.match(/^anti-([a-z/]+?)(\d)$/))) k.anti = antiValue(mergeAnti(k.anti, [m[1].toUpperCase(), +m[2]]))
     else if ((FLAGS as ReadonlyArray<string>).includes(tok)) (k as Record<string, number>)[tok] = 1
   }
   return k

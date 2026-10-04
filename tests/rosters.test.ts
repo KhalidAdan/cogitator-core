@@ -11,7 +11,7 @@ import { Effect, Layer } from "effect"
 import { existsSync, readdirSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 import { layerAt } from "~/.server/db/Db"
-import { parseRosterSync } from "~/.server/importer/roster"
+import { keepPrices, parseRosterSync } from "~/.server/importer/roster"
 import { Lists } from "~/.server/repos/Lists"
 import { Rules } from "~/.server/repos/Rules"
 import { Settings } from "~/.server/repos/Settings"
@@ -106,6 +106,16 @@ const ROSTERS = [
     ]
   },
   {
+    file: "by-writ-of-the-lord-solar.ros",
+    name: "By Writ of the Lord Solar!",
+    faction: "Astra Militarum",
+    units: 18,
+    models: 69,
+    attached: 3,
+    counted: ["daring-recon", "rearm-reload-fire"],
+    notOnDatasheet: []
+  },
+  {
     file: "the-wall-advances.ros",
     name: "The Wall Advances",
     faction: "Imperial Fists",
@@ -169,6 +179,20 @@ describe("real rosters", () => {
       })
     })
   }
+})
+
+describe("re-reading a roster file", () => {
+  it("keeps the prices the list was saved with, since the file has none", () => {
+    const first = read("by-writ-of-the-lord-solar.ros")
+    // as saved from the import review, priced from the Field Manual
+    const saved = first.units.map((u, i) => ({ ...u, pts: 50 + i, ...(u.enh ? { enh: { ...u.enh, pts: 15 } } : {}) }))
+    const again = keepPrices(read("by-writ-of-the-lord-solar.ros").units, saved)
+    expect(again.map((u) => u.pts)).toEqual(saved.map((u) => u.pts))
+    expect(again.filter((u) => u.enh).map((u) => u.enh!.pts)).toEqual(saved.filter((u) => u.enh).map(() => 15))
+    // a unit the file prices itself, or one the list didn't have, is left as the file says
+    expect(keepPrices([{ ...first.units[0], pts: 70 }], saved)[0].pts).toBe(70)
+    expect(keepPrices([{ ...first.units[0], id: "new-unit" }], saved)[0].pts).toBe(0)
+  })
 })
 
 // ---------- against the downloaded Wahapedia export ----------

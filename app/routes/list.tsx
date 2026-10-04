@@ -12,7 +12,7 @@ import { useMemo, useRef } from "react"
 import { data, Link, Outlet, type ShouldRevalidateFunctionArgs, useFetchers, useMatches, useNavigate, useRouteLoaderData } from "react-router"
 import { requireListEditor, viewerOf } from "~/.server/access"
 import { clearViewerOpts, readViewerOpts, writeActiveList, writeViewerOpts } from "~/.server/cookies"
-import { parseRoster } from "~/.server/importer/roster"
+import { keepPrices, parseRoster } from "~/.server/importer/roster"
 import { Lists } from "~/.server/repos/Lists"
 import { Rules } from "~/.server/repos/Rules"
 import { Targets } from "~/.server/repos/Targets"
@@ -90,6 +90,7 @@ export async function action({ request, params, context }: Route.ActionArgs) {
     requireListEditor(context, request, list)
     // Parse the stored roster again with today's rules library: a rule added to the library since the
     // import is picked up, and anything edited by hand on this list is replaced by what the file says.
+    // Prices are kept where the file has none (a roster file without its text export has no points).
     await run(Effect.gen(function*() {
       const lists = yield* Lists
       const source = yield* lists.sources(listId)
@@ -100,7 +101,7 @@ export async function action({ request, params, context }: Route.ActionArgs) {
         detachmentRules: seedData.detachmentRules,
         detachmentUnitGrants: seedData.detachmentUnitGrants
       })
-      yield* lists.replaceContent(listId, parsed)
+      yield* lists.replaceContent(listId, { ...parsed, units: keepPrices(parsed.units, list.units) })
     }))
     return { ok: true }
   }
