@@ -11,7 +11,7 @@ import { Effect } from "effect"
 import { createHash, randomBytes } from "node:crypto"
 import { readFileSync } from "node:fs"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
-import { consent, createAccount, installAuth, removeAccount, signIn } from "~/.server/auth/auth"
+import { consent, createAccount, fetchClientMetadataResource, installAuth, oauthClient, removeAccount, signIn } from "~/.server/auth/auth"
 import { layerAt } from "~/.server/db/Db"
 import { parseRosterSync } from "~/.server/importer/roster"
 import { MCP_PATH } from "~/.server/mcp/server"
@@ -193,6 +193,66 @@ describe("signing in", () => {
     expect(again.consentShown).toBe(false)
     expect((await app("/cogitator-core/api/auth/sign-up/email", { method: "POST", body: "{}" })).status).toBe(200)
     expect(await (await app("/cogitator-core/api/auth/sign-up/email", { method: "POST", body: "{}" })).text()).toBe("a page")
+  })
+})
+
+describe("clients that name themselves by URL (Claude does)", () => {
+  /** Claude's own metadata document, as https://claude.ai/oauth/mcp-oauth-client-metadata serves it. */
+  const CLAUDE = {
+    client_id: "https://claude.ai/oauth/mcp-oauth-client-metadata",
+    client_name: "Claude",
+    client_uri: "https://claude.ai",
+    redirect_uris: ["https://claude.ai/api/mcp/auth_callback"],
+    grant_types: ["authorization_code", "refresh_token", "urn:ietf:params:oauth:grant-type:jwt-bearer"],
+    response_types: ["code"],
+    token_endpoint_auth_method: "none"
+  }
+  const withFetch = async (stub: typeof fetch, f: () => Promise<void>) => {
+    const real = globalThis.fetch
+    globalThis.fetch = stub
+    try {
+      await f()
+    } finally {
+      globalThis.fetch = real
+    }
+  }
+
+  it("fetch the document the way Workers can: no redirect option they lack, and no redirects", async () => {
+    const asked: Array<RequestInit | undefined> = []
+    await withFetch((async (_: unknown, init?: RequestInit) => {
+      asked.push(init)
+      return new Response("{}", { headers: { "content-type": "application/json" } })
+    }) as typeof fetch, async () => {
+      // better-auth asks with redirect: "error", which Workers refuse to construct
+      await fetchClientMetadataResource(CLAUDE.client_id, { headers: { accept: "application/json" }, redirect: "error" })
+      expect(asked[0]?.redirect).toBe("manual")
+    })
+    await withFetch((async () => new Response(null, { status: 302, headers: { location: "https://elsewhere.example" } })) as typeof fetch, async () => {
+      await expect(fetchClientMetadataResource("https://claude.ai/moved")).rejects.toThrow(/redirect/)
+    })
+    await expect(fetchClientMetadataResource("http://claude.ai/plain")).rejects.toThrow(/HTTPS/)
+  })
+
+  it("let Claude start an authorization with its URL as its id", async () => {
+    await withFetch((async (url: unknown) =>
+      String(url) === CLAUDE.client_id
+        ? new Response(JSON.stringify(CLAUDE), { headers: { "content-type": "application/json" } })
+        : new Response("not found", { status: 404 })) as typeof fetch, async () => {
+      const q = new URLSearchParams({
+        response_type: "code",
+        client_id: CLAUDE.client_id,
+        redirect_uri: CLAUDE.redirect_uris[0],
+        scope: "openid profile email offline_access",
+        state: "claude-1",
+        code_challenge: createHash("sha256").update("a-verifier-long-enough-for-pkce-0123456789").digest("base64url"),
+        code_challenge_method: "S256",
+        resource: URL_
+      })
+      const r = await app(`/cogitator-core/api/auth/oauth2/authorize?${q}`, { redirect: "manual" })
+      expect(r.status, await r.clone().text()).toBe(302)
+      expect(new URL(r.headers.get("location")!, SITE).pathname).toBe("/cogitator-core/sign-in")
+    })
+    expect(await oauthClient(CLAUDE.client_id)).toMatchObject({ name: "Claude", uri: "https://claude.ai" })
   })
 })
 

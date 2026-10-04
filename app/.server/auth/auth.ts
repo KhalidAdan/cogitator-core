@@ -45,16 +45,23 @@ export interface AuthConfig {
 
 /**
  * Client ID Metadata Documents (a client's `client_id` is a URL serving its
- * metadata), fetched the Workers way: HTTPS only, GET or HEAD only, redirects
- * returned rather than followed. better-auth asks for a transport that also
- * refuses private and special-use addresses; on Workers that is the platform's
- * doing, as outbound fetches can't reach private networks or loopback.
+ * metadata; Claude's is https://claude.ai/oauth/mcp-oauth-client-metadata),
+ * fetched the Workers way: HTTPS only, GET or HEAD only, and never through a
+ * redirect. better-auth asks with `redirect: "error"`, which Workers don't
+ * support (only "follow" and "manual"; constructing a request with "error"
+ * throws), so the fetch is made with "manual" and a redirect is refused here.
+ * better-auth also asks for a transport that refuses private and special-use
+ * addresses; on Workers that is the platform's doing, as outbound fetches can't
+ * reach private networks or loopback.
  */
-const fetchClientMetadataResource = async (input: string | URL | Request, init?: RequestInit): Promise<Response> => {
-  const request = new Request(input, init)
-  if (new URL(request.url).protocol !== "https:") throw new TypeError("Client metadata documents must be served over HTTPS")
-  if (request.method !== "GET" && request.method !== "HEAD") throw new TypeError("Client metadata documents are only read")
-  return fetch(request, { redirect: "manual" })
+export const fetchClientMetadataResource = async (input: string | URL | Request, init?: RequestInit): Promise<Response> => {
+  const url = new URL(input instanceof Request ? input.url : String(input))
+  if (url.protocol !== "https:") throw new TypeError("Client metadata documents must be served over HTTPS")
+  const method = (init?.method ?? (input instanceof Request ? input.method : "GET")).toUpperCase()
+  if (method !== "GET" && method !== "HEAD") throw new TypeError("Client metadata documents are only read")
+  const response = await fetch(url, { method, headers: init?.headers, signal: init?.signal ?? null, redirect: "manual" })
+  if (response.status >= 300 && response.status < 400) throw new TypeError("Client metadata documents must not redirect")
+  return response
 }
 
 export const authOptions = (config: AuthConfig) =>
