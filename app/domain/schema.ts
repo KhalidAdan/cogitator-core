@@ -243,7 +243,11 @@ export const Mod = Schema.Struct({
   rrWound: ModReroll,
   cover: Schema.Boolean,
   half: Schema.Boolean,
-  rf: Schema.Number
+  rf: Schema.Number,
+  /** Characteristic changes: Strength, Attacks per model, Damage. Optional, as options saved before 4 October don't have them. */
+  s: opt(Schema.Number),
+  a: opt(Schema.Number),
+  d: opt(Schema.Number)
 })
 export type Mod = typeof Mod.Type
 

@@ -323,6 +323,10 @@ The effect used to be JSON typed into a box, so writing one meant knowing the vo
 
 A field added to the vocabulary gets its input here without touching the editor.
 
+### D-44. Strength, Attacks and Damage in the modifier bar (4 October, your call)
+
+The modifier bar gained **Strength**, **Attacks** and **Damage**, each −1 to +2, for stratagems like Ruthless Killers (+1 Damage for a Corsair Voidscarred unit). Like the rest of the bar they can be set for all units, one datasheet or an attached unit, and limited to ranged or melee. They're characteristic changes, so they aren't capped and they stack with rules; a target's damage reduction still applies. The bar becomes an effect clause in the engine (D-41), so they combine with rules exactly as a rule's `s`, `a` and `d` do. Options saved before they existed still load.
+
 ---
 
 ## Things I chose not to do

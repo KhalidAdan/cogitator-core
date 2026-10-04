@@ -118,6 +118,13 @@ const N = [
   [0, "Off"],
   [1, "+1"]
 ] as const
+/** Strength, Attacks and Damage: characteristic changes, uncapped. */
+const CHAR = [
+  [-1, "−1"],
+  [0, "Off"],
+  [1, "+1"],
+  [2, "+2"]
+] as const
 const ONOFF = [
   [false, "Off"],
   [true, "On"]
@@ -146,7 +153,10 @@ const MOD_GROUPS: ReadonlyArray<ReadonlyArray<ModControl>> = [
         [3, "+3"]
       ],
       "Changes the AP characteristic, so it stacks with rules like Assassins’ Eye. −1 is Armour of Contempt"
-    ]
+    ],
+    ["s", "Strength", CHAR],
+    ["a", "Attacks", CHAR, "Per model, for every weapon"],
+    ["d", "Damage", CHAR, "Stacks with rules; a target’s damage reduction still applies"]
   ],
   [
     ["sus", "Sustained 1", ONOFF],
@@ -177,6 +187,9 @@ function modSummary(m: Mod): string {
   if (m.hit) p.push(`${m.hit > 0 ? "+" : "−"}1 hit`)
   if (m.wound) p.push(`${m.wound > 0 ? "+" : "−"}1 wound`)
   if (m.ap) p.push(`${m.ap > 0 ? "+" : "−"}${Math.abs(m.ap)} AP`)
+  if (m.s) p.push(`${m.s > 0 ? "+" : "−"}${Math.abs(m.s)} S`)
+  if (m.a) p.push(`${m.a > 0 ? "+" : "−"}${Math.abs(m.a)} A`)
+  if (m.d) p.push(`${m.d > 0 ? "+" : "−"}${Math.abs(m.d)} D`)
   if (m.sus) p.push("Sustained 1")
   if (m.lethal) p.push("Lethal")
   if (m.rrHit !== "off") p.push(`re-roll hits ${m.rrHit === "1s" ? "of 1" : "in full"}`)
@@ -257,7 +270,7 @@ function ModBar({ ledger }: { ledger: LedgerContext }) {
             {g.map(([k, l, options, note]) => (
               <div className="mg" key={k}>
                 <span className="ml">{l}</span>
-                <Seg small action={action} label={l} fields={{ intent: "mod", scope: sc, key: k }} value={m[k]} options={options} />
+                <Seg small action={action} label={l} fields={{ intent: "mod", scope: sc, key: k }} value={m[k] ?? 0} options={options} />
                 {note ? <span className="mnote">{note}</span> : null}
               </div>
             ))}

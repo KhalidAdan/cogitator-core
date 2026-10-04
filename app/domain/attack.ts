@@ -184,12 +184,24 @@ function barFor(md: ResolvedMod): Fx | null {
 }
 
 function barClause(md: ResolvedMod): Fx | null {
-  if (!md.hit && !md.wound && !md.ap && !md.sus && !md.lethal && !md.rf && md.rrHit === "off" && md.rrWound === "off") return null
+  if (!md.hit && !md.wound && !md.ap && !md.s && !md.a && !md.d && !md.sus && !md.lethal && !md.rf && md.rrHit === "off" && md.rrWound === "off") {
+    return null
+  }
   const grant: Record<string, number> = {}
   if (md.sus) grant.sus = 1
   if (md.lethal) grant.lethal = 1
   if (md.rf) grant.rf = md.rf
-  return { hit: md.hit, wound: md.wound, ap: md.ap, rrHit: BAR_REROLL[md.rrHit], rrWound: BAR_REROLL[md.rrWound], grant }
+  return {
+    hit: md.hit,
+    wound: md.wound,
+    s: md.s,
+    ap: md.ap,
+    a: md.a,
+    d: md.d,
+    rrHit: BAR_REROLL[md.rrHit],
+    rrWound: BAR_REROLL[md.rrWound],
+    grant
+  }
 }
 
 function resolve(kw: Record<string, any>, md: ResolvedMod, rules: ReadonlyArray<EffectiveRule>, c: ClauseCtx): Profile {
@@ -393,6 +405,9 @@ function barNote(md: ResolvedMod, baseRf: number, ranged: boolean): string | nul
   if (md.hit) mn.push(`${md.hit > 0 ? "+" : "−"}${Math.abs(md.hit)} hit`)
   if (md.wound) mn.push(`${md.wound > 0 ? "+" : "−"}${Math.abs(md.wound)} wound`)
   if (md.ap) mn.push(`${md.ap > 0 ? "+" : "−"}${Math.abs(md.ap)} AP`)
+  if (md.s) mn.push(`${md.s > 0 ? "+" : "−"}${Math.abs(md.s)} S`)
+  if (md.a) mn.push(`${md.a > 0 ? "+" : "−"}${Math.abs(md.a)} A`)
+  if (md.d) mn.push(`${md.d > 0 ? "+" : "−"}${Math.abs(md.d)} D`)
   if (md.sus) mn.push("Sustained 1")
   if (md.lethal) mn.push("Lethal")
   if (md.rrHit !== "off") mn.push(`re-roll hits ${md.rrHit === "1s" ? "of 1" : "(full)"}`)

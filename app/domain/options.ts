@@ -109,6 +109,10 @@ function modWith(m: Mod, key: keyof Mod, value: string): Mod {
       return { ...m, ap: bounded(value, -2, 3) }
     case "rf":
       return { ...m, rf: bounded(value, 0, 4) }
+    case "s":
+    case "a":
+    case "d":
+      return { ...m, [key]: bounded(value, -1, 2) }
     case "rrHit":
       return { ...m, rrHit: oneOf(REROLLS, value, "off") }
     case "rrWound":

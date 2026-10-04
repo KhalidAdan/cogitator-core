@@ -60,6 +60,14 @@ describe("option intents", () => {
     expect(apply({ intent: "preset", value: "table" }, bare)).toEqual({ ...defaultOpts(), phase: "ranged", combine: false })
   })
 
+  it("takes Strength, Attacks and Damage in the modifier bar, within −1 to +2", () => {
+    const i = intentFromForm(form({ intent: "mod", scope: "all", key: "d", value: "1" }))
+    expect(i).toEqual({ intent: "mod", scope: "all", key: "d", value: "1" })
+    const o = applyIntent(defaultOpts(), i!, [])
+    expect(o.mods.all).toMatchObject({ d: 1 })
+    expect(applyIntent(o, { intent: "mod", scope: "all", key: "s", value: "9" }, []).mods.all).toMatchObject({ s: 2, d: 1 })
+  })
+
   it("rejects posts that aren’t intents", () => {
     expect(intentFromForm(form({ intent: "set", key: "units", value: "[]" }))).toBeNull()
     expect(intentFromForm(form({ intent: "mod", scope: "all", key: "nope", value: "1" }))).toBeNull()

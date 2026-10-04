@@ -7,7 +7,7 @@ import { attackUnit, MOD0 } from "~/domain/engine"
 import { Schema } from "effect"
 import { CLAUSE, describeFx, FX_HELP, tidyClause } from "~/domain/fx"
 import { defaultOpts } from "~/domain/options"
-import { Fx, type Mod, type Opts, type RuleBook, type Target, type Unit, type Weapon } from "~/domain/schema"
+import { Fx, type Mod, Opts, type RuleBook, type Target, type Unit, type Weapon } from "~/domain/schema"
 
 const gun = (over: Partial<Weapon> = {}): Weapon => ({ nm: "Gun", t: "r", n: 1, A: 6, sk: 4, S: 4, AP: 0, D: 1, kw: {}, ...over })
 const blade = (over: Partial<Weapon> = {}): Weapon => ({ nm: "Blade", t: "m", n: 1, A: 6, sk: 4, S: 4, AP: 0, D: 1, kw: {}, ...over })
@@ -76,6 +76,28 @@ describe("clauses from different places combine by the same rules", () => {
   it("notes the bar once, and what the rules changed separately", () => {
     const notes = row(unit({ rules: ["aim"] }), opts({ bar: { ap: 1 } }), rules).notes
     expect(notes).toEqual(["Modifier: +1 AP", "Aim", "+1 AP"])
+  })
+
+  it("adds the bar's Strength, Attacks and Damage, and notes them with the bar", () => {
+    // S4 into T4 on 4+; +1 S makes it 3+. Six attacks; +1 A makes seven. D1 into W2; +1 D kills a model per wound
+    const two = { ...target, W: 2 }
+    const base = attackUnit(unit(), two, opts(), { rules: {}, units: [] }).rows[0]
+    const buffed = attackUnit(unit(), two, opts({ bar: { s: 1, a: 1, d: 1 } }), { rules: {}, units: [] }).rows[0]
+    expect(base.wound).toBeCloseTo(3 / 6)
+    expect(buffed.wound).toBeCloseTo(4 / 6)
+    expect(buffed.attacks).toBe(base.attacks! + 1)
+    expect(buffed.dmg).toBeCloseTo(2 * base.dmg!)
+    expect(buffed.notes).toEqual(["Modifier: +1 S, +1 A, +1 D"])
+    // and only for the attacks it applies to
+    const melee = attackUnit(unit(), two, opts({ bar: { d: 1, apply: "melee" } }), { rules: {}, units: [] }).rows
+    expect(melee[0].dmg).toBeCloseTo(base.dmg!)
+    expect(melee[1].dmg).toBeCloseTo(2 * base.dmg!)
+  })
+
+  it("reads options saved before the bar had Strength, Attacks and Damage", () => {
+    const { s: _s, a: _a, d: _d, ...old } = { ...MOD0, hit: 1 }
+    const decoded = Schema.decodeUnknownSync(Opts)({ ...defaultOpts(), mods: { all: old } })
+    expect(row(unit(), decoded).hitChance).toBeCloseTo(4 / 6)
   })
 
   it("treats Heavy and Lance as clauses: only stationary at range, only on the charge in melee", () => {

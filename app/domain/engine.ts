@@ -34,7 +34,10 @@ export const MOD0: Mod = {
   rrWound: "off",
   cover: false,
   half: false,
-  rf: 0
+  rf: 0,
+  s: 0,
+  a: 0,
+  d: 0
 }
 
 const RR_RANK = { off: 0, "1s": 1, full: 2 } as const
@@ -52,7 +55,7 @@ export function modScopes(unit: Unit, w?: Weapon): Array<string> {
   return [...new Set(s)]
 }
 
-export type ResolvedMod = Omit<Mod, "apply">
+export type ResolvedMod = Required<Omit<Mod, "apply">>
 
 export function modsFor(unit: Unit, w: Weapon, opts: Opts): ResolvedMod {
   const mods = opts.mods || {}
@@ -66,7 +69,10 @@ export function modsFor(unit: Unit, w: Weapon, opts: Opts): ResolvedMod {
     rrWound: "off",
     cover: false,
     half: false,
-    rf: 0
+    rf: 0,
+    s: 0,
+    a: 0,
+    d: 0
   }
   for (const sc of modScopes(unit, w)) {
     const m = mods[sc]
@@ -79,6 +85,9 @@ export function modsFor(unit: Unit, w: Weapon, opts: Opts): ResolvedMod {
     out.hit += m.hit || 0
     out.wound += m.wound || 0
     out.ap += m.ap || 0
+    out.s += m.s || 0
+    out.a += m.a || 0
+    out.d += m.d || 0
     if ((m.rf || 0) > out.rf) out.rf = m.rf
     if (m.sus) out.sus = true
     if (m.lethal) out.lethal = true
