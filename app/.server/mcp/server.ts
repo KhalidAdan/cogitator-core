@@ -196,7 +196,7 @@ async function listLists(): Promise<ToolResult> {
   const open = lists.filter((l) => l.builtin)
   const lines = open.map((l) => `- ${l.id}: ${l.name} (${l.faction || "no faction"}, ${l.units} units, ${l.pts} pts)`)
   return {
-    text: `Lists anyone can open by name:\n${lines.join("\n")}\n\nAny other list on the site can be read by its link or id (people share links like https://khld.dev/cogitator-core/lists/<id>).`,
+    text: `Built-in lists:\n${lines.join("\n")}\n\nLists people import aren't listed here, but they aren't private either: anyone with a list's link can read it. If the user means a list that isn't above, ask them for its link (the address of the list's page, https://khld.dev/cogitator-core/lists/<id>) or its id, then use that.`,
     data: { lists: open.map((l) => ({ id: l.id, name: l.name, faction: l.faction, units: l.units, pts: l.pts })) }
   }
 }
@@ -380,13 +380,14 @@ export const COGITATOR_MCP: McpServer = {
   version: "1.0.0",
   instructions: [
     "Cogitator Core scores Warhammer 40,000 (11th edition) army lists: for every unit, how many enemy points it removes per point it costs (return %), against a set of benchmark targets, with the list's own rules applied. 65% or more is efficient.",
-    "Start with list_lists, or a list link the user gives you. get_list shows a list's units, rules, and the switches, target marks and Orders it can use. score_list gives the whole matrix under any situation; explain_matchup breaks one unit against one target down weapon by weapon. search_rules shows how a rule is modelled. Nothing you set is saved."
+    "Lists people import are unlisted, not private: they aren't in list_lists, but any list opens by its link (https://khld.dev/cogitator-core/lists/<id>) or id, so when the user names one you can't see, ask for its link. Start with list_lists, or a list link the user gives you. get_list shows a list's units, rules, and the switches, target marks and Orders it can use. score_list gives the whole matrix under any situation; explain_matchup breaks one unit against one target down weapon by weapon. search_rules shows how a rule is modelled. Nothing you set is saved."
   ].join("\n\n"),
   tools: [
     {
       name: "list_lists",
       title: "List the army lists",
-      description: "The built-in army lists, with ids. Other lists on the site are private to their owners but can be read by their link or id.",
+      description:
+        "The built-in army lists, with ids. Lists people import are unlisted, not private: they don't appear here, but any of them can be read by its link or id, so ask the user for the link.",
       inputSchema: { type: "object", properties: {}, additionalProperties: false },
       call: guarded(listLists)
     },
