@@ -16,9 +16,11 @@ app/
 
   .server/           never bundled for the browser (React Router enforces this)
     runtime.ts         the ManagedRuntime (installed by the Durable Object), run(), and the scheduled update
-    auth/              better-auth (accounts, sessions, sign-in throttling) and the Kysely dialect it runs on
+    auth/              better-auth (accounts, sessions, sign-in throttling; the OAuth server MCP clients sign in through) and the Kysely dialect it runs on
+    serve.ts           which part of the app answers a request in the Durable Object: MCP, OAuth or the pages
+    usage.ts           the usage log: every request, by account or pseudonymous visitor, and the owner's report
     access.ts          the checks actions make: signed in, the site's owner, this list's owner
-    mcp/               the MCP endpoint for AI agents (/mcp): a small Streamable HTTP server, and the six read-only tools
+    mcp/               the MCP endpoint for AI agents (/mcp): a small Streamable HTTP server, the read tools and the owner's three
     cookies.ts         a visitor's switches on lists they can't change, and their last-opened list
     memo.ts            in-memory caches for what can't change: a snapshot's datasheets, a stored Field Manual page
     updates.ts         one "check for updates" over both sources, and whether they agree
@@ -133,6 +135,9 @@ SQLite: the Durable Object's own storage on Cloudflare, and an in-memory `node:s
 | `targets` | the benchmark defenders |
 | `settings` | key/value: last list opened, seed version |
 | `pending_imports` | uploaded rosters awaiting review |
+| `user`, `session`, `account`, `verification` | better-auth's accounts and sessions |
+| `jwks`, `oauth*` (7 tables) | better-auth's OAuth server for MCP clients: signing keys, clients, resources, tokens, consents |
+| `usage` | every request the app answered, for 90 days: kind, account or pseudonymous visitor, country, app, path, MCP tool, status |
 | `mfm_snapshots`, `mfm_checks` | Field Manual points per faction and version, as a JSON document with what changed; and when each faction page was last looked at |
 | `wh_snapshots` | one row per loaded export: its timestamp, file hashes, and the change report against the previous one |
 | `wh_*` (18 tables) | the export's rows, each tagged with `snapshot_id`; columns are the export's own, as text |
@@ -149,7 +154,7 @@ The `wh_*` tables, the loader and the change report are all generated from one r
 | `importer-parity.test.ts` | the POC importer's output for both fixture rosters, and the 684 / 532 / 570 cell regression |
 | `library-rules.test.ts` | each rule added since the POC does what its wording says, and only then |
 | `rosters.test.ts` | your real rosters (`tests/fixtures/rosters`): read, fully translated, scored; and against the export, which weapons aren't on their datasheets |
-| `mcp.test.ts` | the MCP endpoint, driven by the official MCP SDK's client: every tool, mistakes, and the transport |
+| `mcp.test.ts` | OAuth sign-in as Claude does it (register, authorize, sign in, consent, token), then the MCP endpoint through the official SDK's client: every tool, the owner's tools, the usage report, disconnecting, and the transport |
 | `fx.test.ts` | the effect vocabulary's words and help, and how clauses from the bar, rules and core abilities combine |
 | `domain.test.ts` | option intents, the matrix and findings (including the handoff's headline numbers), keywords, effect descriptions |
 | `db.test.ts` | migrations, seed (and upgrading an older database's built-in lists), repositories, typed errors |

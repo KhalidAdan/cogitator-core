@@ -420,3 +420,6 @@ fieldset.plain{border:0; padding:0; margin:0; min-width:0; display:contents}
   .fxrow{grid-template-columns:minmax(0,1fr) auto}
   .fxrow .fxlabel{grid-column:1 / -1}
 }
+
+/* the consent page's list of what an app may do */
+.authform ul.scopes{margin:4px 0 12px; padding-left:20px; line-height:1.6}

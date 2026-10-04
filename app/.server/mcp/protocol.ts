@@ -10,6 +10,8 @@
  * to it, so the two are known to agree.
  */
 
+import { noteUsage } from "../usage"
+
 /** A JSON Schema for a tool's arguments. */
 export type JsonSchema = Readonly<Record<string, unknown>>
 
@@ -52,8 +54,11 @@ const CORS: Record<string, string> = {
 type Message = Record<string, unknown>
 const isObject = (v: unknown): v is Message => !!v && typeof v === "object" && !Array.isArray(v)
 
-const reply = (body: unknown, status = 200, headers: Record<string, string> = {}) =>
-  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", ...CORS, ...headers } })
+const reply = (body: unknown, status = 200, headers: Record<string, string> = {}) => {
+  const text = JSON.stringify(body)
+  noteUsage({ bytes: text.length })
+  return new Response(text, { status, headers: { "Content-Type": "application/json", ...CORS, ...headers } })
+}
 const result = (id: unknown, value: unknown) => ({ jsonrpc: "2.0", id, result: value })
 const failure = (id: unknown, code: number, message: string) => ({ jsonrpc: "2.0", id: id ?? null, error: { code, message } })
 
@@ -93,6 +98,7 @@ async function handle(m: unknown, server: McpServer): Promise<unknown> {
   if (typeof m.method !== "string" || m.id === undefined) return null
   const id = m.id
   const params = isObject(m.params) ? m.params : {}
+  noteUsage({ tool: m.method === "tools/call" ? String(params.name) : m.method })
   switch (m.method) {
     case "initialize": {
       const asked = typeof params.protocolVersion === "string" ? params.protocolVersion : ""

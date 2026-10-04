@@ -1,10 +1,15 @@
 /**
  * Cogitator Core for AI agents, over MCP, at /cogitator-core/mcp.
  *
- * Read-only, and it sees what a signed-out visitor sees: the built-in lists by
- * name, and any other list by its link or id. Scores come from the same engine
- * and view model as the pages, under whatever switches, modifiers and Orders
- * the agent asks for. Nothing it asks for is saved.
+ * Every call is signed in: the person's MCP client gets an OAuth access token
+ * through the site's sign-in and consent pages (see .server/auth), and each
+ * call is checked against it and recorded as theirs in the usage log. The
+ * tools read and score; nothing an agent sets is saved. A caller sees what they
+ * would see signed in on the site: the built-in lists and their own by name,
+ * and any list by its link. The site's owner also gets three tools of their
+ * own: the usage report, checking for updates, and connected apps.
+ *
+ * Scores come from the same engine and view model as the pages.
  */
 import { Effect } from "effect"
 import { describeRule } from "~/domain/fx"
@@ -17,7 +22,13 @@ import { Lists } from "../repos/Lists"
 import { Rules } from "../repos/Rules"
 import { Targets } from "../repos/Targets"
 import { run } from "../runtime"
-import { type JsonSchema, type McpServer, serveMcp, type ToolResult } from "./protocol"
+import { listedFor } from "~/viewer"
+import { connectedApps, listAccounts, type McpCaller, MCP_PATH, oauthClient, revokeApps, verifyMcpRequest } from "../auth/auth"
+import { updateByHand } from "../updates"
+import { noteUsage, usageReport } from "../usage"
+import { type JsonSchema, type McpServer, type McpTool, serveMcp, type ToolResult } from "./protocol"
+
+export { MCP_PATH }
 
 type Args = Readonly<Record<string, unknown>>
 
@@ -191,13 +202,19 @@ const OPTIONS: Record<string, JsonSchema> = {
 
 // ---------- tools ----------
 
-async function listLists(): Promise<ToolResult> {
+async function listLists(caller: McpCaller): Promise<ToolResult> {
   const lists = await run(Effect.flatMap(Lists, (l) => l.all))
-  const open = lists.filter((l) => l.builtin)
-  const lines = open.map((l) => `- ${l.id}: ${l.name} (${l.faction || "no faction"}, ${l.units} units, ${l.pts} pts)`)
+  const open = lists.filter((l) => listedFor(caller.viewer, l))
+  const line = (l: (typeof open)[number]) => `- ${l.id}: ${l.name} (${l.faction || "no faction"}, ${l.units} units, ${l.pts} pts)`
+  const builtin = open.filter((l) => l.builtin)
+  const yours = open.filter((l) => !l.builtin)
   return {
-    text: `Built-in lists:\n${lines.join("\n")}\n\nLists people import aren't listed here, but they aren't private either: anyone with a list's link can read it. If the user means a list that isn't above, ask them for its link (the address of the list's page, https://khld.dev/cogitator-core/lists/<id>) or its id, then use that.`,
-    data: { lists: open.map((l) => ({ id: l.id, name: l.name, faction: l.faction, units: l.units, pts: l.pts })) }
+    text: [
+      `Built-in lists:\n${builtin.map(line).join("\n")}`,
+      yours.length ? `${caller.viewer.name}'s lists:\n${yours.map(line).join("\n")}` : `${caller.viewer.name} hasn't imported any lists.`,
+      "Other people's lists aren't listed, but any list opens by its link (https://khld.dev/cogitator-core/lists/<id>) or id: if the user means one that isn't above, ask them for its link."
+    ].join("\n\n"),
+    data: { lists: open.map((l) => ({ id: l.id, name: l.name, faction: l.faction, units: l.units, pts: l.pts, builtin: l.builtin })) }
   }
 }
 
@@ -364,6 +381,91 @@ async function searchRules(a: Args): Promise<ToolResult> {
   }
 }
 
+// ---------- the owner's tools ----------
+
+const when = (iso: string) => iso.replace("T", " ").slice(0, 16)
+
+/** An account by id, email or name. */
+async function accountRef(ref: unknown) {
+  const v = String(ref ?? "").trim().toLowerCase()
+  const accounts = await listAccounts()
+  const found = accounts.find((a) => a.id === v || a.email === v) ?? accounts.find((a) => a.name.toLowerCase() === v)
+  if (!found) throw new ToolError(`No account "${String(ref)}". The accounts: ${accounts.map((a) => `${a.name} (${a.email})`).join(", ")}.`)
+  return found
+}
+
+async function usageReportTool(a: Args): Promise<ToolResult> {
+  const days = Math.min(90, Math.max(1, Math.trunc(Number(a.days)) || 7))
+  const account = a.account === undefined ? null : await accountRef(a.account)
+  const r = await run(usageReport(days, account?.id))
+  const accounts = await listAccounts()
+  const nameOf = (id: string) => {
+    const x = accounts.find((y) => y.id === id)
+    return x ? `${x.name} (${x.role})` : `a removed account (${id})`
+  }
+  const appName = async (id: string) => (await oauthClient(id))?.name ?? id
+  const counts = (o: Readonly<Record<string, number>>) =>
+    Object.entries(o)
+      .sort((x, y) => y[1] - x[1])
+      .map(([k, n]) => `${k} ${n}`)
+      .join(", ") || "none"
+  const accountLines = await Promise.all(
+    r.accounts.map(async (x) => {
+      const apps = await Promise.all(x.clients.map(appName))
+      return `- ${nameOf(x.userId)}: ${x.requests} requests (${counts(x.byKind)})${Object.keys(x.tools).length ? `; MCP tools: ${counts(x.tools)}` : ""}${apps.length ? `; apps: ${apps.join(", ")}` : ""}${x.errors ? `; ${x.errors} errors` : ""}; last ${when(x.last)}`
+    })
+  )
+  return {
+    text: [
+      `# Usage, last ${days} ${days === 1 ? "day" : "days"}${account ? ` for ${account.name}` : ""} (since ${when(r.since)} UTC)`,
+      `${r.requests} requests: ${counts(r.byKind)}. ${r.errors} server errors, ${r.refused} refused (not signed in, or not allowed).`,
+      "Counts only: exact CPU per request is in Cloudflare's Workers Logs for the last 7 days, under the same requests.",
+      `\n## Accounts\n${accountLines.join("\n") || "No signed-in use."}`,
+      account ? "" : `\n## Busiest anonymous visitors (keyed hashes of their addresses)\n${r.visitors.map((v) => `- ${v.visitor}: ${v.requests} requests${v.countries.length ? ` from ${v.countries.join(", ")}` : ""}${v.refused ? `, ${v.refused} refused` : ""}${v.errors ? `, ${v.errors} errors` : ""}; ${when(v.first)} to ${when(v.last)}`).join("\n") || "None."}`,
+      `\n## Busiest paths\n${r.paths.map((x) => `- ${x.path}: ${x.requests}`).join("\n") || "None."}`
+    ]
+      .filter(Boolean)
+      .join("\n"),
+    data: { ...r, accounts: r.accounts.map((x) => ({ ...x, name: nameOf(x.userId) })) }
+  }
+}
+
+async function checkForUpdatesTool(): Promise<ToolResult> {
+  const r = await run(updateByHand)
+  return { text: r.message, data: r, isError: !r.ok }
+}
+
+async function manageAccountsTool(a: Args): Promise<ToolResult> {
+  const action = String(a.action ?? "list")
+  if (action === "disconnect") {
+    const account = await accountRef(a.account)
+    let clientId: string | undefined
+    if (a.app !== undefined) {
+      const apps = await connectedApps(account.id)
+      const app = apps.find((x) => x.clientId === a.app) ?? apps.find((x) => x.name.toLowerCase() === String(a.app).toLowerCase())
+      if (!app) throw new ToolError(`${account.name} hasn't connected "${String(a.app)}". Their apps: ${apps.map((x) => x.name).join(", ") || "none"}.`)
+      clientId = app.clientId
+    }
+    const n = await revokeApps(account.id, clientId)
+    return {
+      text: n
+        ? `Disconnected ${n} ${n === 1 ? "app" : "apps"} from ${account.name}, at once. To use it again they'll be asked to sign in and allow it.`
+        : `${account.name} had no connected ${clientId ? "app by that name" : "apps"}.`,
+      data: { account: account.id, disconnected: n }
+    }
+  }
+  if (action !== "list") throw new ToolError(`Unknown action "${action}": use list or disconnect.`)
+  const [accounts, apps] = await Promise.all([listAccounts(), connectedApps()])
+  const rows = accounts.map((x) => ({ ...x, apps: apps.filter((y) => y.userId === x.id).map((y) => ({ clientId: y.clientId, name: y.name, since: y.since })) }))
+  return {
+    text: [
+      "Accounts (add people, set passwords and remove accounts on the Accounts page):",
+      ...rows.map((x) => `- ${x.name} <${x.email}>, ${x.role}, since ${x.createdAt.slice(0, 10)}; apps: ${x.apps.map((y) => `${y.name} (since ${y.since.slice(0, 10)})`).join(", ") || "none"}`)
+    ].join("\n"),
+    data: { accounts: rows }
+  }
+}
+
 /** A tool's failure the agent can act on, rather than a stack trace. */
 const guarded = (f: (a: Args) => Promise<ToolResult>) => async (a: Args): Promise<ToolResult> => {
   try {
@@ -374,22 +476,68 @@ const guarded = (f: (a: Args) => Promise<ToolResult>) => async (a: Args): Promis
   }
 }
 
-export const COGITATOR_MCP: McpServer = {
+const OWNER_TOOLS: ReadonlyArray<McpTool> = [
+  {
+    name: "usage_report",
+    title: "Usage report (owner)",
+    description:
+      "Who used the site and the MCP over the last days: requests per account by kind (pages, page data, form posts, OAuth, MCP), MCP tools and apps, errors and refusals, the busiest anonymous visitors (keyed hashes of their addresses, for spotting abuse) and the busiest paths. Counts only. Only the site's owner has this tool.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        days: { type: "integer", minimum: 1, maximum: 90, description: "How far back; default 7." },
+        account: { type: "string", description: "Only this account (id, email or name)." }
+      },
+      additionalProperties: false
+    },
+    call: guarded(usageReportTool)
+  },
+  {
+    name: "check_for_updates",
+    title: "Check for updates (owner)",
+    description:
+      "Read the Munitorum Field Manual for every faction with a list, then Wahapedia's data export, as the Database page's button does; at most once every ten minutes. Says what changed. Only the site's owner has this tool.",
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
+    call: guarded(checkForUpdatesTool)
+  },
+  {
+    name: "manage_accounts",
+    title: "Accounts and connected apps (owner)",
+    description:
+      "List the accounts and the apps each has connected to Cogitator Core, or disconnect an account's apps (all, or one by name or client id), which makes the app ask again. Adding people and setting passwords stay on the Accounts page. Only the site's owner has this tool.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        action: { type: "string", enum: ["list", "disconnect"], description: "Default list." },
+        account: { type: "string", description: "For disconnect: the account's id, email or name." },
+        app: { type: "string", description: "For disconnect: only this app (its name or client id); default all of the account's apps." }
+      },
+      additionalProperties: false
+    },
+    call: guarded(manageAccountsTool)
+  }
+]
+
+/** The server as one caller sees it: their own lists, and the owner's tools for the owner. */
+export function cogitatorMcp(caller: McpCaller): McpServer {
+  const owner = caller.viewer.role === "owner"
+  return {
   name: "cogitator-core",
   title: "Cogitator Core",
-  version: "1.0.0",
+  version: "1.1.0",
   instructions: [
     "Cogitator Core scores Warhammer 40,000 (11th edition) army lists: for every unit, how many enemy points it removes per point it costs (return %), against a set of benchmark targets, with the list's own rules applied. 65% or more is efficient.",
-    "Lists people import are unlisted, not private: they aren't in list_lists, but any list opens by its link (https://khld.dev/cogitator-core/lists/<id>) or id, so when the user names one you can't see, ask for its link. Start with list_lists, or a list link the user gives you. get_list shows a list's units, rules, and the switches, target marks and Orders it can use. score_list gives the whole matrix under any situation; explain_matchup breaks one unit against one target down weapon by weapon. search_rules shows how a rule is modelled. Nothing you set is saved."
+    `You're signed in as ${caller.viewer.name}. list_lists names the built-in lists and theirs; any other list opens by its link (https://khld.dev/cogitator-core/lists/<id>) or id, so when the user names one you can't see, ask for its link. get_list shows a list's units, rules, and the switches, target marks and Orders it can use. score_list gives the whole matrix under any situation; explain_matchup breaks one unit against one target down weapon by weapon. search_rules shows how a rule is modelled. Nothing you set is saved.`,
+    ...(owner ? ["As the site's owner you also have usage_report (who used the site and the MCP), check_for_updates (refresh the rules data) and manage_accounts (accounts and their connected apps)."] : [])
   ].join("\n\n"),
   tools: [
     {
       name: "list_lists",
       title: "List the army lists",
       description:
-        "The built-in army lists, with ids. Lists people import are unlisted, not private: they don't appear here, but any of them can be read by its link or id, so ask the user for the link.",
+        "The built-in army lists and the signed-in person's own, with ids. Other people's lists aren't listed but open by their link or id, so ask the user for the link.",
       inputSchema: { type: "object", properties: {}, additionalProperties: false },
-      call: guarded(listLists)
+      call: guarded(() => listLists(caller))
     },
     {
       name: "get_list",
@@ -450,11 +598,24 @@ export const COGITATOR_MCP: McpServer = {
         additionalProperties: false
       },
       call: guarded(searchRules)
-    }
+    },
+    ...(owner ? OWNER_TOOLS : [])
   ]
+  }
 }
 
-/** The endpoint's path, under the app's basename. */
-export const MCP_PATH = "/cogitator-core/mcp"
+/**
+ * The MCP endpoint: a signed-in caller's request is answered by the server as
+ * they see it; anything else gets the 401 that tells their client where to sign
+ * in. A browser client's CORS preflight carries no token and is answered as is.
+ */
+export async function serveCogitatorMcp(request: Request): Promise<Response> {
+  if (request.method === "OPTIONS") return serveMcp(request, PREFLIGHT)
+  const checked = await verifyMcpRequest(request)
+  if ("refusal" in checked) return checked.refusal
+  noteUsage({ userId: checked.caller.viewer.id, clientId: checked.caller.clientId })
+  return serveMcp(request, cogitatorMcp(checked.caller))
+}
 
-export const serveCogitatorMcp = (request: Request) => serveMcp(request, COGITATOR_MCP)
+/** Enough of a server to answer a preflight, which never reaches the tools. */
+const PREFLIGHT: McpServer = { name: "cogitator-core", title: "Cogitator Core", version: "1.1.0", instructions: "", tools: [] }

@@ -348,6 +348,25 @@ You asked for the app to be usable by agents. The `cf` CLI had little to offer: 
 - **Served by the Durable Object before React Router** (no cookies, no form checks, open CORS), with a small hand-written MCP layer: stateless Streamable HTTP, JSON responses, the four methods a tools server needs. The official SDK would have brought an HTTP framework and a JSON Schema compiler that generates code, which Workers forbid. The tests drive the endpoint with the SDK's own client, so they're known to agree.
 - **Agents' guesses are forgiven**: units and targets can be named by id, name, or a part of the name only one has, and a wrong one is answered with the valid choices.
 
+*Since D-47 the endpoint requires sign-in.*
+
+---
+
+### D-47. Agents sign in with your accounts; every request goes in a usage log (4 October, your call)
+
+You wanted the people you've given accounts to use the MCP endpoint, to know who uses your compute, and tools only you can call. The endpoint now **requires sign-in** (D-46's anonymous access is gone; the website stays public), through OAuth with the accounts you already make by hand.
+
+**How a friend connects.** They add `https://khld.dev/cogitator-core/mcp` as a connector. Their app gets a 401 pointing at the discovery documents, registers itself, and opens the site's sign-in page ("Claude wants to use Cogitator Core with your account"), then a consent page ("Allow Claude?"), and gets a signed access token for the endpoint. Consent is asked once per app.
+
+- **better-auth is the OAuth server**: `@better-auth/mcp` with its JWT plugin, on the same database (migration `0006_oauth`, its SQL written by better-auth's own generator). Clients can register themselves (RFC 7591, as Claude and ChatGPT do) or identify themselves by URL (Client ID Metadata Documents, `@better-auth/cimd`, with a fetch made for Workers). Registering grants nothing: a client still needs one of your accounts and that person's consent.
+- **Only the OAuth endpoints and discovery documents are on the web**; the rest of better-auth stays server-side. Discovery sits at the domain's root with the app's path after it, so three narrow Worker routes (`khld.dev/.well-known/oauth-authorization-server/*`, `…/oauth-protected-resource/*`, `…/openid-configuration/*`) send just those to the app.
+- **Every MCP call is checked**: the token's signature, issuer, audience and expiry (in-process, against the signing keys), that the account still exists, and that the person hasn't disconnected the app. So removing someone, changing their password or disconnecting their app cuts them off at once, not when the hour-long token lapses.
+- **A friend gets the six read tools**, and `list_lists` now names their own lists. **You get three more**, listed only to you and refused to anyone else: `usage_report`, `check_for_updates` (the Database page's button, with its ten-minute cooldown, now one shared function) and `manage_accounts` (accounts, their connected apps, disconnecting).
+- **The usage log covers the whole site**, at your suggestion, not just MCP, so abuse shows up too. Every request the app answers (pages, page data, form posts, OAuth, MCP) is one row in `usage`: time, kind, account if any, a visitor id, country, app, method, path (no query, which carries OAuth codes), MCP tool, status and size. IP addresses aren't stored: a visitor is a keyed hash of the address, so one place's traffic can be grouped without keeping where it came from. Rows are kept 90 days, pruned by the scheduled update. Each request also writes the same as one JSON log line, which Cloudflare's Workers Logs pairs with that request's exact CPU and wall time (7 days); the report itself is counts, as you chose. Requests the zone's rate-limit rule blocks never reach the app, so Cloudflare's security events cover those.
+- **Two things found on the way.** The sign-in and consent steps have to go through better-auth's HTTP handler, because the authorization they carry on with reads the whole request; and their redirects are full-page loads at absolute addresses, or React Router would read `/cogitator-core/consent` as inside the app and give it the base path twice. The second only showed in the browser, which is why the flow was also run end to end on the dev server.
+
+The tests sign clients in the way Claude does (register, authorize, sign in, consent, token) and then use the official MCP SDK's client with the token: discovery, the 401 challenge, consent once per app, a friend's tools against the owner's, the usage report, disconnecting at once, and a removed account shut out.
+
 ---
 
 ## Things I chose not to do

@@ -11,7 +11,7 @@ import { Effect, Layer } from "effect"
 import { existsSync, readdirSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 import { layerAt } from "~/.server/db/Db"
-import { keepPrices, parseRosterSync } from "~/.server/importer/roster"
+import { keepPrices, NO_TEXT_EXPORT, parseRosterSync } from "~/.server/importer/roster"
 import { Lists } from "~/.server/repos/Lists"
 import { Rules } from "~/.server/repos/Rules"
 import { Settings } from "~/.server/repos/Settings"
@@ -152,8 +152,8 @@ describe("real rosters", () => {
         expect(got.units).toHaveLength(r.units)
         expect(got.stats.models).toBe(r.models)
         expect(Object.keys(got.groups)).toHaveLength(r.attached)
-        // a roster file carries no points; the text export or the Field Manual supplies them
-        expect(got.warnings).toEqual(["No text export, so every unit starts at 0 pts. Add points below before saving."])
+        // a roster file carries no points or profile-less wargear; the warning says what's missing and why
+        expect(got.warnings).toEqual([NO_TEXT_EXPORT])
       })
 
       it("counts the rules that change damage, and leaves none untranslated", () => {

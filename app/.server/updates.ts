@@ -10,7 +10,7 @@
  */
 import { DateTime, Effect, Option } from "effect"
 import { FetchHttpClient } from "effect/http"
-import { norm } from "~/domain/text"
+import { norm, titleCase } from "~/domain/text"
 import { memo } from "./memo"
 import { type PageArchive, type RefreshResult, refreshManyLive, slugsInUse } from "./mfm/refresh"
 import { latestManual, type ManualStatus, manualStatuses } from "./mfm/store"
@@ -35,6 +35,47 @@ export interface UpdateResult {
 }
 
 const hoursSince = (iso: string | null, now: number) => (iso ? (now - Date.parse(iso)) / 3_600_000 : Infinity)
+
+/**
+ * A check by hand makes a few dozen requests to Wahapedia and Games Workshop.
+ * One every ten minutes is plenty for a person and keeps it from being used to
+ * hammer them.
+ */
+export const COOLDOWN_MINUTES = 10
+
+const plural = (n: number, one: string, many = one + "s") => (n === 1 ? one : many)
+const sentence = (parts: ReadonlyArray<string | null | false | undefined>) => parts.filter(Boolean).join(" ")
+
+/**
+ * "Check for updates" by hand, for the site's owner: the Database page's button
+ * and the owner's MCP tool. Within the cooldown it only says when to try again.
+ */
+export const updateByHand = Effect.gen(function*() {
+  const last = Option.getOrUndefined(yield* (yield* Settings).get(UPDATES_CHECKED_AT))
+  const minutes = last ? (Date.now() - Date.parse(last)) / 60_000 : Infinity
+  if (minutes < COOLDOWN_MINUTES) {
+    const wait = Math.ceil(COOLDOWN_MINUTES - minutes)
+    return { ok: true, message: `Both sources were checked a few minutes ago. Try again in ${wait} ${plural(wait, "minute")}.` }
+  }
+  const r = yield* checkForUpdates()
+  const moved = r.points.filter((p) => p.status === "new")
+  const failed = r.points.filter((p) => p.status === "failed")
+  return {
+    ok: failed.length === 0 && r.datasheets.status !== "failed",
+    message: sentence([
+      moved.length
+        ? `New points: ${moved.map((p) => `${titleCase(p.faction)} ${p.version} (${p.changes} ${plural(p.changes, "price")} moved)`).join(", ")}.`
+        : r.points.length
+          ? "No new points."
+          : "No factions to check for points yet; import a list first.",
+      ...failed.map((p) => p.message),
+      r.datasheets.message,
+      r.reworded.length
+        ? `${r.reworded.length} library ${plural(r.reworded.length, "rule was", "rules were")} reworded and went back to draft: ${r.reworded.join(", ")}.`
+        : null
+    ])
+  }
+}).pipe(Effect.withSpan("updates.updateByHand"))
 
 /**
  * Look for updates to both sources: the Field Manual for every faction that

@@ -31,7 +31,11 @@
   // khld.dev/cogitator-core and everything under it; the rest of khld.dev is left for other sites
   "routes": [
     { "pattern": "khld.dev/cogitator-core", "zone_name": "khld.dev" },
-    { "pattern": "khld.dev/cogitator-core/*", "zone_name": "khld.dev" }
+    { "pattern": "khld.dev/cogitator-core/*", "zone_name": "khld.dev" },
+    // OAuth discovery for MCP clients sits at the domain's root with the app's paths after it; only these reach the Worker
+    { "pattern": "khld.dev/.well-known/oauth-authorization-server/*", "zone_name": "khld.dev" },
+    { "pattern": "khld.dev/.well-known/oauth-protected-resource/*", "zone_name": "khld.dev" },
+    { "pattern": "khld.dev/.well-known/openid-configuration/*", "zone_name": "khld.dev" }
   ],
   // only on khld.dev, where the zone's rate-limit rule covers it: no workers.dev address, no per-version preview links
   "workers_dev": false,

@@ -32,7 +32,7 @@ npm run preview
 
 ## Use it from an AI assistant
 
-The live site has an MCP endpoint: **https://khld.dev/cogitator-core/mcp**. Add it as a custom connector in Claude or ChatGPT, or as a remote MCP server in a coding agent, and the assistant can list, read and score army lists, explain a matchup weapon by weapon, and look up how a rule is modelled. It is read-only and needs no sign-in; it sees the built-in list by name and any other list by its link. See decision D-46.
+The live site has an MCP endpoint: **https://khld.dev/cogitator-core/mcp**. Add it as a custom connector in Claude or ChatGPT, or as a remote MCP server in a coding agent. The assistant opens the site's sign-in page (one of the accounts made on the Accounts page) and asks you to allow it; then it can list, read and score army lists, explain a matchup weapon by weapon, and look up how a rule is modelled. It reads and scores, and changes nothing. The site's owner also gets a usage report, "check for updates", and connected apps. See decisions D-46 and D-47.
 
 ## Deploy it
 

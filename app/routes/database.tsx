@@ -12,9 +12,8 @@ import { isMfmSlug, MFM_SLUGS, mfmUrl } from "~/.server/mfm/factions"
 import { refreshManyLive } from "~/.server/mfm/refresh"
 import { type ManualChange, manualStatuses } from "~/.server/mfm/store"
 import { requireOwner } from "~/.server/access"
-import { Settings, UPDATES_CHECKED_AT } from "~/.server/repos/Settings"
 import { run } from "~/.server/runtime"
-import { checkForUpdates, type SourceStatus, sourceStatus } from "~/.server/updates"
+import { type SourceStatus, sourceStatus, updateByHand } from "~/.server/updates"
 import type { ChangeKind, ChangeReport, FieldChanges } from "~/.server/wahapedia/diff"
 import { Snapshots } from "~/.server/wahapedia/Snapshots"
 import { plural } from "~/components/ledger"
@@ -39,15 +38,6 @@ export async function loader({ request }: Route.LoaderArgs) {
   }))
 }
 
-const sentence = (parts: ReadonlyArray<string | null | false | undefined>) => parts.filter(Boolean).join(" ")
-
-/**
- * The site is public, and a check makes a few dozen requests to Wahapedia and
- * Games Workshop. One every ten minutes is plenty for a person and keeps the
- * button from being used to hammer them.
- */
-const COOLDOWN_MINUTES = 10
-
 /**
  * `update` is the one a person uses. `track` adds a faction that no list uses
  * yet; it lives under "History and tools".
@@ -58,34 +48,7 @@ export async function action({ request, context }: Route.ActionArgs) {
   const form = await request.formData()
   const intent = form.get("intent")
 
-  if (intent === "update") {
-    const wait = await run(Effect.gen(function*() {
-      const last = Option.getOrUndefined(yield* (yield* Settings).get(UPDATES_CHECKED_AT))
-      const minutes = last ? (Date.now() - Date.parse(last)) / 60_000 : Infinity
-      return minutes < COOLDOWN_MINUTES ? Math.ceil(COOLDOWN_MINUTES - minutes) : 0
-    }))
-    if (wait) {
-      return { ok: true, message: `Both sources were checked a few minutes ago. Try again in ${wait} ${plural(wait, "minute")}.` }
-    }
-    const r = await run(checkForUpdates())
-    const moved = r.points.filter((p) => p.status === "new")
-    const failed = r.points.filter((p) => p.status === "failed")
-    return {
-      ok: failed.length === 0 && r.datasheets.status !== "failed",
-      message: sentence([
-        moved.length
-          ? `New points: ${moved.map((p) => `${titleCase(p.faction)} ${p.version} (${p.changes} ${plural(p.changes, "price")} moved)`).join(", ")}.`
-          : r.points.length
-            ? "No new points."
-            : "No factions to check for points yet; import a list first.",
-        ...failed.map((p) => p.message),
-        r.datasheets.message,
-        r.reworded.length
-          ? `${r.reworded.length} library ${plural(r.reworded.length, "rule was", "rules were")} reworded and went back to draft: ${r.reworded.join(", ")}.`
-          : null
-      ])
-    }
-  }
+  if (intent === "update") return run(updateByHand)
 
   if (intent === "track") {
     const slug = String(form.get("slug") ?? "")

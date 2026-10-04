@@ -169,6 +169,13 @@ export function looksOffensive(txt: string): boolean {
   return terms && ours && !theirs
 }
 
+/**
+ * Shown when a roster comes without its text export. 40k.app's roster files leave out wargear with
+ * no weapon profile, which only the text export lists (found on 4 October with Faolchú).
+ */
+export const NO_TEXT_EXPORT =
+  "No text export. 40k.app’s roster file leaves out wargear that has no weapon profile (Faolchú, Mistshields, Aspect Shrine Tokens, Forceshields…), so this list won’t have it. To include it, go back and paste the text export with the file. Points come from the Field Manual where it prices the unit; check the rest below."
+
 // ---------- text export (points, enhancements, wargear names, detachments) ----------
 
 export interface TextEntry {
@@ -459,7 +466,7 @@ export function parseRosterSync(xmlText: string, exportText: string | null | und
   }
   const unmatched = E.filter((e) => !used.has(e.idx))
   if (unmatched.length) warnings.push(`In the text export but not the roster file: ${unmatched.map((e) => e.nm).join(", ")}.`)
-  if (!haveText) warnings.push("No text export, so every unit starts at 0 pts. Add points below before saving.")
+  if (!haveText) warnings.push(NO_TEXT_EXPORT)
 
   // rules that grant other rules (e.g. Spirit Mark → Wraith Constructs)
   for (const id of new Set(units.flatMap((u) => u.rules))) {

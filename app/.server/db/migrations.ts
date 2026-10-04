@@ -165,5 +165,103 @@ export const migrations = {
     yield* sql`ALTER TABLE lists ADD COLUMN owner_id TEXT`
     yield* sql`CREATE INDEX lists_owner ON lists (owner_id)`
     yield* sql`ALTER TABLE pending_imports ADD COLUMN owner_id TEXT`
+  }),
+
+  /**
+   * better-auth's OAuth server for MCP clients (the JWT plugin's signing keys, and the OAuth provider's clients,
+   * resources, tokens and consents), as better-auth's own migration generator wrote them; and a record of every
+   * request, so the site's owner can see who uses it, and spot abuse.
+   */
+  "0006_oauth": Effect.gen(function*() {
+    const sql = yield* SqlClient.SqlClient
+    yield* sql`
+      create table "jwks" ("id" text not null primary key, "publicKey" text not null, "privateKey" text not null,
+        "createdAt" date not null, "expiresAt" date, "alg" text, "crv" text)
+    `
+    yield* sql`
+      create table "oauthClient" ("id" text not null primary key, "clientId" text not null unique, "clientSecret" text,
+        "clientDiscoveryId" text, "disabled" integer, "skipConsent" integer, "enableEndSession" integer, "subjectType" text,
+        "scopes" text, "clientCredentialsScopes" text, "userId" text references "user" ("id") on delete cascade,
+        "createdAt" date, "updatedAt" date, "name" text, "uri" text, "icon" text, "contacts" text, "tos" text, "policy" text,
+        "softwareId" text, "softwareVersion" text, "softwareStatement" text, "redirectUris" text not null,
+        "postLogoutRedirectUris" text, "backchannelLogoutUri" text, "backchannelLogoutSessionRequired" integer,
+        "tokenEndpointAuthMethod" text, "applicationType" text, "jwks" text, "jwksUri" text, "grantTypes" text,
+        "responseTypes" text, "requirePKCE" integer, "dpopBoundAccessTokens" integer, "referenceId" text, "metadata" text)
+    `
+    yield* sql`
+      create table "oauthResource" ("id" text not null primary key, "identifier" text not null unique, "name" text not null,
+        "accessTokenTtl" integer, "refreshTokenTtl" integer, "signingAlgorithm" text, "signingKeyId" text,
+        "allowedScopes" text, "customClaims" text, "dpopBoundAccessTokensRequired" integer, "disabled" integer,
+        "createdAt" date, "updatedAt" date, "policyVersion" integer, "metadata" text)
+    `
+    yield* sql`
+      create table "oauthClientResource" ("id" text not null primary key,
+        "clientId" text not null references "oauthClient" ("clientId") on delete cascade,
+        "resourceId" text not null references "oauthResource" ("identifier") on delete cascade, "metadata" text,
+        "createdAt" date)
+    `
+    yield* sql`
+      create table "oauthRefreshToken" ("id" text not null primary key, "token" text not null unique,
+        "clientId" text not null references "oauthClient" ("clientId") on delete cascade,
+        "sessionId" text references "session" ("id") on delete set null,
+        "userId" text not null references "user" ("id") on delete cascade, "referenceId" text, "authorizationCodeId" text,
+        "resources" text, "requestedUserInfoClaims" text, "expiresAt" date not null, "createdAt" date not null,
+        "revoked" date, "rotatedAt" date, "rotationReplayResponse" text, "rotationReplayExpiresAt" date, "authTime" date,
+        "confirmation" text, "scopes" text not null)
+    `
+    yield* sql`
+      create table "oauthAccessToken" ("id" text not null primary key, "token" text not null unique,
+        "clientId" text not null references "oauthClient" ("clientId") on delete cascade,
+        "sessionId" text references "session" ("id") on delete set null,
+        "userId" text references "user" ("id") on delete cascade, "referenceId" text, "authorizationCodeId" text,
+        "resources" text, "requestedUserInfoClaims" text,
+        "refreshId" text references "oauthRefreshToken" ("id") on delete cascade, "expiresAt" date not null,
+        "createdAt" date not null, "revoked" date, "confirmation" text, "scopes" text not null)
+    `
+    yield* sql`
+      create table "oauthConsent" ("id" text not null primary key,
+        "clientId" text not null references "oauthClient" ("clientId") on delete cascade,
+        "userId" text references "user" ("id") on delete cascade, "referenceId" text, "resources" text,
+        "requestedUserInfoClaims" text, "scopes" text not null, "createdAt" date not null, "updatedAt" date not null)
+    `
+    yield* sql`
+      create table "oauthClientAssertion" ("id" text not null primary key, "expiresAt" date not null)
+    `
+    yield* sql`create index "oauthClient_userId_idx" on "oauthClient" ("userId")`
+    yield* sql`create index "oauthClientResource_clientId_idx" on "oauthClientResource" ("clientId")`
+    yield* sql`create index "oauthClientResource_resourceId_idx" on "oauthClientResource" ("resourceId")`
+    yield* sql`create index "oauthRefreshToken_clientId_idx" on "oauthRefreshToken" ("clientId")`
+    yield* sql`create index "oauthRefreshToken_sessionId_idx" on "oauthRefreshToken" ("sessionId")`
+    yield* sql`create index "oauthRefreshToken_userId_idx" on "oauthRefreshToken" ("userId")`
+    yield* sql`create index "oauthRefreshToken_authorizationCodeId_idx" on "oauthRefreshToken" ("authorizationCodeId")`
+    yield* sql`create index "oauthAccessToken_clientId_idx" on "oauthAccessToken" ("clientId")`
+    yield* sql`create index "oauthAccessToken_sessionId_idx" on "oauthAccessToken" ("sessionId")`
+    yield* sql`create index "oauthAccessToken_userId_idx" on "oauthAccessToken" ("userId")`
+    yield* sql`create index "oauthAccessToken_authorizationCodeId_idx" on "oauthAccessToken" ("authorizationCodeId")`
+    yield* sql`create index "oauthAccessToken_refreshId_idx" on "oauthAccessToken" ("refreshId")`
+    yield* sql`create index "oauthConsent_clientId_idx" on "oauthConsent" ("clientId")`
+    yield* sql`create index "oauthConsent_userId_idx" on "oauthConsent" ("userId")`
+    yield* sql`create unique index "oauthClientResource_clientId_resourceId_uidx" on "oauthClientResource" ("clientId", "resourceId")`
+
+    // every request the app answers: pages, page data, form posts, OAuth and MCP (see .server/usage.ts)
+    yield* sql`
+      CREATE TABLE usage (
+        id INTEGER PRIMARY KEY,
+        at TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        user_id TEXT,
+        visitor TEXT NOT NULL,
+        country TEXT,
+        client_id TEXT,
+        method TEXT NOT NULL,
+        path TEXT NOT NULL,
+        tool TEXT,
+        status INTEGER NOT NULL,
+        bytes INTEGER
+      )
+    `
+    yield* sql`CREATE INDEX usage_at ON usage (at)`
+    yield* sql`CREATE INDEX usage_user ON usage (user_id, at)`
+    yield* sql`CREATE INDEX usage_visitor ON usage (visitor, at)`
   })
 }

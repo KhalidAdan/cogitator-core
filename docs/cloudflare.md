@@ -46,7 +46,7 @@ Two secrets, set once with `wrangler secret put <NAME>` (locally they're in `.de
 
 `BETTER_AUTH_URL` (`https://khld.dev`) is an ordinary variable in `wrangler.jsonc`. After the first deploy with accounts, open `/cogitator-core/setup`, enter the setup code, and make your account; then add friends on the Accounts page.
 
-`wrangler.jsonc` describes everything that gets created: the Worker, the Durable Object class (`CogitatorCore`, SQLite storage), and the routes `khld.dev/cogitator-core` and `khld.dev/cogitator-core/*`. There is no `workers.dev` address and no per-version preview links (`workers_dev` and `preview_urls` are off), so the only way in is khld.dev, where the rate-limit rule applies.
+`wrangler.jsonc` describes everything that gets created: the Worker, the Durable Object class (`CogitatorCore`, SQLite storage), and the routes `khld.dev/cogitator-core` and `khld.dev/cogitator-core/*`, plus three for the OAuth discovery documents MCP clients look for at the domain's root (`khld.dev/.well-known/oauth-authorization-server/*`, `…/oauth-protected-resource/*` and `…/openid-configuration/*`; decision D-47). There is no `workers.dev` address and no per-version preview links (`workers_dev` and `preview_urls` are off), so the only way in is khld.dev, where the rate-limit rule applies.
 
 For the routes to receive traffic, khld.dev needs a proxied (orange cloud) DNS record. Logs: `npx wrangler tail cogitator-core`.
 

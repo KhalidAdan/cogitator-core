@@ -32,6 +32,8 @@ export default [
 
   // accounts: no sign-up; the owner creates them (the first one through /setup)
   route("sign-in", "routes/sign-in.tsx"),
+  // where an MCP client's OAuth request asks the person to allow it (see .server/auth)
+  route("consent", "routes/consent.tsx"),
   route("sign-out", "routes/sign-out.ts"),
   route("setup", "routes/setup.tsx"),
   route("accounts", "routes/accounts.tsx")

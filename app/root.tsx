@@ -24,6 +24,7 @@ import {
 } from "react-router"
 import { getViewer } from "~/.server/auth/auth"
 import { run } from "~/.server/runtime"
+import { noteUsage } from "~/.server/usage"
 import { readTheme } from "~/.server/theme"
 import { nextTheme, type Theme } from "~/theme"
 import { isOwner, type Viewer, viewerContext } from "~/viewer"
@@ -48,6 +49,8 @@ export const middleware: Route.MiddlewareFunction[] = [
   async ({ request, context }, next) => {
     const { viewer, setCookies } = await getViewer(request)
     context.set(viewerContext, viewer)
+    // the usage log records the request as this account's (.server/usage.ts)
+    noteUsage({ userId: viewer?.id ?? null })
     return withCookies(await next(), setCookies)
   },
   // Log every request through the Effect logger, with how long it took.
