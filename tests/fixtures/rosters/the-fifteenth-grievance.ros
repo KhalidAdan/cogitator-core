@@ -1,0 +1,1627 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<roster id="40kapp-export" name="THE FIFTEENTH GRIEVANCE" battleScribeVersion="2.03" gameSystemId="sys-352e-adc2-7639-d6a9" gameSystemName="Warhammer 40,000 10th Edition" xmlns="http://www.battlescribe.net/schema/rosterSchema">
+  <forces>
+    <force name="Army Roster" catalogueName="Thousand Sons">
+      <selections>
+    <selection name="Rubric Marines A" type="unit" number="1">
+      <profiles>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">5+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Cabal of Sorcerers" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Bringers of Change" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time a model in this unit makes a ranged attack, re‑roll a Wound roll of 1. If that attack targets a unit within range of an objective marker you do not control, you can re‑roll the Wound roll instead.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Aspiring Sorcerer" type="model" number="1">
+        <profiles>
+        <profile name="Aspiring Sorcerer" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Inferno bolt pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Inferno bolt pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Pistol</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Force weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Force weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">D3</characteristic>
+              <characteristic name="Keywords">Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Malefic Curse" type="upgrade" number="1">
+        <profiles>
+          <profile name="Malefic Curse" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">4</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Anti-infantry 4+, Devastating Wounds, Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Rubric Marine" type="model" number="7">
+        <profiles>
+        <profile name="Rubric Marine" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">7+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Inferno boltgun" type="upgrade" number="7">
+        <profiles>
+          <profile name="Inferno boltgun" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Close combat weapon" type="upgrade" number="7">
+        <profiles>
+          <profile name="Close combat weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Rubric Marine w/ Soulreaper cannon" type="model" number="1">
+        <profiles>
+        <profile name="Rubric Marine w/ Soulreaper cannon" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">7+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Inferno boltgun" type="upgrade" number="1">
+        <profiles>
+          <profile name="Inferno boltgun" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Close combat weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Close combat weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Soulreaper cannon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Soulreaper cannon" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">6</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Devastating Wounds</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Rubric Marine" type="model" number="1">
+        <profiles>
+        <profile name="Rubric Marine" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">7+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Inferno boltgun" type="upgrade" number="1">
+        <profiles>
+          <profile name="Inferno boltgun" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Close combat weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Close combat weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Thousand Sons"/>
+        <category name="Tzeentch"/>
+        <category name="Rubricae"/>
+        <category name="Infantry"/>
+        <category name="Battleline"/>
+        <category name="Rubric Marines"/>
+        <category name="Chaos"/>
+        <category name="Psyker"/>
+      </categories>
+    </selection>
+    <selection name="Scarab Occult Terminators A" type="unit" number="1">
+      <profiles>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Cabal of Sorcerers" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Rites of Coalescence" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">While this unit contains one or more **PSYKER** models, each time an attack targets this unit, subtract 1 from the Wound roll.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Scarab Occult Terminator" type="model" number="9">
+        <profiles>
+        <profile name="Scarab Occult Terminator" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">7+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Inferno combi-bolter" type="upgrade" number="9">
+        <profiles>
+          <profile name="Inferno combi-bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Rapid Fire 2</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Prosperine khopesh" type="upgrade" number="9">
+        <profiles>
+          <profile name="Prosperine khopesh" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Scarab Occult Sorcerer" type="model" number="1">
+        <profiles>
+        <profile name="Scarab Occult Sorcerer" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">4</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Prosperine khopesh" type="upgrade" number="1">
+        <profiles>
+          <profile name="Prosperine khopesh" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Force weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Force weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">D3</characteristic>
+              <characteristic name="Keywords">Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Malefic Curse" type="upgrade" number="1">
+        <profiles>
+          <profile name="Malefic Curse" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">4</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Anti-infantry 4+, Devastating Wounds, Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Thousand Sons"/>
+        <category name="Chaos"/>
+        <category name="Rubricae"/>
+        <category name="Terminator"/>
+        <category name="Tzeentch"/>
+        <category name="Scarab Occult"/>
+        <category name="Psyker"/>
+        <category name="Infantry"/>
+      </categories>
+    </selection>
+    <selection name="Rubric Marines B" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Exalted Sorcerer</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">5+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Cabal of Sorcerers" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Bringers of Change" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time a model in this unit makes a ranged attack, re‑roll a Wound roll of 1. If that attack targets a unit within range of an objective marker you do not control, you can re‑roll the Wound roll instead.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Aspiring Sorcerer" type="model" number="1">
+        <profiles>
+        <profile name="Aspiring Sorcerer" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Inferno bolt pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Inferno bolt pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Pistol</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Force weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Force weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">D3</characteristic>
+              <characteristic name="Keywords">Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Malefic Curse" type="upgrade" number="1">
+        <profiles>
+          <profile name="Malefic Curse" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">4</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Anti-infantry 4+, Devastating Wounds, Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Rubric Marine" type="model" number="7">
+        <profiles>
+        <profile name="Rubric Marine" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">7+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Inferno boltgun" type="upgrade" number="7">
+        <profiles>
+          <profile name="Inferno boltgun" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Close combat weapon" type="upgrade" number="7">
+        <profiles>
+          <profile name="Close combat weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Rubric Marine w/ Soulreaper cannon" type="model" number="1">
+        <profiles>
+        <profile name="Rubric Marine w/ Soulreaper cannon" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">7+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Inferno boltgun" type="upgrade" number="1">
+        <profiles>
+          <profile name="Inferno boltgun" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Close combat weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Close combat weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Soulreaper cannon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Soulreaper cannon" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">6</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Devastating Wounds</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Rubric Marine" type="model" number="1">
+        <profiles>
+        <profile name="Rubric Marine" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">7+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Inferno boltgun" type="upgrade" number="1">
+        <profiles>
+          <profile name="Inferno boltgun" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Close combat weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Close combat weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Thousand Sons"/>
+        <category name="Tzeentch"/>
+        <category name="Rubricae"/>
+        <category name="Infantry"/>
+        <category name="Battleline"/>
+        <category name="Rubric Marines"/>
+        <category name="Chaos"/>
+        <category name="Psyker"/>
+      </categories>
+    </selection>
+    <selection name="Rubric Marines C" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Infernal Master</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">5+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Cabal of Sorcerers" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Bringers of Change" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time a model in this unit makes a ranged attack, re‑roll a Wound roll of 1. If that attack targets a unit within range of an objective marker you do not control, you can re‑roll the Wound roll instead.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Aspiring Sorcerer" type="model" number="1">
+        <profiles>
+        <profile name="Aspiring Sorcerer" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Inferno bolt pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Inferno bolt pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Pistol</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Force weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Force weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">D3</characteristic>
+              <characteristic name="Keywords">Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Malefic Curse" type="upgrade" number="1">
+        <profiles>
+          <profile name="Malefic Curse" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">4</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Anti-infantry 4+, Devastating Wounds, Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Rubric Marine" type="model" number="7">
+        <profiles>
+        <profile name="Rubric Marine" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">7+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Inferno boltgun" type="upgrade" number="7">
+        <profiles>
+          <profile name="Inferno boltgun" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Close combat weapon" type="upgrade" number="7">
+        <profiles>
+          <profile name="Close combat weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Rubric Marine w/ Soulreaper cannon" type="model" number="1">
+        <profiles>
+        <profile name="Rubric Marine w/ Soulreaper cannon" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">7+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Inferno boltgun" type="upgrade" number="1">
+        <profiles>
+          <profile name="Inferno boltgun" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Close combat weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Close combat weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Soulreaper cannon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Soulreaper cannon" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">6</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Devastating Wounds</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Rubric Marine" type="model" number="1">
+        <profiles>
+        <profile name="Rubric Marine" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">7+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Inferno boltgun" type="upgrade" number="1">
+        <profiles>
+          <profile name="Inferno boltgun" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Close combat weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Close combat weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Thousand Sons"/>
+        <category name="Tzeentch"/>
+        <category name="Rubricae"/>
+        <category name="Infantry"/>
+        <category name="Battleline"/>
+        <category name="Rubric Marines"/>
+        <category name="Chaos"/>
+        <category name="Psyker"/>
+      </categories>
+    </selection>
+    <selection name="Tzaangor Enlightened with Fatecaster Greatbows" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Ahriman</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">5+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Malign Trickery" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">In your opponent's Movement phase, if an enemy unit ends a move within 8” of this unit, if this unit is not within Engagement Range of one or more enemy units, this unit can make a Normal move of up to D6”.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Enlightened" type="model" number="2">
+        <profiles>
+        <profile name="Enlightened" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">10&quot;</characteristic>
+            <characteristic name="T">4</characteristic>
+            <characteristic name="SV">5+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">7+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Fatecaster greatbow" type="upgrade" number="2">
+        <profiles>
+          <profile name="Fatecaster greatbow" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">30&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">4+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Ignores Cover, Lethal Hits, Precision</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Close combat weapon" type="upgrade" number="2">
+        <profiles>
+          <profile name="Close combat weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="WS">4+</characteristic>
+              <characteristic name="S">4</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Aviarch" type="model" number="1">
+        <profiles>
+        <profile name="Aviarch" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">10&quot;</characteristic>
+            <characteristic name="T">4</characteristic>
+            <characteristic name="SV">5+</characteristic>
+            <characteristic name="W">2</characteristic>
+            <characteristic name="LD">7+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Close combat weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Close combat weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="WS">4+</characteristic>
+              <characteristic name="S">4</characteristic>
+              <characteristic name="AP">0</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Fatecaster greatbow" type="upgrade" number="1">
+        <profiles>
+          <profile name="Fatecaster greatbow" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">30&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">4+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Ignores Cover, Lethal Hits, Precision</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Thousand Sons"/>
+        <category name="Fly"/>
+        <category name="Tzeentch"/>
+        <category name="Tzaangor Enlightened"/>
+        <category name="Tzaangor Enlightened with Fatecaster Greatbows"/>
+        <category name="Mounted"/>
+        <category name="Mutant"/>
+        <category name="Chaos"/>
+      </categories>
+    </selection>
+    <selection name="Scarab Occult Terminators B" type="unit" number="1">
+      <profiles>
+        <profile name="Led by" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Sorcerer in Terminator Armour</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Cabal of Sorcerers" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Rites of Coalescence" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">While this unit contains one or more **PSYKER** models, each time an attack targets this unit, subtract 1 from the Wound roll.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Scarab Occult Terminator" type="model" number="9">
+        <profiles>
+        <profile name="Scarab Occult Terminator" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">3</characteristic>
+            <characteristic name="LD">7+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Inferno combi-bolter" type="upgrade" number="9">
+        <profiles>
+          <profile name="Inferno combi-bolter" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">2</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Rapid Fire 2</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Prosperine khopesh" type="upgrade" number="9">
+        <profiles>
+          <profile name="Prosperine khopesh" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      <selection name="Scarab Occult Sorcerer" type="model" number="1">
+        <profiles>
+        <profile name="Scarab Occult Sorcerer" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">4</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        </profiles>
+        <selections>
+      <selection name="Prosperine khopesh" type="upgrade" number="1">
+        <profiles>
+          <profile name="Prosperine khopesh" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Force weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Force weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">D3</characteristic>
+              <characteristic name="Keywords">Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Malefic Curse" type="upgrade" number="1">
+        <profiles>
+          <profile name="Malefic Curse" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">4</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Anti-infantry 4+, Devastating Wounds, Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+        </selections>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Thousand Sons"/>
+        <category name="Chaos"/>
+        <category name="Rubricae"/>
+        <category name="Terminator"/>
+        <category name="Tzeentch"/>
+        <category name="Scarab Occult"/>
+        <category name="Psyker"/>
+        <category name="Infantry"/>
+      </categories>
+    </selection>
+    <selection name="Ahriman" type="model" number="1">
+      <profiles>
+        <profile name="Ahriman" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">10&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">6</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">2</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Tzaangor Enlightened with Fatecaster Greatbows</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Cabal of Sorcerers" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Scryer of Fates" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">If your army includes this model, after both players have deployed their armies, you can select up to three **THOUSAND SONS** units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves if you wish, regardless of how many units are already in Strategic Reserves.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Arch-Sorcerer of Tzeentch" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this model attempts a Ritual, add 1 to the Psychic test result.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Inferno bolt pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Inferno bolt pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Pistol</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Transmogrifying Blast" type="upgrade" number="1">
+        <profiles>
+          <profile name="Transmogrifying Blast" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">D6+1</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">D3</characteristic>
+              <characteristic name="Keywords">Blast, Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Black Staff of Ahriman" type="upgrade" number="1">
+        <profiles>
+          <profile name="Black Staff of Ahriman" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">7</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">3</characteristic>
+              <characteristic name="Keywords">Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Thousand Sons"/>
+        <category name="Epic Hero"/>
+        <category name="Infantry"/>
+        <category name="Ahriman"/>
+        <category name="Fly"/>
+        <category name="Mounted"/>
+        <category name="Tzeentch"/>
+        <category name="Chaos"/>
+        <category name="Character"/>
+        <category name="Psyker"/>
+      </categories>
+    </selection>
+    <selection name="Infernal Master" type="model" number="1">
+      <profiles>
+        <profile name="Infernal Master" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">4</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Rubric Marines C</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">5+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Cabal of Sorcerers" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Malefic Maelstrom" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">While this model is leading a unit, weapons equipped by models in that unit have the **[SUSTAINED HITS 1]** ability.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Glimpse of Eternity" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Once per turn, you can change the result of one Hit roll, one Wound roll or one saving throw made for this model to an unmodified 6.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Enhancement: Risen Rubricae" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">**THOUSAND SONS** model only. At the start of the Declare Battle Formations step, select either two **RUBRICAE BATTLELINE** units from your army or one other **RUBRICAE** unit from your army; models in the selected units have the Infiltrators ability.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Force weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Force weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">D3</characteristic>
+              <characteristic name="Keywords">Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Fires of the Abyss - witchfire" type="upgrade" number="1">
+        <profiles>
+          <profile name="Fires of the Abyss - witchfire" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">D6</characteristic>
+              <characteristic name="BS">-</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Psychic, Torrent</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Fires of the Abyss - focused witchfire" type="upgrade" number="1">
+        <profiles>
+          <profile name="Fires of the Abyss - focused witchfire" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">2D6</characteristic>
+              <characteristic name="BS">-</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Hazardous, Psychic, Torrent</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Inferno bolt pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Inferno bolt pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Pistol</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Thousand Sons"/>
+        <category name="Infernal Master"/>
+        <category name="Infantry"/>
+        <category name="Character"/>
+        <category name="Tzeentch"/>
+        <category name="Psyker"/>
+        <category name="Chaos"/>
+        <category name="Grenades"/>
+      </categories>
+    </selection>
+    <selection name="Exalted Sorcerer" type="model" number="1">
+      <profiles>
+        <profile name="Exalted Sorcerer" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">6&quot;</characteristic>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">5</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Rubric Marines B</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Cabal of Sorcerers" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Arcane Shield" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">While this model is leading a unit, models in that unit have a 4+ invulnerable save.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Rebind Rubricae" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">In your Command phase, if this model is leading a unit, you can roll one D6: on a 1, that unit suffers D3 mortal wounds; on a 2-5, you can return 1 destroyed Bodyguard model to that unit; on a 6, you can return up to 2 destroyed Bodyguard models to that unit.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Force weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Force weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">D3</characteristic>
+              <characteristic name="Keywords">Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Astral Blast" type="upgrade" number="1">
+        <profiles>
+          <profile name="Astral Blast" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">D6</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">D3</characteristic>
+              <characteristic name="Keywords">Blast, Devastating Wounds, Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Inferno bolt pistol" type="upgrade" number="1">
+        <profiles>
+          <profile name="Inferno bolt pistol" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">12&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Pistol</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Prosperine khopesh" type="upgrade" number="1">
+        <profiles>
+          <profile name="Prosperine khopesh" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">4</characteristic>
+              <characteristic name="WS">2+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords"></characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Thousand Sons"/>
+        <category name="Chaos"/>
+        <category name="Tzeentch"/>
+        <category name="Infantry"/>
+        <category name="Exalted Sorcerer"/>
+        <category name="Character"/>
+        <category name="Grenades"/>
+        <category name="Psyker"/>
+      </categories>
+    </selection>
+    <selection name="Sorcerer in Terminator Armour" type="model" number="1">
+      <profiles>
+        <profile name="Sorcerer in Terminator Armour" typeName="Unit">
+          <characteristics>
+            <characteristic name="M">5&quot;</characteristic>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">2+</characteristic>
+            <characteristic name="W">5</characteristic>
+            <characteristic name="LD">6+</characteristic>
+            <characteristic name="OC">1</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Attached to" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Scarab Occult Terminators B</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Invulnerable Save" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">4+</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Deep Strike" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Each time this unit makes an ingress move (20.04), if every model in this unit has this ability, it can be set up anywhere on the battlefield that is more than 8&quot; horizontally from all enemy units, even if that is within your opponent’s deployment zone.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Leader" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">Before the battle, in the Muster Armies step, for each leader and support unit in your army, you can select one friendly bodyguard unit that unit can lead. That unit will then lead that bodyguard unit for the battle and form an attached unit with it.
+Unless otherwise stated, each bodyguard unit can only have one leader unit and one support unit attached to it.
+See Attached Units (19)</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Cabal of Sorcerers" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">-</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Empyric Guidance" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">While this model is leading a unit, weapons equipped by models in that unit have the **[LETHAL HITS]** ability.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Marked by Fate" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">At the start of your Shooting phase, select one enemy unit that is visible to this **PSYKER** model. Until the end of the phase, each time a model in this unit makes an attack that targets that enemy unit, add 1 to the Hit roll.</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Enhancement: Lord of the Rubricae" typeName="Abilities">
+          <characteristics>
+            <characteristic name="Description">**THOUSAND SONS** model only. While the bearer is leading a unit, each time a **RUBRICAE** model in that unit makes an attack, add 1 to the Hit roll.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selections>
+      <selection name="Gaze of Hate" type="upgrade" number="1">
+        <profiles>
+          <profile name="Gaze of Hate" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">18&quot;</characteristic>
+              <characteristic name="A">3</characteristic>
+              <characteristic name="BS">3+</characteristic>
+              <characteristic name="S">4</characteristic>
+              <characteristic name="AP">-3</characteristic>
+              <characteristic name="D">2</characteristic>
+              <characteristic name="Keywords">Anti-monster 4+, Anti-vehicle 4+, Devastating Wounds, Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Force weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Force weapon" typeName="Melee Weapons">
+            <characteristics>
+              <characteristic name="Range">Melee</characteristic>
+              <characteristic name="A">5</characteristic>
+              <characteristic name="WS">3+</characteristic>
+              <characteristic name="S">6</characteristic>
+              <characteristic name="AP">-1</characteristic>
+              <characteristic name="D">D3</characteristic>
+              <characteristic name="Keywords">Psychic</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      <selection name="Inferno combi-weapon" type="upgrade" number="1">
+        <profiles>
+          <profile name="Inferno combi-weapon" typeName="Ranged Weapons">
+            <characteristics>
+              <characteristic name="Range">24&quot;</characteristic>
+              <characteristic name="A">1</characteristic>
+              <characteristic name="BS">4+</characteristic>
+              <characteristic name="S">5</characteristic>
+              <characteristic name="AP">-2</characteristic>
+              <characteristic name="D">1</characteristic>
+              <characteristic name="Keywords">Anti-infantry 4+, Devastating Wounds, Rapid Fire 1</characteristic>
+            </characteristics>
+          </profile>
+        </profiles>
+      </selection>
+      </selections>
+      <categories>
+        <category name="Faction: Thousand Sons"/>
+        <category name="Character"/>
+        <category name="Tzeentch"/>
+        <category name="Psyker"/>
+        <category name="Sorcerer"/>
+        <category name="Chaos"/>
+        <category name="Terminator"/>
+        <category name="Infantry"/>
+      </categories>
+    </selection>
+      </selections>
+    </force>
+  </forces>
+</roster>

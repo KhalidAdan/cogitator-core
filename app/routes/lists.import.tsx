@@ -14,35 +14,28 @@ import { Fragment, useState } from "react"
 import { data, Form, Link, redirect, useNavigation } from "react-router"
 import { parseRoster, readRosterFile } from "~/.server/importer/roster"
 import { requireViewer } from "~/.server/access"
+import { importContext } from "~/.server/importer/context"
 import { fieldManualSlug } from "~/.server/mfm/factions"
 import { refreshManyLive } from "~/.server/mfm/refresh"
 import { Imports } from "~/.server/repos/Imports"
 import { Lists } from "~/.server/repos/Lists"
-import { Rules } from "~/.server/repos/Rules"
 import { run } from "~/.server/runtime"
-import { seedData } from "~/.server/seed/Seed"
 import { sourceStatus } from "~/.server/updates"
 import { applyPoints, applyProfiles, checkList, type ProfileCells, type ProfileDiff, profileDiff, type StatCells } from "~/.server/wahapedia/check"
 import { DemoChip } from "~/components/chips"
 import { plural } from "~/components/ledger"
-import type { Rule, RuleBook, Unit } from "~/domain/schema"
+import type { Rule, Unit } from "~/domain/schema"
 import { isOwner } from "~/viewer"
 import type { Route } from "./+types/lists.import"
-
-const importContext = (library: RuleBook) => ({
-  library,
-  factionArmyRules: seedData.factionArmyRules,
-  detachmentRules: seedData.detachmentRules,
-  detachmentUnitGrants: seedData.detachmentUnitGrants
-})
 
 /** Parse a pending import and check it against the database. Someone else's upload is as good as missing. */
 const preview = (pendingId: string, ownerId: string) =>
   Effect.gen(function*() {
     const pending = Option.getOrUndefined(yield* (yield* Imports).get(pendingId))
     if (!pending || pending.ownerId !== ownerId) return null
-    const library = yield* (yield* Rules).book
-    const parsed = yield* parseRoster(pending.rosterXml, pending.textExport, importContext(library))
+    const ctx = yield* importContext
+    const library = ctx.library
+    const parsed = yield* parseRoster(pending.rosterXml, pending.textExport, ctx)
     const check = yield* checkList({ units: parsed.units, meta: parsed.meta, rules: parsed.rules }, library)
     return { pending, parsed, check, library }
   })
@@ -159,7 +152,7 @@ export async function action({ request, context }: Route.ActionArgs) {
       Effect.gen(function*() {
         const xml = yield* readRosterFile(bytes)
         // parse now so a bad file is reported here, not on the review page
-        yield* parseRoster(xml, text, importContext(yield* (yield* Rules).book))
+        yield* parseRoster(xml, text, yield* importContext)
         return { id: yield* (yield* Imports).add({ fileName: file.name, rosterXml: xml, textExport: text, ownerId: viewer.id }) }
       }).pipe(Effect.catchTag("RosterParseError", (e) => Effect.succeed({ error: e.message })))
     )

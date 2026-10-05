@@ -213,6 +213,84 @@ export const LIBRARY_RULES: ReadonlyArray<LibraryRule> = [
       orders: ["take-aim", "first-rank-fire", "fix-bayonets", "move-move-move", "take-cover", "duty-and-honour"]
     }
   },
+
+  // ---------- Thousand Sons (5 October 2026, from "The Fifteenth Grievance")
+  {
+    id: "bringers-of-change",
+    faction: "TS",
+    status: "draft",
+    rule: {
+      nm: "Bringers of Change",
+      src: "Datasheet",
+      scope: "unit",
+      dmg: true,
+      def: true,
+      txt: "Ranged attacks re-roll wound rolls of 1. Against a unit within range of an objective you don’t control, they re-roll the whole wound roll instead (switch “Target is on an objective”). A leader in the unit benefits too.",
+      fx: [
+        { phase: "ranged", whenNot: "objective", rrWound: "ones" },
+        { phase: "ranged", when: "objective", rrWound: "all" }
+      ]
+    }
+  },
+  {
+    id: "malefic-maelstrom",
+    faction: "TS",
+    status: "draft",
+    rule: {
+      nm: "Malefic Maelstrom",
+      src: "Leader",
+      scope: "unit",
+      dmg: true,
+      def: true,
+      txt: "While this model leads a unit, weapons in that unit (its own included) have Sustained Hits 1.",
+      fx: [{ grant: { sus: 1 } }]
+    }
+  },
+  {
+    id: "empyric-guidance",
+    faction: "TS",
+    status: "draft",
+    rule: {
+      nm: "Empyric Guidance",
+      src: "Leader",
+      scope: "unit",
+      dmg: true,
+      def: true,
+      txt: "While this model leads a unit, weapons in that unit (its own included) have Lethal Hits.",
+      fx: [{ grant: { lethal: 1 } }]
+    }
+  },
+  {
+    id: "marked-by-fate",
+    faction: "TS",
+    status: "draft",
+    rule: {
+      nm: "Marked by Fate",
+      src: "Leader",
+      scope: "unit",
+      dmg: true,
+      mark: "fated",
+      markNm: "Marked by Fate",
+      markTxt: "Marked by Fate: the Sorcerer’s unit adds 1 to ranged hit rolls against it.",
+      txt: "At the start of your Shooting phase this Psyker picks one enemy unit it can see. Until the end of the phase, attacks by models in its unit against that enemy add 1 to the hit roll: ranged attacks, since it lasts only the Shooting phase.",
+      fx: [{ phase: "ranged", hit: 1 }]
+    }
+  },
+  {
+    id: "lord-of-the-rubricae",
+    faction: "TS",
+    status: "draft",
+    rule: {
+      nm: "Lord of the Rubricae",
+      src: "Enhancement",
+      scope: "unit",
+      dmg: true,
+      def: true,
+      txt: "While the bearer leads a unit, Rubricae models in it add 1 to their hit rolls. The bearer himself isn’t Rubricae, so his own attacks don’t.",
+      fx: [{ attacker: { only: ["RUBRICAE"] }, hit: 1 }]
+    }
+  },
+
   ...order("take-aim", "Take Aim!", "Improve the Ballistic Skill of the unit’s ranged weapons by 1.", [{ phase: "ranged", skill: 1 }]),
   ...order(
     "first-rank-fire",

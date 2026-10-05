@@ -12,6 +12,7 @@ import { unzipSync } from "fflate"
 import { parseDice, parseNum, parseWeaponKeywords } from "~/domain/keywords"
 import type { Enhancement, Group, ListMeta, Role, Rule, RuleBook, Unit, UnitStats, Weapon, WeaponKw } from "~/domain/schema"
 import { clean, norm, slug, titleCase } from "~/domain/text"
+import { type Swap, weaponKey } from "../wahapedia/swaps"
 import { attr, descendants, kid, kids, parseXml, textContent, type XNode } from "./xml"
 
 export class RosterParseError extends Schema.TaggedError<RosterParseError>()("RosterParseError", {
@@ -25,6 +26,8 @@ export interface ImportContext {
   readonly factionArmyRules: Readonly<Record<string, ReadonlyArray<string>>>
   readonly detachmentRules: Readonly<Record<string, ReadonlyArray<string>>>
   readonly detachmentUnitGrants: Readonly<Record<string, ReadonlyArray<{ readonly name: string; readonly rule: string }>>>
+  /** A unit's wargear swaps from its Wahapedia datasheet, by the unit's name in the roster (see `dropReplaced`). */
+  readonly swaps?: (unitName: string) => ReadonlyArray<Swap>
 }
 
 export interface ImportStats {
@@ -147,6 +150,30 @@ function modelGroups(top: XNode): Array<ModelGroup> {
     if (loose.length) groups.push({ n: 0, nm: "unit wargear", items: loose, prof: unitProfile(top) })
   }
   return groups
+}
+
+/**
+ * 40k.app names a model that took an option after what it took ("Rubric Marine w/ Soulreaper cannon") but keeps
+ * the weapon it gave up as well. Where the datasheet says the taken weapon replaces one the model still carries,
+ * that one goes. Only what the name says was taken can drop anything, so a model that carries two weapons by
+ * default, or took one in addition ("can be equipped with"), keeps both.
+ */
+function dropReplaced(g: ModelGroup, swaps: ReadonlyArray<Swap>): void {
+  const named = g.nm.match(/ w\/ (.+)$/i) ?? g.nm.match(/ with (.+)$/i)
+  if (!named || !swaps.length) return
+  const took = new Set(named[1].split(" + ").map(weaponKey))
+  const key = (i: Item) => weaponKey(i.multi ? i.upg : i.w.nm)
+  const has = new Set(g.items.map(key))
+  const gone = new Set<string>()
+  for (const s of swaps) {
+    if (!s.from.some((f) => has.has(f))) continue
+    // a choice that keeps the weapon ("1 power fist and 1 Sternguard bolt rifle") replaces nothing
+    if (s.to.some((choice) => !choice.some((x) => s.from.includes(x)) && choice.some((x) => took.has(x)))) {
+      s.from.forEach((f) => gone.add(f))
+    }
+  }
+  for (const t of took) gone.delete(t)
+  if (gone.size) g.items = g.items.filter((i) => !gone.has(key(i)))
 }
 
 // ---------- rules ----------
@@ -332,6 +359,8 @@ export function parseRosterSync(xmlText: string, exportText: string | null | und
 
     // weapons: per model group, then merge groups with identical loadouts
     const groups = modelGroups(top).filter((g) => g.items.length || g.prof)
+    const swaps = ctx.swaps?.(nm) ?? []
+    groups.forEach((g) => dropReplaced(g, swaps))
     const merged: Array<ModelGroup> = []
     for (const g of groups) {
       const sig = JSON.stringify(g.items.map((i) => profKey(i.w)).sort())

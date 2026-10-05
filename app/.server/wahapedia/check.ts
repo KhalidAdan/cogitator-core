@@ -288,12 +288,30 @@ function manualEnhancement(manual: FieldManual | null, name: string, detachmentN
   return all.find((e) => dets.has(norm(e.detachment))) ?? (new Set(all.map((e) => e.cost)).size === 1 ? all[0] : null)
 }
 
+/** Whether `extra` points are made of the wargear costs, each bought at most `most` times (once per model). */
+function wargearMakes(extra: number, wargear: ReadonlyArray<number>, most: number): boolean {
+  if (extra === 0) return true
+  let made = new Set([0])
+  for (const cost of wargear) {
+    if (cost <= 0) continue
+    const next = new Set(made)
+    for (const m of made) for (let k = 1; k <= most && m + k * cost <= extra; k++) next.add(m + k * cost)
+    made = next
+  }
+  return made.has(extra)
+}
+
+/**
+ * A unit's price against the source's. `wargear` is what the source charges per item on top ("per Storm Shield",
+ * 5): a list price that is the unit's price plus some of those is right, and stays the price to keep, since the
+ * file doesn't say how many were bought.
+ */
 function checkPoints(
   unit: Unit,
   costs: ReadonlyArray<CostLine>,
   position: number,
   source: PointsSource,
-  hasExtras: boolean
+  wargear: ReadonlyArray<number>
 ): PointsCheck {
   const list = unit.pts - (unit.enh?.pts ?? 0)
   const where = source === "field-manual" ? "The Field Manual" : "The database"
@@ -306,12 +324,18 @@ function checkPoints(
     return position >= lo && position <= hi
   })
   const prices = [...new Set((here.length ? here : forSize).map((c) => c.cost))]
+  const exact = forSize.some((c) => c.cost === list)
+  const withWargear = exact || list <= 0 ? undefined : (here.length ? here : forSize).find((c) => list > c.cost && wargearMakes(list - c.cost, wargear, unit.models))
   return {
     list,
     options: forSize,
-    ok: forSize.some((c) => c.cost === list),
-    expected: prices.length === 1 ? prices[0] : null,
-    note: hasExtras ? "This unit also has wargear costs; check those by hand." : "",
+    ok: exact || !!withWargear,
+    expected: withWargear ? list : prices.length === 1 ? prices[0] : null,
+    note: withWargear
+      ? `${withWargear.cost} pts plus ${list - withWargear.cost} pts of wargear.`
+      : wargear.length
+        ? "This unit also has wargear costs; check those by hand."
+        : "",
     source
   }
 }
@@ -377,9 +401,9 @@ export interface CheckContext {
 function checkPrices(unit: Unit, sheet: Datasheet | null, ctx: CheckContext): Pick<UnitCheck, "points" | "enhancement" | "pointsIssues"> {
   const fromManual = manualUnitFor(ctx.manual, unit, sheet?.name)
   const points = fromManual
-    ? checkPoints(unit, fromManual.costs, ctx.position, "field-manual", fromManual.wargear.length > 0)
+    ? checkPoints(unit, fromManual.costs, ctx.position, "field-manual", fromManual.wargear.map((w) => w.cost))
     : sheet
-      ? checkPoints(unit, sheet.costs, ctx.position, "wahapedia", sheet.costs.some((c) => /^per |^\+/i.test(c.description)))
+      ? checkPoints(unit, sheet.costs, ctx.position, "wahapedia", sheet.costs.filter((c) => /^per |^\+/i.test(c.description)).map((c) => c.cost))
       : null
   let enhancement: UnitCheck["enhancement"] = null
   if (unit.enh) {

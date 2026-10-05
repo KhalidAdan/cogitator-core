@@ -12,6 +12,7 @@ import { useMemo, useRef } from "react"
 import { data, Link, Outlet, type ShouldRevalidateFunctionArgs, useFetchers, useMatches, useNavigate, useRouteLoaderData } from "react-router"
 import { requireListEditor, viewerOf } from "~/.server/access"
 import { clearViewerOpts, readViewerOpts, writeActiveList, writeViewerOpts } from "~/.server/cookies"
+import { importContext } from "~/.server/importer/context"
 import { keepPrices, parseRoster } from "~/.server/importer/roster"
 import { Lists } from "~/.server/repos/Lists"
 import { Rules } from "~/.server/repos/Rules"
@@ -95,12 +96,7 @@ export async function action({ request, params, context }: Route.ActionArgs) {
       const lists = yield* Lists
       const source = yield* lists.sources(listId)
       if (source.rosterXml === null) return
-      const parsed = yield* parseRoster(source.rosterXml, source.textExport, {
-        library: yield* (yield* Rules).book,
-        factionArmyRules: seedData.factionArmyRules,
-        detachmentRules: seedData.detachmentRules,
-        detachmentUnitGrants: seedData.detachmentUnitGrants
-      })
+      const parsed = yield* parseRoster(source.rosterXml, source.textExport, yield* importContext)
       yield* lists.replaceContent(listId, { ...parsed, units: keepPrices(parsed.units, list.units) })
     }))
     return { ok: true }

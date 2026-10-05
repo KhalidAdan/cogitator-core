@@ -50,6 +50,8 @@ const ALIASES: Record<string, MfmSlug> = {
   harlequins: "aeldari",
   craftworlds: "aeldari",
   "adeptus astartes": "space-marines",
+  // 40k.app writes Chaos Space Marines lists as Heretic Astartes
+  "heretic astartes": "chaos-space-marines",
   // chapters priced on the Space Marines page (the others have their own)
   "white scars": "space-marines",
   ultramarines: "space-marines",

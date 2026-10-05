@@ -259,3 +259,61 @@ describe("Astra Militarum Orders", () => {
     expect(rows.every((r) => r.hitChance === undefined || Math.abs(r.hitChance - (r.w.t === "r" ? 5 / 6 : 4 / 6)) < 1e-9)).toBe(true)
   })
 })
+
+describe("Thousand Sons", () => {
+  const sorcerer = (rules: Array<string>, kw = ["INFANTRY", "PSYKER"]) => unit("sorcerer", { grp: "A", role: "Leader", models: 1, kw, rules })
+  const rubrics = (rules: Array<string> = []) => unit("rubrics", { grp: "A", role: "Bodyguard", kw: ["INFANTRY", "RUBRICAE"], rules })
+
+  it("Bringers of Change: ranged wound rolls of 1 re-roll, every failed one against a unit on an objective, and the leader shares it", () => {
+    const leader = sorcerer([])
+    const squad = rubrics(["bringers-of-change"])
+    const plain = unit("plain")
+    const all = [leader, squad, plain]
+    // S5 into T4 wounds on 3+
+    const base = row(plain, all, opts(), "Gun").wound!
+    expect(row(squad, all, opts(), "Gun").wound! / base).toBeCloseTo(7 / 6)
+    expect(row(squad, all, opts({ objective: true }), "Gun").wound! / base).toBeCloseTo((4 / 6 + (2 / 6) * (4 / 6)) / (4 / 6))
+    expect(row(leader, all, opts(), "Gun").wound! / base).toBeCloseTo(7 / 6)
+    expect(row(squad, all, opts(), "Blade").wound!).toBeCloseTo(row(plain, all, opts(), "Blade").wound!)
+  })
+
+  it("Malefic Maelstrom and Empyric Guidance: Sustained Hits 1 and Lethal Hits for the whole unit the Sorcerer leads", () => {
+    for (const [rule, field] of [["malefic-maelstrom", "susExtra"], ["empyric-guidance", "lethalShare"]] as const) {
+      const leader = sorcerer([rule])
+      const squad = rubrics()
+      const alone = unit("alone")
+      const all = [leader, squad, alone]
+      expect(row(squad, all, opts(), "Gun")[field] ?? 0, rule).toBeGreaterThan(0)
+      expect(row(squad, all, opts(), "Blade")[field] ?? 0, rule).toBeGreaterThan(0)
+      expect(row(leader, all, opts(), "Gun")[field] ?? 0, rule).toBeGreaterThan(0)
+      expect(row(alone, all, opts(), "Gun")[field] ?? 0, rule).toBe(0)
+    }
+  })
+
+  it("Marked by Fate: +1 to hit for the Sorcerer's unit against the marked enemy, in the Shooting phase only", () => {
+    const leader = sorcerer(["marked-by-fate"])
+    const squad = rubrics()
+    const other = unit("other")
+    const all = [leader, squad, other]
+    const marked = opts({ fated: true })
+    expect(availableMarks(all, rules).map((m) => m.key)).toEqual(["fated"])
+    // BS 3+ hits on 2+ with the +1
+    expect(row(squad, all, opts(), "Gun").hitChance).toBeCloseTo(4 / 6)
+    expect(row(squad, all, marked, "Gun").hitChance).toBeCloseTo(5 / 6)
+    expect(row(leader, all, marked, "Gun").hitChance).toBeCloseTo(5 / 6)
+    expect(row(squad, all, marked, "Blade").hitChance).toBeCloseTo(4 / 6)
+    expect(row(other, all, marked, "Gun").hitChance).toBeCloseTo(4 / 6)
+  })
+
+  it("Lord of the Rubricae: +1 to hit for the Rubricae the bearer leads, not for the bearer", () => {
+    const leader = sorcerer(["lord-of-the-rubricae"])
+    const squad = rubrics()
+    const all = [leader, squad]
+    expect(row(squad, all, opts(), "Gun").hitChance).toBeCloseTo(5 / 6)
+    expect(row(squad, all, opts(), "Blade").hitChance).toBeCloseTo(5 / 6)
+    expect(row(leader, all, opts(), "Gun").hitChance).toBeCloseTo(4 / 6)
+    // capped with Marked by Fate: +1 to hit at most
+    const both = sorcerer(["lord-of-the-rubricae", "marked-by-fate"])
+    expect(row(squad, [both, squad], opts({ fated: true }), "Gun").hitChance).toBeCloseTo(5 / 6)
+  })
+})

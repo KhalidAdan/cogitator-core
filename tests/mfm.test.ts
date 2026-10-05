@@ -294,6 +294,26 @@ describe.skipIf(!aeldariPage || !marinesPage)("with the saved Field Manual pages
         expect(chaplain.pts).toBe(check.units.find((c) => c.unitId === "chaplain-on-bike")!.points!.expected! + chaplain.enh!.pts)
       }))
 
+    it.effect("counts a price that includes wargear as right, and keeps it when applying points", () =>
+      Effect.gen(function*() {
+        const unit = (id: string, nm: string, pts: number, models: number): Unit => ({ id, nm, pts, models, kw: [], rules: [], w: [] })
+        const units = [
+          // 170 for five, plus five storm shields at 5 each
+          unit("tas", "Terminator Assault Squad", 195, 5),
+          // 260, plus a heavy laser destroyer at 10
+          unit("rex", "Repulsor Executioner", 270, 1),
+          // no number of storm shields makes 172
+          unit("odd", "Terminator Assault Squad", 172, 5)
+        ]
+        const list = { units, meta: { name: "Wargear", faction: "Imperial Fists" }, rules: {} }
+        const check = yield* checkList(list, {})
+        const of = (id: string) => check.units.find((c) => c.unitId === id)!
+        expect([of("tas").points?.ok, of("rex").points?.ok, of("odd").points?.ok]).toEqual([true, true, false])
+        expect(of("tas").points?.note).toBe("170 pts plus 25 pts of wargear.")
+        expect(units.map((u) => applyPoints(u, of(u.id)).pts)).toEqual([195, 270, 170])
+        expect((yield* pointsDrift(list))?.units.map((u) => u.unitId)).toEqual(["odd"])
+      }))
+
     it.effect("reports no drift for a faction whose page hasn't been read", () =>
       Effect.gen(function*() {
         expect(yield* pointsDrift({ units: [], meta: { name: "x", faction: "Orks" } })).toBeNull()

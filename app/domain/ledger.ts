@@ -187,8 +187,12 @@ export interface Heat {
   readonly efficient: boolean
 }
 
-/** Cell colour for a return percentage: gold at 100%+, jade from 65%, a tint from 35%. */
-export function heat(roi: number): Heat {
+/**
+ * Cell colour for a return percentage: gold at 100%+, jade from 65%, a tint from 35%. The bands go by the whole
+ * number the cell shows, so a cell reading 65 is efficient and one reading 64 isn't.
+ */
+export function heat(exact: number): Heat {
+  const roi = Math.round(exact)
   if (roi >= 100) {
     const m = Math.min(85, 62 + (roi - 100) / 4)
     return { bg: `color-mix(in oklab, var(--gold) ${m}%, var(--surface))`, fg: "var(--gold-ink)", efficient: true }
@@ -208,6 +212,9 @@ export const barBackground = (h: Heat) => (h.bg === "transparent" ? "color-mix(i
 
 /** The line at which a unit counts as an efficient answer to a target. */
 export const EFFICIENT = 65
+
+/** At the efficient line or better, judged by the whole number shown (64.6% shows as 65, and counts). */
+export const isEfficient = (roi: number): boolean => Math.round(roi) >= EFFICIENT
 
 // ---------- matrix ----------
 
@@ -246,7 +253,7 @@ export function matrix(l: Ledger): Matrix {
     rows: out,
     targets,
     infantry: inf.length,
-    coverage: targets.map((_, k) => out.filter((r) => r.cells[k].roi >= EFFICIENT).length)
+    coverage: targets.map((_, k) => out.filter((r) => isEfficient(r.cells[k].roi)).length)
   }
 }
 
@@ -281,7 +288,7 @@ export function findings(l: Ledger, m: Matrix): Array<Finding> {
     for (const r of m.rows) if (r.cells[k].roi > b.cells[k].roi) b = r
     return { t, unit: b.unit, roi: b.cells[k].roi }
   })
-  const weak = best.filter((x) => x.roi < EFFICIENT).sort((a, b) => a.roi - b.roi)
+  const weak = best.filter((x) => !isEfficient(x.roi)).sort((a, b) => a.roi - b.roi)
   if (weak.length) out.push({ kind: "gap", target: weak[0].t, unit: weak[0].unit, roi: weak[0].roi, others: weak.length - 1 })
   else out.push({ kind: "covered" })
 
@@ -291,7 +298,7 @@ export function findings(l: Ledger, m: Matrix): Array<Finding> {
       r.cells.forEach((c, i) => {
         if (c.roi > r.cells[peak].roi) peak = i
       })
-      return { unit: r.unit, n: r.cells.filter((c) => c.roi >= EFFICIENT).length, peak: r.cells[peak].roi, peakTarget: m.targets[peak] }
+      return { unit: r.unit, n: r.cells.filter((c) => isEfficient(c.roi)).length, peak: r.cells[peak].roi, peakTarget: m.targets[peak] }
     })
     .sort((a, b) => b.n - a.n || b.peak - a.peak)
   const p = counts[0]

@@ -369,6 +369,25 @@ The tests sign clients in the way Claude does (register, authorize, sign in, con
 
 ---
 
+### D-48. Weapons a model gave up are dropped on import (5 October, from "The Fifteenth Grievance")
+
+You said the Thousand Sons list was still badly wrong after its points were fixed. Its prices were right by then, but its guns weren't. **40k.app's roster files keep the weapon a model gave up for an option.** The Rubric Marine with a soulreaper cannon still carries the inferno boltgun the cannon replaced, so every squad shot nine boltguns instead of eight. The same was true in most of your other lists: Kasrkin with plasma guns kept their hot-shot lasguns, Eradicators with multi-meltas kept their melta rifles, and Boyz with big shootas kept their shootas.
+
+- **Wahapedia's wargear options say what replaces what.** For example: "1 Rubric Marine's inferno boltgun can be replaced with 1 soulreaper cannon". They also tell a swap from an addition, such as "can be equipped with 1 Astartes grenade launcher". `wahapedia/swaps.ts` reads every datasheet's options from the current export.
+- **Only a model that took an option loses anything.** 40k.app names such a model after what it took ("Rubric Marine w/ Soulreaper cannon"). The importer drops a weapon only when the datasheet says the taken weapon replaces it. A model with two weapons by default, or with one it was given as well, keeps both. A unit whose name isn't in the export tries a shorter one: "Eradicator Squad with melta rifles" uses "Eradicator Squad".
+- **"Read the file again" picks this up**, as well as new imports, so a saved list is fixed without importing it again. Prices are kept.
+
+Found while checking the same lists:
+
+- **Thousand Sons rules** from the list are now in the library: Bringers of Change, Malefic Maelstrom, Empyric Guidance, Marked by Fate (a target mark) and Lord of the Rubricae. The roster calls the army rule, Cabal of Sorcerers, "-" (no text), so it stays out.
+- **A price that includes wargear is right.** The Field Manual charges some wargear on top: 5 per storm shield, 10 for a heavy laser destroyer. A Terminator Assault Squad at 195 (170 plus five storm shields) was flagged as wrong. "Update points" would then have set it to 170. A price that is the unit's cost plus some of its wargear now counts as right, and updating keeps it.
+- **"Heretic Astartes" is Chaos Space Marines.** 40k.app writes the faction that way, which matched no Field Manual page. The Citadel Moves was checked against Wahapedia's older prices, and its "Update points" would have lowered eight correct prices.
+- **The 65% line counts what the cells show.** A cell reading 65 was really 64.7% and wasn't counted, so "Units at 65% or better" read like "better than 65%". The colour bands and the counts now use the whole number shown.
+
+The tests read The Fifteenth Grievance (now a fixture) with Wahapedia's options and check the squads have eight boltguns and the Kasrkin five lasguns. They also check that a list whose options only add weapons comes out unchanged.
+
+---
+
 ## Things I chose not to do
 
 - **No authentication.** One user, local. If you put it on Tailscale, Tailscale is the access control.

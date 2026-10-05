@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import { MOD0 } from "~/domain/engine"
 import { describeFx, describeRule } from "~/domain/fx"
 import { keywordsFromInput, keywordsToInput, keywordText, parseWeaponKeywords } from "~/domain/keywords"
-import { availableMarks, effectiveOpts, findings, matrix, ruleState } from "~/domain/ledger"
+import { availableMarks, effectiveOpts, findings, heat, isEfficient, matrix, ruleState } from "~/domain/ledger"
 import { applyIntent, defaultOpts, intentFromForm } from "~/domain/options"
 import type { RuleBook, Target, Unit } from "~/domain/schema"
 import seed from "~/.server/seed/poc-seed.json"
@@ -91,7 +91,10 @@ describe("the matrix view model", () => {
     expect(m.infantry).toBe(9)
     expect(m.targets.slice(0, 9).every((t) => t.cls === "inf")).toBe(true)
     expect(m.rows).toHaveLength(16)
-    m.targets.forEach((_, k) => expect(m.coverage[k]).toBe(m.rows.filter((r) => r.cells[k].roi >= 65).length))
+    // counted by the whole number the cell shows, so a cell reading 65 counts
+    m.targets.forEach((_, k) => expect(m.coverage[k]).toBe(m.rows.filter((r) => Math.round(r.cells[k].roi) >= 65).length))
+    expect([isEfficient(64.49), isEfficient(64.5), isEfficient(65)]).toEqual([false, true, true])
+    expect([heat(64.6).efficient, heat(64.4).efficient]).toEqual([true, false])
   })
 
   it("reproduces the handoff’s headline numbers for the v2 list", () => {

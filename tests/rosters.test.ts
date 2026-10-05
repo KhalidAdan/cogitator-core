@@ -11,6 +11,7 @@ import { Effect, Layer } from "effect"
 import { existsSync, readdirSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 import { layerAt } from "~/.server/db/Db"
+import { importContext } from "~/.server/importer/context"
 import { keepPrices, NO_TEXT_EXPORT, parseRosterSync } from "~/.server/importer/roster"
 import { Lists } from "~/.server/repos/Lists"
 import { Rules } from "~/.server/repos/Rules"
@@ -20,6 +21,7 @@ import { LIBRARY_RULES } from "~/.server/seed/library"
 import { seed, seedData } from "~/.server/seed/Seed"
 import { checkList } from "~/.server/wahapedia/check"
 import { Snapshots } from "~/.server/wahapedia/Snapshots"
+import { parseSwap, type Swap } from "~/.server/wahapedia/swaps"
 import { loadDirectory } from "~/.server/node/directory"
 import { attackerList, attackUnit } from "~/domain/engine"
 import { defaultOpts } from "~/domain/options"
@@ -133,6 +135,16 @@ const ROSTERS = [
       "Ballistus Dreadnought A: Storm Bolters",
       "Ballistus Dreadnought B: Storm Bolters"
     ]
+  },
+  {
+    file: "the-fifteenth-grievance.ros",
+    name: "The Fifteenth Grievance",
+    faction: "Thousand Sons",
+    units: 10,
+    models: 57,
+    attached: 4,
+    counted: ["bringers-of-change", "empyric-guidance", "lord-of-the-rubricae", "malefic-maelstrom", "marked-by-fate"],
+    notOnDatasheet: []
   }
 ] as const
 
@@ -195,6 +207,50 @@ describe("re-reading a roster file", () => {
   })
 })
 
+// ---------- wargear swaps ----------
+
+describe("wargear swaps", () => {
+  it("read what an option line replaces, and with what", () => {
+    expect(parseSwap("1 Rubric Marine’s inferno boltgun can be replaced with 1 soulreaper cannon.")).toEqual({
+      from: ["inferno boltgun"],
+      to: [["soulreaper cannon"]]
+    })
+    expect(
+      parseSwap(
+        "Up to 4 Kasrkin Troopers can each have their hot-shot lasgun replaced with one of the following:*<ul style=\"list-style-type:circle\"><li>1 flamer</li><li>1 plasma gun</li></ul>"
+      )
+    ).toEqual({ from: ["hot shot lasgun"], to: [["flamer"], ["plasma gun"]] })
+    expect(parseSwap("1 Kasrkin Trooper’s hot-shot lasgun can be replaced with 1 hot-shot laspistol and 1 melta mine.")?.to).toEqual([
+      ["hot shot laspistol", "melta mine"]
+    ])
+    expect(
+      parseSwap("For every 5 models in this unit, 1 Corsair Voidreaver’s power sword or shuriken rifle can be replaced with one of the following:<ul><li>1 blaster</li></ul>")
+        ?.from
+    ).toEqual(["power sword", "shuriken rifle"])
+    // an addition replaces nothing
+    expect(parseSwap("For every 5 models in this unit, 1 model equipped with a bolt rifle can be equipped with 1 Astartes grenade launcher.")).toBeNull()
+    expect(parseSwap("1 Kasrkin Trooper equipped with a hot-shot lasgun can be equipped with 1 vox-caster (that model’s hot-shot lasgun cannot be replaced).")).toBeNull()
+  })
+
+  it("drop the weapon a model gave up, and only from the model that took the option", () => {
+    const swaps: Array<Swap> = [
+      parseSwap("1 Rubric Marine’s inferno boltgun can be replaced with 1 soulreaper cannon.")!,
+      parseSwap("The Aspiring Sorcerer’s inferno bolt pistol can be replaced with 1 warpflame pistol.")!
+    ]
+    const xml = readFileSync("tests/fixtures/rosters/the-fifteenth-grievance.ros", "utf8")
+    const guns = (c: typeof ctx & { swaps?: (n: string) => ReadonlyArray<Swap> }) =>
+      parseRosterSync(xml, "", c).units.find((u) => u.nm === "Rubric Marines A")!.w.filter((w) => w.t === "r").map((w) => `${w.nm}×${w.n}`)
+    // 40k.app gives the Soulreaper cannon marine his inferno boltgun as well: nine for a ten-man squad
+    expect(guns(ctx)).toContain("Inferno boltgun×9")
+    expect(guns({ ...ctx, swaps: (n) => (n === "Rubric Marines A" ? swaps : []) })).toEqual([
+      "Malefic Curse×1",
+      "Inferno boltgun×8",
+      "Soulreaper cannon×1",
+      "Inferno bolt pistol×1"
+    ])
+  })
+})
+
 // ---------- against the downloaded Wahapedia export ----------
 
 const ROOT = "data/wahapedia"
@@ -215,6 +271,24 @@ describe.skipIf(!exportDir)("real rosters against the downloaded export", () => 
       Effect.gen(function*() {
         expect((yield* loadDirectory(exportDir!)).status).toBe("loaded")
       }), 120_000)
+
+    it.effect("wargear swaps from the export: replaced weapons go, added ones stay", () =>
+      Effect.gen(function*() {
+        const live = yield* importContext
+        const guns = (file: string, unit: string) =>
+          parseRosterSync(readFileSync(join("tests/fixtures/rosters", file), "utf8"), "", live)
+            .units.find((u) => u.nm === unit)!
+            .w.filter((w) => w.t === "r" && !w.off)
+            .map((w) => `${w.nm}×${w.n}`)
+            .sort()
+        expect(guns("the-fifteenth-grievance.ros", "Rubric Marines B")).toEqual(["Inferno boltgun×8", "Malefic Curse×1", "Soulreaper cannon×1"])
+        // two plasma guns, a marksman rifle, and a laspistol with a melta mine each replace a hot-shot lasgun
+        expect(guns("by-writ-of-the-lord-solar.ros", "Kasrkin")).toContain("Hot-shot lasgun×5")
+        // nothing to drop in a list whose options all add, or that has none
+        const plain = parseRosterSync(readFileSync("tests/fixtures/rosters/strike-force-cophasta.ros", "utf8"), "", ctx)
+        const again = parseRosterSync(readFileSync("tests/fixtures/rosters/strike-force-cophasta.ros", "utf8"), "", live)
+        expect(again.units.map((u) => u.w)).toEqual(plain.units.map((u) => u.w))
+      }))
 
     for (const r of ROSTERS) {
       it.effect(`${r.file}: every unit finds its datasheet; ${r.notOnDatasheet.length} weapons aren’t on theirs`, () =>
