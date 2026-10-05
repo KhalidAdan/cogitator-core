@@ -14,6 +14,8 @@ import { Fragment, useState } from "react"
 import { data, Form, Link, redirect, useNavigation } from "react-router"
 import { parseRoster, readRosterFile } from "~/.server/importer/roster"
 import { requireViewer } from "~/.server/access"
+import { fieldManualSlug } from "~/.server/mfm/factions"
+import { refreshManyLive } from "~/.server/mfm/refresh"
 import { Imports } from "~/.server/repos/Imports"
 import { Lists } from "~/.server/repos/Lists"
 import { Rules } from "~/.server/repos/Rules"
@@ -24,6 +26,7 @@ import { applyPoints, applyProfiles, checkList, type ProfileCells, type ProfileD
 import { DemoChip } from "~/components/chips"
 import { plural } from "~/components/ledger"
 import type { Rule, RuleBook, Unit } from "~/domain/schema"
+import { isOwner } from "~/viewer"
 import type { Route } from "./+types/lists.import"
 
 const importContext = (library: RuleBook) => ({
@@ -44,11 +47,22 @@ const preview = (pendingId: string, ownerId: string) =>
     return { pending, parsed, check, library }
   })
 
-/** Preview for the review page, which also wants to know whether Wahapedia is behind the Field Manual for this faction. */
-const review = (pendingId: string, ownerId: string) =>
+/**
+ * Preview for the review page, which also wants to know whether Wahapedia is behind the Field Manual for this faction.
+ *
+ * A faction no list uses yet has no Field Manual stored, so its prices would be Wahapedia's, which can be a version
+ * behind. The owner's review reads the faction's page first (at most once an hour); anyone else's is told, and the
+ * daily check reads it once the list is saved.
+ */
+const review = (pendingId: string, ownerId: string, canRead: boolean) =>
   Effect.gen(function*() {
-    const p = yield* preview(pendingId, ownerId)
+    let p = yield* preview(pendingId, ownerId)
     if (!p) return null
+    const unread = p.check.manual ? null : fieldManualSlug(p.parsed.meta.faction)
+    if (unread && canRead) {
+      const [r] = yield* refreshManyLive([unread], { olderThanHours: 1 })
+      if (r?.status === "new") p = (yield* preview(pendingId, ownerId)) ?? p
+    }
     const slug = p.check.manual?.slug
     const behind = slug ? ((yield* sourceStatus).agreement.find((a) => a.slug === slug && a.differing > 0) ?? null) : null
     return { ...p, behind }
@@ -59,10 +73,42 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   const viewer = requireViewer(context, request)
   const pendingId = new URL(request.url).searchParams.get("pending")
   if (!pendingId) return { review: null, expired: false }
-  const p = await run(review(pendingId, viewer.id))
+  const p = await run(review(pendingId, viewer.id, isOwner(viewer)))
   if (!p) return { review: null, expired: true }
   const { parsed, check, library, behind } = p
   const ruleOf = (id: string): Rule | undefined => parsed.rules[id] ?? library[id]
+  const units = parsed.units.map((u) => {
+    const rules = u.rules.map(ruleOf).filter((r): r is Rule => !!r)
+    const c = check.units.find((x) => x.unitId === u.id)
+    const diff = c?.datasheet ? profileDiff(u, c) : null
+    const own = u.pts - (u.enh?.pts ?? 0)
+    return {
+      id: u.id,
+      nm: u.nm,
+      models: u.models,
+      // Shown and edited as the unit's own cost; the enhancement is a separate field and is added on save.
+      // A roster with no text export has no points at all, so start from the Field Manual's where it has
+      // them, and from Wahapedia's where it hasn't been read for this faction.
+      pts: own || (c?.points?.expected ?? 0),
+      enh: u.enh ? { nm: u.enh.nm, pts: u.enh.pts || (c?.enhancement?.db ?? 0) } : null,
+      group: u.grp ? { short: parsed.groups[u.grp]?.short ?? "", role: u.role ?? null } : null,
+      kw: (u.kw ?? []).filter((k) => ["CHARACTER", "INFANTRY", "VEHICLE", "MONSTER", "MOUNTED", "BATTLELINE"].includes(k)),
+      weapons: u.w.filter((w) => !w.off).length,
+      counted: rules.filter((r) => r.dmg).length,
+      todo: rules.filter((r) => !r.dmg && r.todo).length,
+      noted: rules.filter((r) => !r.dmg && !r.todo).length,
+      datasheet: c?.datasheet ? { id: c.datasheet.id, name: c.datasheet.name } : null,
+      // profile differences only; prices are reported in their own column
+      issues: (c?.issues ?? 0) - (c?.pointsIssues ?? 0),
+      // the two profiles side by side, when there is anything to show
+      diff: diff && (diff.stats || diff.weapons.length || diff.leader) ? diff : null,
+      manualPoints: c?.points?.source === "field-manual" ? c.points.expected : null,
+      manualEnh: c?.enhancement?.source === "field-manual" ? c.enhancement.db : null,
+      priceDiffers: (c?.pointsIssues ?? 0) > 0,
+      // the box starts at Wahapedia's price, because the file had none and the Field Manual hasn't been read
+      fromWahapedia: !own && c?.points?.source === "wahapedia"
+    }
+  })
   return {
     expired: false,
     review: {
@@ -74,36 +120,10 @@ export async function loader({ request, context }: Route.LoaderArgs) {
       groups: parsed.groups,
       armyRules: parsed.armyRules.map((id) => library[id]?.nm ?? id),
       gameSystem: parsed.gameSystem,
-      total: parsed.units.reduce((s, u) => s + u.pts, 0),
-      units: parsed.units.map((u) => {
-        const rules = u.rules.map(ruleOf).filter((r): r is Rule => !!r)
-        const c = check.units.find((x) => x.unitId === u.id)
-        const diff = c?.datasheet ? profileDiff(u, c) : null
-        return {
-          id: u.id,
-          nm: u.nm,
-          models: u.models,
-          // Shown and edited as the unit's own cost; the enhancement is a separate field and is added on save.
-          // A roster with no text export has no points at all, so start from the Field Manual's where it has
-          // them, and from Wahapedia's where it hasn't been read for this faction.
-          pts: u.pts - (u.enh?.pts ?? 0) || (c?.points?.expected ?? 0),
-          enh: u.enh ? { nm: u.enh.nm, pts: u.enh.pts || (c?.enhancement?.db ?? 0) } : null,
-          group: u.grp ? { short: parsed.groups[u.grp]?.short ?? "", role: u.role ?? null } : null,
-          kw: (u.kw ?? []).filter((k) => ["CHARACTER", "INFANTRY", "VEHICLE", "MONSTER", "MOUNTED", "BATTLELINE"].includes(k)),
-          weapons: u.w.filter((w) => !w.off).length,
-          counted: rules.filter((r) => r.dmg).length,
-          todo: rules.filter((r) => !r.dmg && r.todo).length,
-          noted: rules.filter((r) => !r.dmg && !r.todo).length,
-          datasheet: c?.datasheet ? { id: c.datasheet.id, name: c.datasheet.name } : null,
-          // profile differences only; prices are reported in their own column
-          issues: (c?.issues ?? 0) - (c?.pointsIssues ?? 0),
-          // the two profiles side by side, when there is anything to show
-          diff: diff && (diff.stats || diff.weapons.length || diff.leader) ? diff : null,
-          manualPoints: c?.points?.source === "field-manual" ? c.points.expected : null,
-          manualEnh: c?.enhancement?.source === "field-manual" ? c.enhancement.db : null,
-          priceDiffers: (c?.pointsIssues ?? 0) > 0
-        }
-      }),
+      // what the boxes below add up to, which is what gets saved (a roster file alone has no points)
+      total: units.reduce((s, u) => s + u.pts + (u.enh?.pts ?? 0), 0),
+      fromWahapedia: units.filter((u) => u.fromWahapedia).length,
+      units,
       database: check.snapshot
         ? {
             matched: check.totals.matched,
@@ -320,6 +340,12 @@ function Review({ review, error }: { review: ReviewData; error: string | null })
             </span>
           </label>
         </div>
+      ) : review.fromWahapedia ? (
+        <p className="note warn">
+          <b>Points:</b> the Field Manual hasn’t been read for this faction yet, so {review.fromWahapedia} of the boxes below start at
+          Wahapedia’s prices, which can be a Field Manual version behind. Check them before saving. Once the list is saved, the daily
+          check reads the faction’s page, and the list’s Check page shows any price that has moved.
+        </p>
       ) : (
         <p className="note">
           The Field Manual hasn’t been read for this faction, so points come from the text export or the boxes below.{" "}

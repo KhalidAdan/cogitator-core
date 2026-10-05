@@ -14,7 +14,7 @@ Added 2 October 2026, after the v1.5 points update landed that morning and neith
 
 **One click brings the points up to date.** "Update points from the Field Manual" on the Database check tab changes what units and enhancements cost and nothing else. It is separate from "Use Wahapedia's profiles too", because points and profiles can be current at different times.
 
-**Imports take Field Manual points by default.** The import review has a box, ticked by default, that saves each unit at its current official price. A roster with no text export used to arrive with every unit at 0 points; now it arrives fully priced, enhancements included.
+**Imports take Field Manual points by default.** The import review has a box, ticked by default, that saves each unit at its current official price. A roster with no text export used to arrive with every unit at 0 points; now it arrives fully priced, enhancements included. The review's total is what its boxes add up to, which is what gets saved. A faction no list uses yet hasn't had its Field Manual read, so the boxes would start at Wahapedia's prices, which can be a version behind: the owner's review reads the faction's page first (at most once an hour), and anyone else's says the prices are Wahapedia's and should be checked.
 
 **It tells you when Wahapedia is behind.** Both sources carry points, so the app compares them: for each faction you follow, does Wahapedia's export have the prices the Field Manual has now? If not, the export predates the latest update and its datasheets may too. The Database page says so at the top, and a list's Database check tab says so above its profile differences.
 
