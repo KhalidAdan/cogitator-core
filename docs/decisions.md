@@ -388,6 +388,19 @@ The tests read The Fifteenth Grievance (now a fixture) with Wahapedia's options 
 
 ---
 
+### D-49. Coverage by toughness band (8 October, from a coaching video)
+
+You liked the check from the Culling Cogitator's author: a list wants at least two units that really hurt each toughness band. The bands are T3–4, T5, T6, T7–9, T10–11 and T12+, the points where common weapons start wounding more or less easily. It's a new list tab, **Toughness bands**. It's built from the matrix the page already computes, so it runs nothing new and follows the phase, attached units, modifiers and switches like everything else.
+
+- **Two meanings of "hurts", with a switch between them.** *Removes 80+ pts* is the video's test: one activation takes 80 of the target's points off the table. *Returns 65%+* is the matrix's efficient line. They give different answers. Big units pass the first and cheap ones the second, so neither is hidden. The video's test is the default.
+- **80 points, or the whole unit when it's worth less.** Ten Cadians are 70 points and Genestealers 75, so nothing could ever pass the plain 80-point test against them. Wiping the unit counts instead. Overkill never counts, whatever the matrix's wound cap is set to.
+- **A unit covers a band when it hurts at least half the band's targets.** The video used two targets per band and didn't say whether a unit had to hurt one or both. Half generalises "either of two" to our bands of three, four and five targets.
+- **The benchmarks stay as they are.** The 19 targets fill every band, but T12+ has only the Land Raider, and the page says so. A second one is a few clicks in the datasheet browser. I didn't add one to the seed, because the seed only reaches a fresh database.
+
+On the built-in list with the table defaults, the 80-point test passes every band, but from T6 up only Fuegan, Lhykhis and Yriel with their units count. On returns, T6 has only Yriel + Voidscarred.
+
+---
+
 ## Things I chose not to do
 
 - **No authentication.** One user, local. If you put it on Tailscale, Tailscale is the access control.

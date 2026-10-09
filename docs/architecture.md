@@ -9,6 +9,7 @@ app/
     engine.ts          what reaches an attacker (modifier bar scopes, rules, marks), and a unit's total
     attack.ts          one weapon against one target: resolve the effects, roll, explain
     ledger.ts          view model: matrix, findings, rule-chip states, heat colours
+    bands.ts           coverage by toughness band, built from the matrix
     options.ts         defaults, presets, and the intent reducer for option changes
     keywords.ts        weapon ability strings ↔ the engine's kw object
     fx.ts              the effect vocabulary: each field's test or addition, its words, its help
@@ -107,7 +108,7 @@ Other places Effect earns its keep:
 |---|---|
 | Framework mode, SSR, `routes.ts` | everything |
 | Generated route types (`./+types/…`) | every route module |
-| Nested layout with shared data via `<Outlet context>` | `routes/list.tsx` and its five children |
+| Nested layout with shared data via `<Outlet context>` | `routes/list.tsx` and its six children |
 | Loaders and actions | every route; resource route for the JSON download |
 | Fetchers and optimistic UI | option controls, theme, target editor, database fetch, rule sync |
 | `shouldRevalidate` | the list layout and the root |
