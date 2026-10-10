@@ -12,7 +12,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 import { layerAt } from "~/.server/db/Db"
 import { importContext } from "~/.server/importer/context"
-import { keepPrices, NO_TEXT_EXPORT, parseRosterSync } from "~/.server/importer/roster"
+import { keepPrices, looksOffensive, NO_TEXT_EXPORT, parseRosterSync } from "~/.server/importer/roster"
 import { Lists } from "~/.server/repos/Lists"
 import { Rules } from "~/.server/repos/Rules"
 import { Settings } from "~/.server/repos/Settings"
@@ -124,7 +124,7 @@ const ROSTERS = [
     units: 11,
     models: 33,
     attached: 2,
-    counted: [],
+    counted: ["bolter-discipline"],
     notOnDatasheet: [
       "Eradicator Squad with heavy bolters B: Ceramite Fists",
       "Heavy Intercessor Squad: Ceramite Fists",
@@ -303,5 +303,23 @@ describe.skipIf(!exportDir)("real rosters against the downloaded export", () => 
           expect(missing).toEqual([...r.notOnDatasheet])
         }))
     }
+  })
+})
+
+describe("reading whether a rule changes damage", () => {
+  it("knows a characteristic written short, a weapon list with an exception, and attacks that have a bonus", () => {
+    // The Red Sands Remember (World Eaters) and The Wall Advances (Imperial Fists), 10 October: all three were read as no effect
+    expect(looksOffensive("If this unit made a charge move this turn, this unit’s melee attacks have +1 S.")).toBe(true)
+    expect(looksOffensive("WORLD EATERS model only. Add 1 to the Attacks and Damage characteristics of melee weapons (excluding Extra Attacks weapons) equipped by the bearer.")).toBe(true)
+    expect(
+      looksOffensive("In your Shooting phase, if any of the following apply, this unit’s ranged attacks have +1 to hit rolls:This unit is within range of an objective.")
+    ).toBe(true)
+  })
+
+  it("still leaves out rules about attacks against the unit, and rules with no attacks in them", () => {
+    expect(looksOffensive("Each time an attack is allocated to a model in this unit, subtract 1 from the Damage characteristic of that attack.")).toBe(false)
+    expect(looksOffensive("Once per battle, when an attack is allocated to this model, you change the Damage characteristic of that attack to 0.")).toBe(false)
+    expect(looksOffensive("At the end of your Command phase, if this unit is within range of an objective marker you control, that objective marker remains under your control.")).toBe(false)
+    expect(looksOffensive("While this model is leading a unit, add 1 to Advance and Charge rolls made for that unit.")).toBe(false)
   })
 })

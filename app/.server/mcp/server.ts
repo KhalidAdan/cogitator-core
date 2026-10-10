@@ -15,7 +15,7 @@
  * Scores come from the same engine and view model as the pages.
  */
 import { Effect } from "effect"
-import { listRuleBook } from "~/domain/book"
+import { listRuleBook, notInLibrary } from "~/domain/book"
 import { CLAUSE, describeRule, FIELD_KEYS, type FieldInput, type FieldSpec, FX_HELP, isWhen } from "~/domain/fx"
 import { unitPts } from "~/domain/engine"
 import { keywordText } from "~/domain/keywords"
@@ -88,11 +88,7 @@ function pick<T extends { id: string; nm: string }>(items: ReadonlyArray<T>, ref
 }
 
 /** The list's rules the library has nothing of that name for yet, with the units that have each. */
-function untranslated(l: Loaded) {
-  return Object.entries(l.rules)
-    .filter(([id, r]) => r.imported && l.list.units.some((u) => u.rules.includes(id)))
-    .map(([id, rule]) => ({ id, rule, units: l.list.units.filter((u) => u.rules.includes(id)) }))
-}
+const untranslated = (l: Loaded) => notInLibrary(l.list.units, l.rules)
 
 const ledgerOf = (l: Loaded, opts: Opts): Ledger => ({ units: l.list.units, rules: l.rules, targets: l.targets, opts, groups: l.list.groups })
 
@@ -275,7 +271,14 @@ async function getList(a: Args): Promise<ToolResult> {
           ...open.filter((x) => x.rule.todo).map((x) => `- ${x.rule.nm} (${x.rule.src}; ${x.units.map((u) => u.nm).join(", ")}): ${x.rule.txt}`)
         ].join("\n")
       : "",
-    open.some((x) => !x.rule.todo) ? `\nAlso not in the library, and read as no effect on damage: ${open.filter((x) => !x.rule.todo).map((x) => x.rule.nm).join(", ")}` : "",
+    open.some((x) => !x.rule.todo && x.rule.src !== "Core")
+      ? [
+          "\n## Also not in the library, read as no effect on damage",
+          "Judged by their wording, which can miss one; check them too.",
+          ...open.filter((x) => !x.rule.todo && x.rule.src !== "Core").map((x) => `- ${x.rule.nm} (${x.rule.src}; ${x.units.map((u) => u.nm).join(", ")}): ${x.rule.txt}`)
+        ].join("\n")
+      : "",
+    open.some((x) => !x.rule.todo && x.rule.src === "Core") ? `\nCore rules not in the library: ${open.filter((x) => !x.rule.todo && x.rule.src === "Core").map((x) => x.rule.nm).join(", ")}` : "",
     `\n## Switches\n${sw.map((s) => `- ${s.key}: ${s.label}${s.on ? " (on)" : ""}`).join("\n")}`,
     marks.length ? `\n## Target marks\n${marks.map((m) => `- ${m.key}: ${m.label}. ${m.effect}${m.on ? " (on)" : ""}`).join("\n")}` : "",
     orders.length ? `\n## Orders (modifiers[].order)\n${orders.map((o) => `- ${o.id}: ${o.label}. ${o.hint}`).join("\n")}` : "",

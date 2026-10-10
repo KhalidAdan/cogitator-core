@@ -21,13 +21,13 @@ import { run } from "~/.server/runtime"
 import { seedData } from "~/.server/seed/Seed"
 import { pointsDrift } from "~/.server/wahapedia/check"
 import { RuleDrawer } from "~/components/chips"
-import { Controls, PostButton, Tabs } from "~/components/controls"
-import { f1, f2, type LedgerContext } from "~/components/ledger"
-import { listRuleBook } from "~/domain/book"
+import { Controls, CopyText, PostButton, Tabs } from "~/components/controls"
+import { f1, f2, type LedgerContext, plural } from "~/components/ledger"
+import { listRuleBook, type NotInLibrary, notInLibrary, translateRequest } from "~/domain/book"
 import { attackUnit } from "~/domain/engine"
 import { applyIntent, bareDatasheetOpts, intentFromForm } from "~/domain/options"
 import type { Opts } from "~/domain/schema"
-import { canEditList, isOwner, listedFor } from "~/viewer"
+import { canEditList, isOwner, listedFor, useViewer } from "~/viewer"
 import type { Route } from "./+types/list"
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
@@ -40,6 +40,9 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
     return { list, book, targets, all, hasRoster, drift: yield* pointsDrift(list) }
   }))
   const canEdit = canEditList(viewer, loaded.list)
+  // the list's own address, for a request to an agent: the path up to the list, whichever tab this is
+  const url = new URL(request.url)
+  const listUrl = `${url.origin}${url.pathname.replace(/(\/lists\/[^/.]+).*$/, "$1")}`
   // someone else's list: the switches this browser has set on it, over the list's own
   const mine = canEdit ? null : await readViewerOpts(request, loaded.list.id)
   const { all, ...rest } = loaded
@@ -49,6 +52,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
       list: mine ? { ...loaded.list, opts: mine } : loaded.list,
       lists: all.filter((l) => listedFor(viewer, l) || l.id === loaded.list.id),
       canEdit,
+      listUrl,
       calibration: calibrationCheck()
     },
     { headers: { "Set-Cookie": await writeActiveList(request, loaded.list.id) } }
@@ -137,7 +141,8 @@ function useStable<T>(value: T, key: string): T {
 }
 
 export default function ListLayout({ loaderData, params }: Route.ComponentProps) {
-  const { list, book, targets, lists, hasRoster, drift, calibration, canEdit } = loaderData
+  const { list, book, targets, lists, hasRoster, drift, calibration, canEdit, listUrl } = loaderData
+  const owner = isOwner(useViewer())
   const signedIn = !!useRouteLoaderData<{ viewer: unknown }>("root")?.viewer
   const action = `/lists/${params.listId}`
   const navigate = useNavigate()
@@ -174,6 +179,8 @@ export default function ListLayout({ loaderData, params }: Route.ComponentProps)
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `optsKey` stands in for `opts`, which is rebuilt every render
     [stableList, stableBook, stableTargets, optsKey, action, canEdit]
   )
+  // the site's owner can have their agent translate what the library doesn't have (the MCP's save_rule)
+  const missing = useMemo(() => (owner ? notInLibrary(ledger.units, ledger.rules).filter((x) => x.rule.todo) : []), [owner, ledger.units, ledger.rules])
 
   return (
     <>
@@ -215,6 +222,7 @@ export default function ListLayout({ loaderData, params }: Route.ComponentProps)
           <Link to={`${action}/check`}>Review and update on the Database check tab</Link>.
         </p>
       ) : null}
+      {missing.length ? <NotModelled missing={missing} name={list.meta.name} url={listUrl} rulesTab={`${action}/rules`} /> : null}
       <section id="controls">
         <Tabs listId={list.id} />
         {showControls ? <Controls ledger={ledger} /> : null}
@@ -273,5 +281,28 @@ export default function ListLayout({ loaderData, params }: Route.ComponentProps)
       </footer>
       <RuleDrawer ledger={ledger} />
     </>
+  )
+}
+
+/** For the site's owner: the rules here that read like they change damage and aren't modelled, and what to ask an agent. */
+function NotModelled({ missing, name, url, rulesTab }: { missing: ReadonlyArray<NotInLibrary>; name: string; url: string; rulesTab: string }) {
+  const n = missing.length
+  const one = n === 1
+  return (
+    <div className="note warn drift">
+      <b>
+        {n} {plural(n, "rule")} here {one ? "reads" : "read"} like {one ? "it changes" : "they change"} damage but {one ? "isn’t" : "aren’t"} modelled
+      </b>
+      , so the matrix leaves {one ? "it" : "them"} out: {missing.map((x) => `${x.rule.nm} (${x.units.map((u) => u.nm).join(", ")})`).join("; ")}. The{" "}
+      <Link to={rulesTab}>rules matrix</Link> has their text.
+      <details>
+        <summary>Have your connected agent translate {one ? "it" : "them"}</summary>
+        <p>
+          Paste this into an assistant connected to Cogitator Core’s MCP. It drafts each rule into the rules library, where you check the drafts, and
+          every list with the rule scores with it at once. In Claude Code, the translate_rules prompt does the same.
+        </p>
+        <CopyText text={translateRequest({ name, url }, missing)} />
+      </details>
+    </div>
   )
 }

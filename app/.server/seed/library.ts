@@ -301,7 +301,25 @@ export const LIBRARY_RULES: ReadonlyArray<LibraryRule> = [
   ...order("fix-bayonets", "Fix Bayonets!", "Improve the Weapon Skill of the unit’s melee weapons by 1.", [{ phase: "melee", skill: 1 }]),
   ...order("move-move-move", "Move! Move! Move!", "Add 3\" to the unit’s Move. No effect on damage, but the unit is under an Order."),
   ...order("take-cover", "Take Cover!", "Improve the unit’s Save by 1 (not better than 3+). No effect on damage dealt, but the unit is under an Order."),
-  ...order("duty-and-honour", "Duty and Honour!", "Add 1 to the unit’s Leadership and Objective Control. No effect on damage, but the unit is under an Order.")
+  ...order("duty-and-honour", "Duty and Honour!", "Add 1 to the unit’s Leadership and Objective Control. No effect on damage, but the unit is under an Order."),
+
+  // ---------- Space Marines (10 October 2026, from "The Wall Advances": the importer only learned to read it that day)
+  {
+    // Either condition is enough. With both switched on, the two +1s are capped at +1, as every hit modifier is.
+    id: "bolter-discipline",
+    faction: "SM",
+    status: "draft",
+    rule: {
+      nm: "Bolter Discipline",
+      src: "Datasheet",
+      dmg: true,
+      txt: "In your Shooting phase, the unit’s ranged attacks get +1 to hit while it is within range of an objective, or while the target is. Switch on “Your unit is on an objective” or “Target is on an objective”.",
+      fx: [
+        { phase: "ranged", when: "selfObj", hit: 1 },
+        { phase: "ranged", when: "objective", hit: 1 }
+      ]
+    }
+  }
 ]
 
 /** An Astra Militarum Order: picked per unit in the modifier bar, offered by Voice of Command. */

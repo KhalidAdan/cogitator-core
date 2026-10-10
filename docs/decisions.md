@@ -423,6 +423,18 @@ The rule card's "Open in the rules library" now goes to the library rule a list'
 
 ---
 
+### D-51. The owner sees what isn't modelled, with a request for their agent (10 October, your call)
+
+D-50 gave the owner's agent the tools; this tells the owner when to use them.
+
+- **On import**, the review lists the rules that read like they change damage and that the library has nothing of that name for. Each comes with the units that have it and its text. The review says the matrix will leave them out.
+- **On the list's page**, a note names them (with the units that have each) on every tab. It opens to a request to paste into an agent connected to the MCP: the list's name and address, the rules by name, and what to do with `get_list`, `save_rule` and `explain_matchup`. It works in any client, because it needs only the tools. Claude Code also has the `translate_rules` prompt. The note goes away as the library gains the rules, since lists match it by name (D-50).
+- **Both are for the site's owner only,** because only the owner has `save_rule`. Friends see the import review and lists as before.
+- **The importer reads "changes damage" more widely.** Bolter Discipline ("this unit's ranged attacks have +1 to hit rolls"), Murderous Charge ("melee attacks have +1 S") and the Berzerker Glaive ("melee weapons (excluding Extra Attacks weapons) equipped by the bearer") were all read as no effect. Now a characteristic written short (+1 S, +1 A), "melee/ranged attacks have", and a weapon list with an exception count. Rules about attacks against the unit are still left out. The same rules that read as no effect stay in `get_list`, now with their text (core rules by name), so an agent can catch what the wording misses.
+- **Bolter Discipline is in the library as a draft** (seed v8): +1 to hit for ranged attacks while the unit is on an objective, or while the target is, as two clauses. The Wall Advances had no modelled damage rule at all before it.
+
+---
+
 ## Things I chose not to do
 
 - **No authentication.** One user, local. If you put it on Tailscale, Tailscale is the access control.

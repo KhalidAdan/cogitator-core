@@ -15,7 +15,7 @@ import { Targets } from "../repos/Targets"
 import { LIBRARY_RULES } from "./library"
 import raw from "./poc-seed.json"
 
-const VERSION = 7
+const VERSION = 8
 
 /** Built-in lists that used to be seeded and are removed from existing databases on upgrade. */
 const RETIRED_LISTS = ["builtin-cophasta", "builtin-burning-v1"]

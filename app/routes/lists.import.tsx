@@ -24,6 +24,7 @@ import { sourceStatus } from "~/.server/updates"
 import { applyPoints, applyProfiles, checkList, type ProfileCells, type ProfileDiff, profileDiff, type StatCells } from "~/.server/wahapedia/check"
 import { DemoChip } from "~/components/chips"
 import { plural } from "~/components/ledger"
+import { listRuleBook, notInLibrary } from "~/domain/book"
 import type { Rule, Unit } from "~/domain/schema"
 import { isOwner } from "~/viewer"
 import type { Route } from "./+types/lists.import"
@@ -117,6 +118,12 @@ export async function loader({ request, context }: Route.LoaderArgs) {
       total: units.reduce((s, u) => s + u.pts + (u.enh?.pts ?? 0), 0),
       fromWahapedia: units.filter((u) => u.fromWahapedia).length,
       units,
+      // for the site's owner, whose agent can translate them (the MCP's save_rule)
+      notModelled: isOwner(viewer)
+        ? notInLibrary(parsed.units, listRuleBook(library, parsed.rules))
+            .filter((x) => x.rule.todo)
+            .map((x) => ({ name: x.rule.nm, src: x.rule.src, text: x.rule.txt, units: x.units.map((u) => u.nm) }))
+        : [],
       database: check.snapshot
         ? {
             matched: check.totals.matched,
@@ -310,6 +317,21 @@ function Review({ review, error }: { review: ReviewData; error: string | null })
         {review.stats.todo ? `, ${review.stats.todo} of which look like they change damage` : ""}.
         {review.armyRules.length ? ` Army and detachment rules: ${review.armyRules.join(", ")}.` : ""}
       </p>
+      {review.notModelled.length ? (
+        <div className="note warn">
+          <b>Not modelled yet:</b> {review.notModelled.length === 1 ? "this rule reads" : `these ${review.notModelled.length} rules read`} like{" "}
+          {review.notModelled.length === 1 ? "it changes" : "they change"} damage, and the rules library has nothing of that name, so the matrix will
+          leave {review.notModelled.length === 1 ? "it" : "them"} out. Once the list is saved, its page has a request to paste into your connected
+          agent, which drafts {review.notModelled.length === 1 ? "it" : "them"} into the library for you to check.
+          <ul className="warns">
+            {review.notModelled.map((x) => (
+              <li key={x.name}>
+                <b>{x.name}</b> ({x.src}; {x.units.join(", ")}): {x.text}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       {review.warnings.length ? (
         <ul className="warns">
           {review.warnings.map((w, i) => (

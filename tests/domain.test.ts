@@ -1,6 +1,6 @@
 /** The pure domain helpers: option intents, the matrix view model, weapon keywords, rule effects in words. */
 import { describe, expect, it } from "vitest"
-import { listRuleBook } from "~/domain/book"
+import { listRuleBook, notInLibrary, translateRequest } from "~/domain/book"
 import { MOD0 } from "~/domain/engine"
 import { describeFx, describeRule } from "~/domain/fx"
 import { keywordsFromInput, keywordsToInput, keywordText, parseWeaponKeywords } from "~/domain/keywords"
@@ -205,5 +205,35 @@ describe("a list's rule book", () => {
     expect(book["imp-made-up"]).toBe(own["imp-made-up"])
     expect(book["imp-born-soldiers"]).toBe(own["imp-born-soldiers"])
     expect(book["daring-recon"]).toBe(recon)
+  })
+})
+
+describe("rules a list has that the library doesn't", () => {
+  const unit = (id: string, rules: Array<string>) => ({ id, nm: id.toUpperCase(), pts: 10, models: 1, rules, w: [] }) as unknown as Unit
+  const units = [unit("khârn", ["imp-legendary-killer", "piratical-hero"]), unit("berzerkers", ["imp-murderous-charge", "imp-legendary-killer"])]
+  const own: RuleBook = {
+    "imp-legendary-killer": { nm: "Legendary Killer", src: "Leader", dmg: false, txt: "", imported: true, todo: true },
+    "imp-murderous-charge": { nm: "Murderous Charge", src: "Datasheet", dmg: false, txt: "", imported: true },
+    // a rule from the roster that no unit has any more is nobody's to translate
+    "imp-left-over": { nm: "Left Over", src: "Datasheet", dmg: false, txt: "", imported: true, todo: true }
+  }
+
+  it("names each with the units that have it, and leaves out what the library has", () => {
+    const found = notInLibrary(units, listRuleBook(rules, own))
+    expect(found.map((x) => [x.rule.nm, x.units.map((u) => u.id)])).toEqual([
+      ["Legendary Killer", ["khârn", "berzerkers"]],
+      ["Murderous Charge", ["berzerkers"]]
+    ])
+    // once the library has one of that name, it's no longer missing
+    const library: RuleBook = { ...rules, "legendary-killer": { nm: "Legendary Killer", src: "Leader", dmg: true, txt: "", fx: [{ rrHit: "ones" }] } }
+    expect(notInLibrary(units, listRuleBook(library, own)).map((x) => x.rule.nm)).toEqual(["Murderous Charge"])
+  })
+
+  it("asks an agent to translate them by name, at the list's address, and to check the rest", () => {
+    const found = notInLibrary(units, listRuleBook(rules, own)).filter((x) => x.rule.todo)
+    const text = translateRequest({ name: "The Red Sands Remember", url: "https://khld.dev/cogitator-core/lists/L1" }, found)
+    expect(text).toBe(
+      "My Cogitator Core list “The Red Sands Remember” (https://khld.dev/cogitator-core/lists/L1) has a rule the damage engine doesn't model yet: Legendary Killer. Read the list with get_list. Translate it with save_rule, which saves a draft to the rules library, and any other rule there that isn't in the library but does change damage. Check each one with explain_matchup, then tell me what you modelled and anything you weren't sure of."
+    )
   })
 })

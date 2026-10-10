@@ -369,6 +369,10 @@ form .tog{margin:0}
 
 /* Field Manual */
 .note.drift{margin:14px 0 0}
+.note details{margin-top:6px}
+.note summary{cursor:pointer; color:var(--ink)}
+.copytext{display:flex; gap:10px; align-items:flex-start; margin:8px 0 4px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; background:var(--surface)}
+.copytext p{margin:0; flex:1; min-width:0; color:var(--ink); font-size:13.5px; user-select:all; overflow-wrap:anywhere}
 .note a{color:var(--jade)}
 select.pick{box-sizing:border-box; padding:5px 8px; border:1px solid var(--line); border-radius:999px; background:var(--surface); color:var(--ink); font-size:13px; text-transform:capitalize}
 details > summary{cursor:pointer}

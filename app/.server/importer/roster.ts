@@ -189,10 +189,11 @@ const CORE = ["scouts", "stealth", "deep strike", "lone operative", "infiltrator
 export function looksOffensive(txt: string): boolean {
   const t = txt.toLowerCase()
   const terms =
-    /hit roll|wound roll|strength characteristic|armour penetration|damage characteristic|re-?roll|\[(lethal|sustained|devastating|anti|twin|ignores|lance|precision|torrent|blast|melta|rapid)|critical (hit|wound)|attacks characteristic|mortal wound/.test(
+    /hit roll|wound roll|strength characteristic|armour penetration|damage characteristic|re-?roll|\[(lethal|sustained|devastating|anti|twin|ignores|lance|precision|torrent|blast|melta|rapid)|critical (hit|wound)|attacks characteristic|mortal wound|[+-]\d+ (s|a|ap|d|strength|attacks|damage)\b/.test(
       t
     )
-  const ours = /makes an attack|makes a ranged attack|makes a melee attack|weapons equipped by|attacks? made by/.test(t)
+  const ours =
+    /makes an attack|makes a ranged attack|makes a melee attack|weapons (\([^)]*\) )?equipped by|attacks? made by|(melee|ranged) attacks (have|gain|get)|equipped by the bearer/.test(t)
   const theirs = /an attack targets (this|that) (unit|model)|attack (is )?allocated to|targets this unit|targets this model/.test(t)
   return terms && ours && !theirs
 }

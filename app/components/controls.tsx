@@ -458,3 +458,24 @@ export function Controls({ ledger }: { ledger: LedgerContext }) {
     </div>
   )
 }
+
+/** Text to paste somewhere else, with a button that copies it. The text can be selected by hand too. */
+export function CopyText({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false)
+  const copy = () =>
+    navigator.clipboard?.writeText(text).then(
+      () => {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      },
+      () => setCopied(false)
+    )
+  return (
+    <div className="copytext">
+      <p>{text}</p>
+      <button type="button" className="btn" onClick={copy}>
+        {copied ? "Copied" : "Copy"}
+      </button>
+    </div>
+  )
+}
