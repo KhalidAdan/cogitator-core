@@ -178,7 +178,10 @@ export default function ListsIndex({ loaderData }: Route.ComponentProps) {
                       {l.builtin ? <span className="hint"> built-in</span> : null}
                     </td>
                     <td className="l">{l.faction}</td>
-                    <td>{l.units}</td>
+                    <td>
+                      {l.units}
+                      {l.datasheets !== l.units ? <span className="hint"> of {l.datasheets}</span> : null}
+                    </td>
                     <td>{l.pts}</td>
                     <td className="l">
                       <Link className="btn" to={`/lists/${l.id}`}>

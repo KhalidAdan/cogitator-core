@@ -318,6 +318,13 @@ export { isMeleeChoice }
 /** Display name without the faction prefix that makes combined names unwieldy. */
 export const shortName = (n: string) => n.replace("Corsair ", "").replace("Prince ", "")
 
+/**
+ * Units on the table: a leader (or support unit) and the bodyguard it joins
+ * count once, as the matrix's "as one unit" rows do. A roster counts them
+ * apart, as datasheets, because each is bought on its own.
+ */
+export const unitsOnTable = (units: ReadonlyArray<Pick<Unit, "id" | "grp">>): number => new Set(units.map((u) => (u.grp ? `grp:${u.grp}` : u.id))).size
+
 /** The rows of the matrix: attached units merged into one row when `combine` is on. */
 export function attackerList(units: ReadonlyArray<Unit>, opts: Pick<Opts, "combine">): Array<Unit> {
   if (!opts.combine) return [...units]

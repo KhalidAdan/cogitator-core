@@ -302,8 +302,10 @@ function Review({ review, error }: { review: ReviewData; error: string | null })
         List name <input name="name" defaultValue={review.meta.name} />
       </label>
       <p className="lede">
-        {review.stats.units} units, {review.stats.models} models, {review.total} pts. {Object.keys(review.groups).length} attached{" "}
-        {plural(Object.keys(review.groups).length, "unit")} found. {review.stats.known} rules already in the library, {review.stats.newRules}{" "}
+        {review.stats.onTable === review.stats.units
+          ? `${review.stats.units} units`
+          : `${review.stats.onTable} units on the table (${review.stats.units} datasheets; ${review.stats.units - review.stats.onTable} join another unit as its leader)`}
+        , {review.stats.models} models, {review.total} pts. {review.stats.known} rules already in the library, {review.stats.newRules}{" "}
         new ones read from the file
         {review.stats.todo ? `, ${review.stats.todo} of which look like they change damage` : ""}.
         {review.armyRules.length ? ` Army and detachment rules: ${review.armyRules.join(", ")}.` : ""}
@@ -348,7 +350,7 @@ function Review({ review, error }: { review: ReviewData; error: string | null })
 
       {review.database ? (
         <div className={`note ${review.database.issues ? "warn" : ""}`}>
-          <b>Profiles:</b> {review.database.matched} of {review.stats.units} units resolve to a Wahapedia datasheet
+          <b>Profiles:</b> {review.database.matched} of {review.stats.units} datasheets in the file resolve to one in Wahapedia
           {review.database.issues
             ? `, and ${review.database.issues} weapon ${plural(review.database.issues, "profile")} or stat lines in the file disagree with it.`
             : ", and every profile in the file agrees with it."}{" "}

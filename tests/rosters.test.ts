@@ -163,6 +163,9 @@ describe("real rosters", () => {
         expect(got.meta.faction).toBe(r.faction)
         expect(got.units).toHaveLength(r.units)
         expect(got.stats.models).toBe(r.models)
+        // on the table, an attached unit is one unit, as it is one row of the matrix
+        expect(got.stats.onTable).toBe(attackerList(got.units, { combine: true }).length)
+        expect(got.stats.onTable).toBeLessThan(r.units)
         expect(Object.keys(got.groups)).toHaveLength(r.attached)
         // a roster file carries no points or profile-less wargear; the warning says what's missing and why
         expect(got.warnings).toEqual([NO_TEXT_EXPORT])

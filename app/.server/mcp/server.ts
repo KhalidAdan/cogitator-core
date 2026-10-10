@@ -218,7 +218,8 @@ const OPTIONS: Record<string, JsonSchema> = {
 async function listLists(caller: McpCaller): Promise<ToolResult> {
   const lists = await run(Effect.flatMap(Lists, (l) => l.all))
   const open = lists.filter((l) => listedFor(caller.viewer, l))
-  const line = (l: (typeof open)[number]) => `- ${l.id}: ${l.name} (${l.faction || "no faction"}, ${l.units} units, ${l.pts} pts)`
+  const units = (l: (typeof open)[number]) => `${l.units} units${l.datasheets !== l.units ? ` (${l.datasheets} datasheets)` : ""}`
+  const line = (l: (typeof open)[number]) => `- ${l.id}: ${l.name} (${l.faction || "no faction"}, ${units(l)}, ${l.pts} pts)`
   const builtin = open.filter((l) => l.builtin)
   const yours = open.filter((l) => !l.builtin)
   return {
@@ -227,7 +228,7 @@ async function listLists(caller: McpCaller): Promise<ToolResult> {
       yours.length ? `${caller.viewer.name}'s lists:\n${yours.map(line).join("\n")}` : `${caller.viewer.name} hasn't imported any lists.`,
       "Other people's lists aren't listed, but any list opens by its link (https://khld.dev/cogitator-core/lists/<id>) or id: if the user means one that isn't above, ask them for its link."
     ].join("\n\n"),
-    data: { lists: open.map((l) => ({ id: l.id, name: l.name, faction: l.faction, units: l.units, pts: l.pts, builtin: l.builtin })) }
+    data: { lists: open.map((l) => ({ id: l.id, name: l.name, faction: l.faction, units: l.units, datasheets: l.datasheets, pts: l.pts, builtin: l.builtin })) }
   }
 }
 
@@ -880,7 +881,7 @@ export function cogitatorMcp(caller: McpCaller): McpServer {
       name: "list_lists",
       title: "List the army lists",
       description:
-        "The built-in army lists and the signed-in person's own, with ids. Other people's lists aren't listed but open by their link or id, so ask the user for the link.",
+        "The built-in army lists and the signed-in person's own, with ids. Units are counted as on the table, a leader with the unit it joins; datasheets counts them apart. Other people's lists aren't listed but open by their link or id, so ask the user for the link.",
       inputSchema: { type: "object", properties: {}, additionalProperties: false },
       call: guarded(() => listLists(caller))
     },

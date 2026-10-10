@@ -9,6 +9,7 @@
  */
 import { Effect, Schema } from "effect"
 import { unzipSync } from "fflate"
+import { unitsOnTable } from "~/domain/engine"
 import { parseDice, parseNum, parseWeaponKeywords } from "~/domain/keywords"
 import type { Enhancement, Group, ListMeta, Role, Rule, RuleBook, Unit, UnitStats, Weapon, WeaponKw } from "~/domain/schema"
 import { baseRuleName, clean, norm, slug, titleCase } from "~/domain/text"
@@ -31,7 +32,10 @@ export interface ImportContext {
 }
 
 export interface ImportStats {
+  /** Datasheets, as the roster counts them. */
   readonly units: number
+  /** Units on the table, an attached unit counting once. */
+  readonly onTable: number
   readonly models: number
   readonly weapons: number
   /** Rules matched to the library. */
@@ -610,6 +614,7 @@ export function parseRosterSync(xmlText: string, exportText: string | null | und
   const finished: Array<Unit> = units.map(({ _attachedTo, _ledBy, _support, ...u }) => u)
   const stats: ImportStats = {
     units: finished.length,
+    onTable: unitsOnTable(finished),
     models: finished.reduce((s, u) => s + u.models, 0),
     weapons: finished.reduce((s, u) => s + u.w.length, 0),
     known: [...new Set(finished.flatMap((u) => u.rules).concat(army))].filter((id) => LIB[id]).length,

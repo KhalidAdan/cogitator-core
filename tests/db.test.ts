@@ -36,7 +36,8 @@ describe("database", () => {
       expect(yield* lists.all).toHaveLength(1)
       const summary = (yield* lists.all).find((l) => l.id === "builtin-burning-v2")!
       expect(summary.pts).toBe(2000)
-      expect(summary.units).toBe(20)
+      // 20 datasheets, 16 units on the table once the four leaders join their units
+      expect([summary.units, summary.datasheets]).toEqual([16, 20])
     }).pipe(Effect.provide(TestLayer)))
 
   it.effect("round-trips a list through SQLite without changing the maths", () =>

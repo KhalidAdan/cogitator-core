@@ -16,7 +16,10 @@ export class ListSummary extends Schema.Class<ListSummary>("ListSummary")({
   id: Schema.String,
   name: Schema.String,
   builtin: Schema.Boolean,
+  /** On the table: an attached unit counts once. */
   units: Schema.Number,
+  /** As the roster counts them, a leader apart from the unit it joins. */
+  datasheets: Schema.Number,
   pts: Schema.Number,
   faction: Schema.String,
   ownerId: Schema.NullOr(Schema.String)
@@ -57,6 +60,7 @@ const SummaryRow = Schema.Struct({
   builtin: Schema.Number,
   meta: json(ListMeta),
   units: Schema.Number,
+  datasheets: Schema.Number,
   pts: Schema.Number,
   owner_id: Schema.NullOr(Schema.String)
 })
@@ -111,7 +115,8 @@ export class Lists extends Context.Service<Lists, {
         execute: () =>
           sql`
             SELECT l.id, l.name, l.builtin, l.meta, l.owner_id,
-                   COUNT(u.unit_id) AS units,
+                   COUNT(DISTINCT COALESCE('grp:' || NULLIF(json_extract(u.data, '$.grp'), ''), u.unit_id)) AS units,
+                   COUNT(u.unit_id) AS datasheets,
                    COALESCE(SUM(json_extract(u.data, '$.pts')), 0) AS pts
             FROM lists l LEFT JOIN list_units u ON u.list_id = l.id
             GROUP BY l.id
@@ -127,6 +132,7 @@ export class Lists extends Context.Service<Lists, {
               name: r.name,
               builtin: r.builtin !== 0,
               units: r.units,
+              datasheets: r.datasheets,
               pts: r.pts,
               faction: r.meta.faction ?? "",
               ownerId: r.owner_id
