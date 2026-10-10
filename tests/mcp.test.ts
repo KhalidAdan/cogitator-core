@@ -117,6 +117,7 @@ async function connect(token: string) {
 
 let guard = ""
 let samsList = ""
+let khalidId = ""
 let sam: Session
 let khalid: Session
 let client: Client
@@ -135,7 +136,7 @@ const post = (body: unknown, headers: Record<string, string> = {}) =>
 beforeAll(async () => {
   await installRuntime(appLayer(layerAt(":memory:")))
   installAuth({ secret: "a-test-secret-that-is-long-enough-for-better-auth", baseURL: SITE, setupCode: null, execute: executeSql })
-  await createAccount({ name: "Khalid", email: OWNER.email, password: OWNER.password, role: "owner" })
+  khalidId = await createAccount({ name: "Khalid", email: OWNER.email, password: OWNER.password, role: "owner" })
   const samId = await createAccount({ name: "Sam", email: FRIEND.email, password: FRIEND.password, role: "friend" })
   // an Astra Militarum list someone else owns, reachable only by its id; and one of Sam's own
   const lords = (ownerId: string, name?: string) =>
@@ -329,10 +330,103 @@ describe("the MCP endpoint", () => {
   })
 })
 
+describe("translating rules", () => {
+  /** Khalid's copy of the Guard list, imported while the library had no Daring Recon (the Scout Sentinels' rule). */
+  let recon = ""
+  beforeAll(async () => {
+    recon = await run(
+      Effect.gen(function*() {
+        const rules = yield* Rules
+        yield* rules.remove("daring-recon")
+        const g = parseRosterSync(readFileSync("tests/fixtures/rosters/by-writ-of-the-lord-solar.ros", "utf8"), "", {
+          library: yield* rules.book,
+          factionArmyRules: seedData.factionArmyRules,
+          detachmentRules: seedData.detachmentRules,
+          detachmentUnitGrants: seedData.detachmentUnitGrants
+        })
+        return yield* (yield* Lists).create({ ...g, meta: { ...g.meta, name: "Recon test" }, ownerId: khalidId })
+      })
+    )
+  })
+  const sentinels = () => callAs(owner, "explain_matchup", { list: recon, unit: "scout-sentinels-a", target: "intercessors", saved: false })
+
+  it("shows the rules a list has that the library doesn't, with their text", async () => {
+    const r = await callAs(owner, "get_list", { list: recon })
+    expect(r.structuredContent.notInLibrary.find((x: any) => x.name === "Daring Recon")).toMatchObject({
+      readsLikeDamage: true,
+      units: ["scout-sentinels-a", "scout-sentinels-b"]
+    })
+    expect(r.content[0].text).toMatch(/## Rules not in the library that read like they change damage\n.*\n- Daring Recon \(Datasheet; Scout Sentinels A, Scout Sentinels B\): At the start of your Shooting phase/)
+    expect(r.content[0].text).toMatch(/Daring Recon \(not in the library; reads like it changes damage\)/)
+  })
+
+  it("offers the owner a prompt that lays out a list's untranslated rules", async () => {
+    expect(owner.getServerCapabilities()?.prompts).toBeDefined()
+    expect((await owner.listPrompts()).prompts.map((p) => p.name)).toEqual(["translate_rules"])
+    const text = (r: { messages: Array<{ content: any }> }) => r.messages[0].content.text as string
+    const p = text(await owner.getPrompt({ name: "translate_rules", arguments: { list: `https://khld.dev/cogitator-core/lists/${recon}` } }))
+    expect(p).toMatch(/^Translate the rules in Recon test/)
+    expect(p).toMatch(/### Daring Recon \(Datasheet\)\nAt the start of your Shooting phase.*\nUnits with it:\n- Scout Sentinels A \(.*vehicle.*\): /)
+    expect(p).toMatch(/## Conditions in use\n- charged: Charged this turn \(built in\)/)
+    expect(p).toMatch(/## Worked examples from the library \(verified\)\n\n### .*\n.*\nSaved as: \{"rule":/)
+    const none = text(await owner.getPrompt({ name: "translate_rules", arguments: { list: recon, rule: "no such rule" } }))
+    expect(none).toMatch(/^Every rule in Recon test .* is in Cogitator Core's rules library \(looking only at rules called “no such rule”\)/)
+    await expect(owner.getPrompt({ name: "translate_rules", arguments: { list: "nope" } })).rejects.toThrow(/no list "nope"/)
+  })
+
+  it("saves a translation as a draft, and every list with the rule scores with it at once", async () => {
+    const before = await sentinels()
+    expect(before.content[0].text).not.toMatch(/Daring Recon/)
+    const r = await callAs(owner, "save_rule", {
+      rule: "Daring Recon",
+      text: "Re-roll hit rolls of 1 when shooting the unit it picks.",
+      faction: "AM",
+      effects: [{ phase: "ranged", rrHit: "ones" }],
+      note: "Treated the picked unit as the target."
+    })
+    expect(r.isError).toBeUndefined()
+    expect(r.content[0].text).toMatch(/^Added Daring Recon \(daring-recon\) to the library as a draft\. In the engine: ranged: re-roll hit rolls of 1\./)
+    // Khalid's list by name; the two Guard lists that are someone else's are counted
+    expect(r.structuredContent.lists).toEqual([{ id: recon, name: "Recon test", units: ["Scout Sentinels A", "Scout Sentinels B"] }])
+    expect(r.structuredContent.otherLists).toBe(2)
+    expect(r.content[0].text).toMatch(/khld\.dev\/cogitator-core\/library\/daring-recon/)
+    const after = await sentinels()
+    expect(after.structuredContent.total).toBeGreaterThan(before.structuredContent.total)
+    expect(after.content[0].text).toMatch(/Rules in play: .*Daring Recon/)
+    const entry = await run(Effect.flatMap(Rules, (rules) => rules.get("daring-recon")))
+    expect([entry.status, entry.faction]).toEqual(["draft", "AM"])
+    expect(entry.notes).toBe(`Drafted by Test agent through the MCP for Khalid, ${new Date().toISOString().slice(0, 10)}. Treated the picked unit as the target.`)
+    const listed = await callAs(owner, "get_list", { list: recon })
+    expect(listed.structuredContent.notInLibrary.map((x: any) => x.name)).not.toContain("Daring Recon")
+    expect(listed.structuredContent.units.find((u: any) => u.id === "scout-sentinels-a").rules.find((x: any) => x.name === "Daring Recon")).toMatchObject({ inLibrary: true, changesDamage: true })
+  })
+
+  it("changes only what it's given, and refuses a misspelt field", async () => {
+    const reworded = await callAs(owner, "save_rule", { rule: "daring-recon", text: "Re-roll hit rolls of 1 when shooting." })
+    expect(reworded.content[0].text).toMatch(/^Saved Daring Recon/)
+    expect(reworded.structuredContent.rule).toMatchObject({ txt: "Re-roll hit rolls of 1 when shooting.", fx: [{ phase: "ranged", rrHit: "ones" }] })
+    const typo = await callAs(owner, "save_rule", { rule: "Daring Recon", effects: [{ phase: "ranged", rrHitt: "all" }] })
+    expect(typo.isError).toBe(true)
+    expect(typo.content[0].text).toMatch(/^Not saved: .*rrHitt/s)
+    expect((await run(Effect.flatMap(Rules, (rules) => rules.get("daring-recon")))).rule.fx).toEqual([{ phase: "ranged", rrHit: "ones" }])
+    const imported = await callAs(owner, "save_rule", { rule: "imp-daring-recon" })
+    expect(imported.content[0].text).toMatch(/Give the rule's name instead/)
+  })
+
+  it("is the owner's alone, and says it writes", async () => {
+    const save = (await owner.listTools()).tools.find((t) => t.name === "save_rule")!
+    expect(save.annotations).toMatchObject({ readOnlyHint: false, destructiveHint: true })
+    expect(Object.keys((save.inputSchema.properties as any).effects.items.properties)).toContain("rrHit")
+    await expect(client.callTool({ name: "save_rule", arguments: { rule: "Daring Recon" } })).rejects.toThrow(/Unknown tool/)
+    expect(client.getServerCapabilities()?.prompts).toBeUndefined()
+    await expect(client.listPrompts()).rejects.toThrow()
+  })
+})
+
 describe("the owner's tools", () => {
   it("are offered to the owner only, and refused to anyone else", async () => {
     const names = (await owner.listTools()).tools.map((t) => t.name)
-    expect(names.slice(6)).toEqual(["usage_report", "check_for_updates", "manage_accounts"])
+    expect(names.slice(6)).toEqual(["save_rule", "usage_report", "check_for_updates", "manage_accounts"])
     expect(owner.getInstructions()).toMatch(/usage_report/)
     await expect(client.callTool({ name: "usage_report", arguments: {} })).rejects.toThrow(/Unknown tool/)
   })

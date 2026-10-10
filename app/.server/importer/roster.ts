@@ -11,7 +11,7 @@ import { Effect, Schema } from "effect"
 import { unzipSync } from "fflate"
 import { parseDice, parseNum, parseWeaponKeywords } from "~/domain/keywords"
 import type { Enhancement, Group, ListMeta, Role, Rule, RuleBook, Unit, UnitStats, Weapon, WeaponKw } from "~/domain/schema"
-import { clean, norm, slug, titleCase } from "~/domain/text"
+import { baseRuleName, clean, norm, slug, titleCase } from "~/domain/text"
 import { type Swap, weaponKey } from "../wahapedia/swaps"
 import { attr, descendants, kid, kids, parseXml, textContent, type XNode } from "./xml"
 
@@ -181,9 +181,6 @@ function dropReplaced(g: ModelGroup, swaps: ReadonlyArray<Swap>): void {
 const STRUCTURAL = new Set(["attached to", "led by", "supported by", "leader", "support", "invulnerable save", "battle focus"])
 const CORE = ["scouts", "stealth", "deep strike", "lone operative", "infiltrators", "deadly demise", "fights first", "feel no pain", "firing deck", "hover", "leader", "scout"]
 
-/** "Damaged 4", "Deadly Demise D3", "Scouts 7"" → the name without its number. */
-const baseName = (k: string) => k.replace(/ (d?\d+|x)$/, "").replace(/ once per .*$/, "").trim()
-
 /** Heuristic: does this ability text read like it changes the damage this unit deals? */
 export function looksOffensive(txt: string): boolean {
   const t = txt.toLowerCase()
@@ -330,7 +327,7 @@ export function parseRosterSync(xmlText: string, exportText: string | null | und
       }
       const key = norm(name)
       if (src !== "Enhancement" && STRUCTURAL.has(key)) continue
-      let rid = lib[key] || lib[baseName(key)]
+      let rid = lib[key] || lib[baseRuleName(key)]
       if (rid && LIB[rid].src === "Army rule") {
         armyFound.add(rid)
         continue

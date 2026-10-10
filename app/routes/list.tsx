@@ -23,6 +23,7 @@ import { pointsDrift } from "~/.server/wahapedia/check"
 import { RuleDrawer } from "~/components/chips"
 import { Controls, PostButton, Tabs } from "~/components/controls"
 import { f1, f2, type LedgerContext } from "~/components/ledger"
+import { listRuleBook } from "~/domain/book"
 import { attackUnit } from "~/domain/engine"
 import { applyIntent, bareDatasheetOpts, intentFromForm } from "~/domain/options"
 import type { Opts } from "~/domain/schema"
@@ -163,7 +164,7 @@ export default function ListLayout({ loaderData, params }: Route.ComponentProps)
     () => ({
       list: stableList,
       units: stableList.units,
-      rules: { ...stableBook, ...stableList.rules },
+      rules: listRuleBook(stableBook, stableList.rules),
       targets: stableTargets,
       opts,
       groups: stableList.groups,

@@ -1,8 +1,8 @@
 /**
  * A Model Context Protocol server over Streamable HTTP, as much of it as a
- * tools-only, read-only server needs: `initialize`, `ping`, `tools/list` and
- * `tools/call`, stateless (no sessions), one JSON response per POST and no
- * server-sent events.
+ * server of tools and prompts needs: `initialize`, `ping`, `tools/list`,
+ * `tools/call`, `prompts/list` and `prompts/get`, stateless (no sessions), one
+ * JSON response per POST and no server-sent events.
  *
  * It is written here rather than taken from the official SDK because the SDK
  * brings an HTTP framework and a JSON Schema compiler that generates code,
@@ -28,7 +28,23 @@ export interface McpTool {
   readonly title: string
   readonly description: string
   readonly inputSchema: JsonSchema
+  /** It changes something stored; tools only read unless they say so. */
+  readonly writes?: boolean
   readonly call: (args: Readonly<Record<string, unknown>>) => Promise<ToolResult>
+}
+
+/**
+ * A prompt the person picks in their client (a slash command in Claude Code):
+ * a message written for them from what the server knows, which their agent
+ * then works from.
+ */
+export interface McpPrompt {
+  readonly name: string
+  readonly title: string
+  readonly description: string
+  readonly arguments: ReadonlyArray<{ readonly name: string; readonly description: string; readonly required?: boolean }>
+  /** The message, from the arguments; throw an `Error` whose message the person can act on. */
+  readonly get: (args: Readonly<Record<string, string>>) => Promise<string>
 }
 
 export interface McpServer {
@@ -38,6 +54,7 @@ export interface McpServer {
   /** Shown to the agent when it connects: what the server is for and how to start. */
   readonly instructions: string
   readonly tools: ReadonlyArray<McpTool>
+  readonly prompts?: ReadonlyArray<McpPrompt>
 }
 
 /** Protocol versions this server can speak, newest first. */
@@ -98,13 +115,13 @@ async function handle(m: unknown, server: McpServer): Promise<unknown> {
   if (typeof m.method !== "string" || m.id === undefined) return null
   const id = m.id
   const params = isObject(m.params) ? m.params : {}
-  noteUsage({ tool: m.method === "tools/call" ? String(params.name) : m.method })
+  noteUsage({ tool: m.method === "tools/call" ? String(params.name) : m.method === "prompts/get" ? `prompt ${String(params.name)}` : m.method })
   switch (m.method) {
     case "initialize": {
       const asked = typeof params.protocolVersion === "string" ? params.protocolVersion : ""
       return result(id, {
         protocolVersion: VERSIONS.includes(asked) ? asked : VERSIONS[0],
-        capabilities: { tools: { listChanged: false } },
+        capabilities: { tools: { listChanged: false }, ...(server.prompts?.length ? { prompts: { listChanged: false } } : {}) },
         serverInfo: { name: server.name, title: server.title, version: server.version },
         instructions: server.instructions
       })
@@ -118,7 +135,7 @@ async function handle(m: unknown, server: McpServer): Promise<unknown> {
           title: t.title,
           description: t.description,
           inputSchema: t.inputSchema,
-          annotations: { title: t.title, readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false }
+          annotations: { title: t.title, readOnlyHint: !t.writes, destructiveHint: !!t.writes, idempotentHint: !t.writes, openWorldHint: false }
         }))
       })
     case "tools/call": {
@@ -137,6 +154,25 @@ async function handle(m: unknown, server: McpServer): Promise<unknown> {
         // a failed call is the tool's answer, not a protocol error, so the agent can read it and try again
         console.log(`mcp ${tool.name} ${Date.now() - started}ms (failed)`)
         return result(id, { content: [{ type: "text", text: errorText(e) }], isError: true })
+      }
+    }
+    case "prompts/list":
+      if (!server.prompts?.length) return failure(id, -32601, "Method not found: this server has no prompts for you.")
+      return result(id, {
+        prompts: server.prompts.map((p) => ({ name: p.name, title: p.title, description: p.description, arguments: p.arguments }))
+      })
+    case "prompts/get": {
+      const prompt = server.prompts?.find((p) => p.name === params.name)
+      if (!prompt) return failure(id, -32602, `Unknown prompt: ${String(params.name)}`)
+      const args: Record<string, string> = {}
+      for (const [k, v] of Object.entries(isObject(params.arguments) ? params.arguments : {})) if (typeof v === "string") args[k] = v
+      const missing = prompt.arguments.filter((a) => a.required && !args[a.name]?.trim()).map((a) => a.name)
+      if (missing.length) return failure(id, -32602, `Missing ${missing.join(" and ")} for the ${prompt.name} prompt.`)
+      try {
+        const text = await prompt.get(args)
+        return result(id, { description: prompt.description, messages: [{ role: "user", content: { type: "text", text } }] })
+      } catch (e) {
+        return failure(id, -32602, errorText(e))
       }
     }
     default:

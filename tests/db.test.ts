@@ -7,6 +7,7 @@ import { Effect, Layer, Option } from "effect"
 import { attackUnit } from "~/domain/engine"
 import { bareDatasheetOpts } from "~/domain/options"
 import { layerAt } from "~/.server/db/Db"
+import { saveRule } from "~/.server/library"
 import { ListNotFound, Lists } from "~/.server/repos/Lists"
 import { Rules } from "~/.server/repos/Rules"
 import { ACTIVE_LIST, SEED_VERSION, Settings } from "~/.server/repos/Settings"
@@ -133,5 +134,67 @@ describe("database", () => {
       expect(edited.notes).toBe("testing")
       yield* rules.resetToSeed("thunderstrike")
       expect((yield* rules.get("thunderstrike")).rule).toEqual(entry.rule)
+    }).pipe(Effect.provide(TestLayer)))
+})
+
+describe("saving a rule (the rule editor and the MCP's save_rule)", () => {
+  it.effect("keeps what an edit leaves out, and clears what the form empties", () =>
+    Effect.gen(function*() {
+      const rules = yield* Rules
+      const before = (yield* rules.get("daring-recon")).rule
+      expect(before.fx).toEqual([{ phase: "ranged", rrHit: "ones" }])
+      // an agent's edit: only the words
+      yield* saveRule("daring-recon", { txt: "Re-roll hit rolls of 1 when shooting.", status: "draft" })
+      const worded = yield* rules.get("daring-recon")
+      expect(worded.rule).toEqual({ ...before, txt: "Re-roll hit rolls of 1 when shooting." })
+      expect(worded.status).toBe("draft")
+      // the form sends every field; an empty one clears it, but an empty name keeps the name
+      const blank = { nm: "", src: "", txt: "", scope: "", cond: "", condNm: "", condTxt: "", mark: "", markNm: "", markTxt: "", notes: "", faction: "" }
+      yield* saveRule("daring-recon", { ...blank, dmg: false, global: false, fx: [], status: "note" })
+      const cleared = yield* rules.get("daring-recon")
+      expect(cleared.rule).toEqual({ nm: "Daring Recon", src: before.src, txt: "", dmg: false })
+      expect(cleared.status).toBe("note")
+    }).pipe(Effect.provide(TestLayer)))
+
+  it.effect("refuses a misspelt field with where it is, and saves nothing", () =>
+    Effect.gen(function*() {
+      const rules = yield* Rules
+      const before = yield* rules.get("despoilers")
+      const error = yield* Effect.flip(saveRule("despoilers", { fx: [{ phase: "melee" }, { wond: 1 }], status: "draft" }))
+      expect(error._tag).toBe("SchemaError")
+      expect(String(error.message)).toMatch(/\[1\]\["wond"\]/)
+      expect((yield* rules.get("despoilers")).rule).toEqual(before.rule)
+    }).pipe(Effect.provide(TestLayer)))
+
+  it.effect("adds a rule only when asked to, and counts effects given without saying", () =>
+    Effect.gen(function*() {
+      const rules = yield* Rules
+      expect((yield* Effect.flip(saveRule("blood-for-the-guns", { nm: "Blood for the Guns", status: "draft" })))._tag).toBe("RuleNotFound")
+      const saved = yield* saveRule(
+        "blood-for-the-guns",
+        { nm: "Blood for the Guns", fx: { phase: "ranged", ap: 1 }, status: "draft", note: "Drafted by a test.", faction: "CSM" },
+        { create: true }
+      )
+      expect(saved.created).toBe(true)
+      const entry = yield* rules.get("blood-for-the-guns")
+      // one clause on its own is a list of one; effects without `dmg` mean it changes damage
+      expect(entry.rule).toEqual({ nm: "Blood for the Guns", src: "Datasheet", txt: "", dmg: true, fx: [{ phase: "ranged", ap: 1 }] })
+      expect([entry.status, entry.faction, entry.notes]).toEqual(["draft", "CSM", "Drafted by a test."])
+      // a later note goes on top
+      yield* saveRule("blood-for-the-guns", { status: "draft", note: "Checked the AP." }, { create: true })
+      expect((yield* rules.get("blood-for-the-guns")).notes).toBe("Checked the AP.\nDrafted by a test.")
+    }).pipe(Effect.provide(TestLayer)))
+
+  it.effect("gives a condition other rules wait for the label they use", () =>
+    Effect.gen(function*() {
+      const rules = yield* Rules
+      yield* saveRule("daring-recon", { cond: "darkpact", status: "draft" })
+      const r = (yield* rules.get("daring-recon")).rule
+      expect([r.cond, r.condNm]).toEqual(["darkpact", "Made a Dark Pact this phase"])
+      expect(r.condTxt).toMatch(/Despoilers/)
+      // a built-in switch keeps its own label and needs no line of help
+      yield* saveRule("daring-recon", { cond: "stationary", status: "draft" })
+      const s = (yield* rules.get("daring-recon")).rule
+      expect([s.cond, s.condNm, s.condTxt]).toEqual(["stationary", "Remained stationary", undefined])
     }).pipe(Effect.provide(TestLayer)))
 })

@@ -13,6 +13,9 @@ export const norm = (s: unknown): string =>
 
 export const slug = (s: unknown): string => norm(s).replace(/ /g, "-") || "x"
 
+/** A normalised rule name without its number: "damaged 4", "deadly demise d3", "scouts 7" → "damaged", "deadly demise", "scouts". */
+export const baseRuleName = (k: string): string => k.replace(/ (d?\d+|x)$/, "").replace(/ once per .*$/, "").trim()
+
 /** Roster text: bold markers out, odd hyphens normalised, whitespace collapsed. */
 export const clean = (s: unknown): string =>
   String(s ?? "")

@@ -401,9 +401,31 @@ On the built-in list with the table defaults, the 80-point test passes every ban
 
 ---
 
+### D-50. Rules are translated through the MCP, not "Draft with Claude" (10 October, your call)
+
+The roadmap's phase 4 was a button that sent a rule to the Anthropic API and filled in the rule editor with what came back. That needed a key on the site and someone to pay for it. The MCP endpoint does the same job better. Your own agent does the drafting, on your Claude account. It can look at the list, the units and their weapons, save a draft, check it with `explain_matchup`, and fix it.
+
+- **`save_rule` is the rule editor's save.** The form's action and the tool both call `saveRule()` (`.server/library.ts`), so they can't disagree on what a valid rule is. The effect is decoded strictly, so a misspelt field comes back with where it is. The form sends every field; an agent sends only what it changes, and the rest is kept.
+- **It saves drafts only.** A draft counts in the maths as soon as it's saved, so you lose nothing by verifying it yourself on the rule's page. The rule's notes say which app drafted it and for whom, with whatever the agent wasn't sure of. Saving over a verified rule makes it a draft again.
+- **The site's owner only**, as with the rule editor. It's the MCP's first tool that writes, and it says so in its annotations, so clients can ask before using it.
+- **The vocabulary is in the tool's description,** generated from `domain/fx.ts`, the same table the rule editor's help comes from. A field added there reaches the agent too.
+- **The `translate_rules` prompt** is the roadmap's drafting prompt, run on your data. Pick it in your client (a slash command in Claude Code) with a list. It gives your agent:
+  - the list's rules the library doesn't have, with their text, and the units that have each, with their weapons and keywords;
+  - the library drafts the list uses;
+  - the conditions and marks already in use;
+  - five verified rules as worked examples, picked to cover as much of the vocabulary as they can.
+
+  Rules the importer read as no effect on damage are there too, with their text except for core rules, because that judgement is a word list. On the Astra Militarum test roster it misses Called Shots, which re-rolls a hit, a wound and a damage roll.
+- **Lists match the library by name.** A rule the importer didn't know stays with the list under its own id. Before, a translation reached it only when the roster was read again, which also replaces hand edits. Now, once the library has a rule of that name, the library's translation is used for it (`domain/book.ts`), matching the name the way the importer does. Army rules are left to the importer, since it files them with the list rather than a unit. The built-in list's rules come out the same, which a test checks, so the calibration can't move.
+- **`get_list` shows the rules that aren't in the library,** with their text where they read like they change damage.
+
+The rule card's "Open in the rules library" now goes to the library rule a list's rule stands for. "Give it an effect in the rules library", on a rule nobody has translated, opens the library searched for its name. Before, both links went to the list's own id, which isn't a page.
+
+---
+
 ## Things I chose not to do
 
 - **No authentication.** One user, local. If you put it on Tailscale, Tailscale is the access control.
-- **No "Draft with Claude".** Needs an API key and a cost decision that's yours.
+- **No "Draft with Claude".** Needs an API key and a cost decision that's yours. (Dropped for good on 10 October; D-50 does the job through the MCP.)
 - **No commit.** `git init` and a `.gitignore`, and the first commit left to you.
 - **No changes to `kill-ledger/`.** It's the oracle for the tests.

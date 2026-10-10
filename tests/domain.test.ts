@@ -1,5 +1,6 @@
 /** The pure domain helpers: option intents, the matrix view model, weapon keywords, rule effects in words. */
 import { describe, expect, it } from "vitest"
+import { listRuleBook } from "~/domain/book"
 import { MOD0 } from "~/domain/engine"
 import { describeFx, describeRule } from "~/domain/fx"
 import { keywordsFromInput, keywordsToInput, keywordText, parseWeaponKeywords } from "~/domain/keywords"
@@ -178,5 +179,31 @@ describe("rule effects in words", () => {
     )
     expect(describeRule(rules["piratical-hero"])).toBe("+1 to hit, Sustained Hits 1")
     expect(describeRule(rules["voidstone"])).toBe("No effect on damage")
+  })
+})
+
+describe("a list's rule book", () => {
+  it("leaves the built-in list's rules as they are, so the calibration can't move", () => {
+    const v2 = list("builtin-burning-v2")
+    expect(listRuleBook(rules, v2.rules)).toEqual({ ...rules, ...v2.rules })
+  })
+
+  it("reads a rule the importer didn't know from the library, once the library has one of that name", () => {
+    const own: RuleBook = {
+      "imp-daring-recon": { nm: "Daring Recon", src: "Datasheet", dmg: false, txt: "From the roster.", imported: true, todo: true },
+      // the number is the rule's own: "Scouts 7" is Scouts
+      "imp-daring-recon-2": { nm: "Daring Recon 2", src: "Datasheet", dmg: false, txt: "", imported: true },
+      "imp-made-up": { nm: "Made Up", src: "Datasheet", dmg: false, txt: "", imported: true },
+      // an army rule is filed with the list by the importer, never read onto a unit
+      "imp-born-soldiers": { nm: "Born Soldiers", src: "Army rule", dmg: false, txt: "", imported: true }
+    }
+    const recon = { nm: "Daring Recon", src: "Datasheet", dmg: true, txt: "Re-roll hit rolls of 1 when shooting.", fx: [{ phase: "ranged" as const, rrHit: "ones" as const }] }
+    const library: RuleBook = { ...rules, "daring-recon": recon, "born-soldiers": { nm: "Born Soldiers", src: "Army rule", dmg: true, txt: "", fx: [{ hit: 1 }] } }
+    const book = listRuleBook(library, own)
+    expect(book["imp-daring-recon"]).toEqual({ ...recon, lib: "daring-recon" })
+    expect(book["imp-daring-recon-2"].lib).toBe("daring-recon")
+    expect(book["imp-made-up"]).toBe(own["imp-made-up"])
+    expect(book["imp-born-soldiers"]).toBe(own["imp-born-soldiers"])
+    expect(book["daring-recon"]).toBe(recon)
   })
 })

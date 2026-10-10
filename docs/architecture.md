@@ -10,6 +10,7 @@ app/
     attack.ts          one weapon against one target: resolve the effects, roll, explain
     ledger.ts          view model: matrix, findings, rule-chip states, heat colours
     bands.ts           coverage by toughness band, built from the matrix
+    book.ts            the rule book a list is scored with: the library, with the list's own rules over it, matched by name
     options.ts         defaults, presets, and the intent reducer for option changes
     keywords.ts        weapon ability strings ↔ the engine's kw object
     fx.ts              the effect vocabulary: each field's test or addition, its words, its help
@@ -21,7 +22,8 @@ app/
     serve.ts           which part of the app answers a request in the Durable Object: MCP, OAuth or the pages
     usage.ts           the usage log: every request, by account or pseudonymous visitor, and the owner's report
     access.ts          the checks actions make: signed in, the site's owner, this list's owner
-    mcp/               the MCP endpoint for AI agents (/mcp): a small Streamable HTTP server, the read tools and the owner's three
+    mcp/               the MCP endpoint for AI agents (/mcp): a small Streamable HTTP server of tools and prompts; the read tools, and the owner's save_rule, translate_rules prompt and three more
+    library.ts         saving a rule to the library: the rule editor's form and the MCP's save_rule share it
     cookies.ts         a visitor's switches on lists they can't change, and their last-opened list
     memo.ts            in-memory caches for what can't change: a snapshot's datasheets, a stored Field Manual page
     updates.ts         one "check for updates" over both sources, and whether they agree

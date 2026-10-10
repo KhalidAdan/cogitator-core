@@ -13,6 +13,7 @@
  * needs.
  */
 import { Effect, Option } from "effect"
+import { listRuleBook } from "~/domain/book"
 import { keywordText, parseDice, parseNum, parseWeaponKeywords } from "~/domain/keywords"
 import type { ArmyList, RuleBook, Unit, Weapon } from "~/domain/schema"
 import { norm } from "~/domain/text"
@@ -508,7 +509,7 @@ export const checkList = Effect.fn("wahapedia.checkList")(function*(list: Pick<A
   const manual = stored?.manual ?? null
   const manualInfo = stored ? { slug: stored.slug, faction: stored.faction, version: stored.version, fetchedAt: stored.fetchedAt } : null
   const pointsList = list.units.reduce((s, u) => s + u.pts, 0)
-  const rules = { ...library, ...list.rules }
+  const rules = listRuleBook(library, list.rules)
   const detachmentNames = list.meta.detachments ?? []
 
   const all = snapshot === undefined ? [] : yield* allDatasheets(snapshot)

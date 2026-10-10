@@ -6,27 +6,33 @@
  * call is checked against it and recorded as theirs in the usage log. The
  * tools read and score; nothing an agent sets is saved. A caller sees what they
  * would see signed in on the site: the built-in lists and their own by name,
- * and any list by its link. The site's owner also gets three tools of their
- * own: the usage report, checking for updates, and connected apps.
+ * and any list by its link. The site's owner also gets tools of their own:
+ * saving a rule's translation to the library (the one tool that writes, and
+ * only drafts), the usage report, checking for updates, and connected apps;
+ * and the translate_rules prompt, which sets an agent to work on a list's
+ * rules the library doesn't have yet.
  *
  * Scores come from the same engine and view model as the pages.
  */
 import { Effect } from "effect"
-import { describeRule } from "~/domain/fx"
+import { listRuleBook } from "~/domain/book"
+import { CLAUSE, describeRule, FIELD_KEYS, type FieldInput, type FieldSpec, FX_HELP, isWhen } from "~/domain/fx"
 import { unitPts } from "~/domain/engine"
 import { keywordText } from "~/domain/keywords"
 import { allAttackers, attack, availableMarks, availableOrders, type Ledger, matrix, situations } from "~/domain/ledger"
-import { applyIntent, defaultOpts, type OptsIntent } from "~/domain/options"
-import type { ArmyList, Mod, Opts, RuleBook, Target, Unit } from "~/domain/schema"
+import { applyIntent, defaultOpts, type OptsIntent, SITUATION } from "~/domain/options"
+import type { ArmyList, Mod, Opts, Rule, RuleBook, Target, Unit } from "~/domain/schema"
+import { norm as nameKey, slug } from "~/domain/text"
+import { saveRule } from "../library"
 import { Lists } from "../repos/Lists"
-import { Rules } from "../repos/Rules"
+import { type RuleEntry, Rules } from "../repos/Rules"
 import { Targets } from "../repos/Targets"
 import { run } from "../runtime"
 import { listedFor } from "~/viewer"
 import { connectedApps, listAccounts, type McpCaller, MCP_PATH, oauthClient, revokeApps, verifyMcpRequest } from "../auth/auth"
 import { updateByHand } from "../updates"
 import { noteUsage, usageReport } from "../usage"
-import { type JsonSchema, type McpServer, type McpTool, serveMcp, type ToolResult } from "./protocol"
+import { type JsonSchema, type McpPrompt, type McpServer, type McpTool, serveMcp, type ToolResult } from "./protocol"
 
 export { MCP_PATH }
 
@@ -62,7 +68,7 @@ async function load(ref: unknown): Promise<Loaded> {
   const loaded = await run(Effect.gen(function*() {
     const list = yield* (yield* Lists).get(id)
     const [book, targets] = yield* Effect.all([(yield* Rules).book, (yield* Targets).all])
-    return { list, rules: { ...book, ...list.rules }, targets }
+    return { list, rules: listRuleBook(book, list.rules), targets }
   }).pipe(Effect.catchTag("ListNotFound", () => Effect.succeed(null))))
   if (!loaded) throw new ToolError(`There's no list "${id}". list_lists gives the built-in ones; other lists need their link or id.`)
   return loaded
@@ -79,6 +85,13 @@ function pick<T extends { id: string; nm: string }>(items: ReadonlyArray<T>, ref
   if (exact) return exact
   const partial = items.filter((x) => norm(x.nm).includes(v) || norm(x.id).includes(v))
   return partial.length === 1 ? partial[0] : undefined
+}
+
+/** The list's rules the library has nothing of that name for yet, with the units that have each. */
+function untranslated(l: Loaded) {
+  return Object.entries(l.rules)
+    .filter(([id, r]) => r.imported && l.list.units.some((u) => u.rules.includes(id)))
+    .map(([id, rule]) => ({ id, rule, units: l.list.units.filter((u) => u.rules.includes(id)) }))
 }
 
 const ledgerOf = (l: Loaded, opts: Opts): Ledger => ({ units: l.list.units, rules: l.rules, targets: l.targets, opts, groups: l.list.groups })
@@ -222,6 +235,12 @@ async function getList(a: Args): Promise<ToolResult> {
   const l = await load(a.list)
   const { list, rules } = l
   const ruleName = (id: string) => rules[id]?.nm ?? id
+  const ruleTag = (id: string) => {
+    const r = rules[id]
+    if (r?.imported) return r.todo ? " (not in the library; reads like it changes damage)" : " (not in the library)"
+    return r?.dmg ? "" : " (no effect on damage)"
+  }
+  const open = untranslated(l)
   const units = list.units.map((u) => ({
     id: u.id,
     name: u.nm,
@@ -231,7 +250,7 @@ async function getList(a: Args): Promise<ToolResult> {
     role: u.role ?? null,
     enhancement: u.enh?.nm ?? null,
     weapons: u.w.map((w) => ({ name: w.nm, type: w.t === "r" ? "ranged" : "melee", count: w.n, A: w.A, skill: w.sk, S: w.S, AP: w.AP, D: w.D, abilities: keywordText(w), unused: w.off ?? null })),
-    rules: u.rules.map((id) => ({ id, name: ruleName(id), changesDamage: !!rules[id]?.dmg }))
+    rules: u.rules.map((id) => ({ id, name: ruleName(id), changesDamage: !!rules[id]?.dmg, inLibrary: !rules[id]?.imported }))
   }))
   const groups = Object.entries(list.groups).map(([g, x]) => ({ id: `grp-${g}`, name: x.short }))
   const sw = situations(list.units, rules).map((s) => ({ key: s.key, label: s.label, on: !!list.opts.flags[s.key] }))
@@ -245,9 +264,17 @@ async function getList(a: Args): Promise<ToolResult> {
     "## Units",
     ...list.units.map(
       (u) =>
-        `- ${u.id}: ${u.nm}, ${u.pts} pts, ${u.models} ${u.models === 1 ? "model" : "models"}${u.grp ? `, in attached unit grp-${u.grp}` : ""}${u.enh ? `, enhancement ${u.enh.nm}` : ""}\n  weapons: ${u.w.map((w) => `${w.nm} (${w.t === "r" ? "ranged" : "melee"} A${w.A} ${w.sk}+ S${w.S} AP-${w.AP} D${w.D}${keywordText(w) ? `; ${keywordText(w)}` : ""})`).join(", ")}\n  rules: ${u.rules.map((id) => `${ruleName(id)}${rules[id]?.dmg ? "" : " (no effect on damage)"}`).join(", ") || "none"}`
+        `- ${u.id}: ${u.nm}, ${u.pts} pts, ${u.models} ${u.models === 1 ? "model" : "models"}${u.grp ? `, in attached unit grp-${u.grp}` : ""}${u.enh ? `, enhancement ${u.enh.nm}` : ""}\n  weapons: ${u.w.map((w) => `${w.nm} (${w.t === "r" ? "ranged" : "melee"} A${w.A} ${w.sk}+ S${w.S} AP-${w.AP} D${w.D}${keywordText(w) ? `; ${keywordText(w)}` : ""})`).join(", ")}\n  rules: ${u.rules.map((id) => `${ruleName(id)}${ruleTag(id)}`).join(", ") || "none"}`
     ),
     groups.length ? `\nAttached units (score as one row with combine): ${groups.map((g) => `${g.id} = ${g.name}`).join("; ")}` : "",
+    open.some((x) => x.rule.todo)
+      ? [
+          "\n## Rules not in the library that read like they change damage",
+          "Read from the roster file. The library has no rule of their name, so the numbers leave them out; once it has one, every list with the rule scores with it.",
+          ...open.filter((x) => x.rule.todo).map((x) => `- ${x.rule.nm} (${x.rule.src}; ${x.units.map((u) => u.nm).join(", ")}): ${x.rule.txt}`)
+        ].join("\n")
+      : "",
+    open.some((x) => !x.rule.todo) ? `\nAlso not in the library, and read as no effect on damage: ${open.filter((x) => !x.rule.todo).map((x) => x.rule.nm).join(", ")}` : "",
     `\n## Switches\n${sw.map((s) => `- ${s.key}: ${s.label}${s.on ? " (on)" : ""}`).join("\n")}`,
     marks.length ? `\n## Target marks\n${marks.map((m) => `- ${m.key}: ${m.label}. ${m.effect}${m.on ? " (on)" : ""}`).join("\n")}` : "",
     orders.length ? `\n## Orders (modifiers[].order)\n${orders.map((o) => `- ${o.id}: ${o.label}. ${o.hint}`).join("\n")}` : "",
@@ -255,7 +282,17 @@ async function getList(a: Args): Promise<ToolResult> {
   ]
   return {
     text: lines.filter((x) => x !== "").join("\n"),
-    data: { id: list.id, name: list.meta.name, faction: list.meta.faction ?? null, units, attachedUnits: groups, switches: sw, marks, orders }
+    data: {
+      id: list.id,
+      name: list.meta.name,
+      faction: list.meta.faction ?? null,
+      units,
+      attachedUnits: groups,
+      switches: sw,
+      marks,
+      orders,
+      notInLibrary: open.map((x) => ({ id: x.id, name: x.rule.nm, source: x.rule.src, text: x.rule.txt, readsLikeDamage: !!x.rule.todo, units: x.units.map((u) => u.id) }))
+    }
   }
 }
 
@@ -381,6 +418,262 @@ async function searchRules(a: Args): Promise<ToolResult> {
   }
 }
 
+// ---------- translating rules (the owner's) ----------
+
+const SITE = "https://khld.dev/cogitator-core"
+
+/** A field of the effect vocabulary as JSON Schema, from how the rule editor asks for it. */
+function fieldSchema(input: FieldInput): JsonSchema {
+  switch (input.kind) {
+    case "choice":
+      return { type: "string", enum: input.options.map(([v]) => v) }
+    case "switch":
+    case "text":
+    case "ability":
+      return { type: "string" }
+    case "keywords":
+      return {
+        type: "object",
+        properties: { only: { type: "array", items: { type: "string" } }, not: { type: "array", items: { type: "string" } } },
+        additionalProperties: false
+      }
+    case "number":
+      return { type: "integer", minimum: input.min, maximum: input.max }
+    case "on":
+      return { type: "boolean" }
+    case "abilities":
+    case "anti":
+      return { type: "object", additionalProperties: { type: "integer" } }
+  }
+}
+
+/**
+ * One effect clause as JSON Schema, built from the vocabulary in domain/fx.ts
+ * (the rule editor's own source), so a field added there is offered here too.
+ */
+function clauseSchema(): JsonSchema {
+  const help = new Map<string, string>()
+  for (const [names, meaning] of FX_HELP) for (const n of names.split(/[,/]/)) help.set(n.trim(), meaning)
+  const properties: Record<string, JsonSchema> = {}
+  for (const k of FIELD_KEYS) {
+    const spec = CLAUSE[k] as FieldSpec
+    properties[k] = { ...fieldSchema(spec.input), description: `${isWhen(spec) ? "When" : "Does"}: ${help.get(k) ?? spec.label}` }
+  }
+  return { type: "object", properties, additionalProperties: false }
+}
+
+const SAVE_RULE_HELP = [
+  "Save a rule's translation into the effect the damage engine applies, in the rules library. It's saved as a draft for the site's owner to verify on the rule's page, and it counts at once: every list with a rule of that name scores with it (lists match the library by name). Saving over a verified rule makes it a draft again.",
+  "A rule changes damage when it changes attacks this unit makes, or attacks of units it buffs. Moving, scoring, saves, Feel No Pain and other protection don't: save those with changesDamage false. Stratagems are left out of the app on purpose.",
+  "effects is a list of clauses. A clause reaches an attack when every one of its When fields matches; its Does fields are then added to the attack. Hit and wound modifiers from everything are summed and capped at ±1; characteristic changes (skill, s, ap, a, d) aren't capped; the strongest re-roll wins. A misspelt field is refused, with where it is.",
+  `Something the engine can't know from the profiles (a choice made in the game, the unit having charged, the target being below half strength) goes behind a condition: a switch on every list with the rule, and the rule idles while it's off. Built-in keys: ${SITUATION.map(([k, l]) => `${k} (${l})`).join(", ")}. A new key needs conditionLabel, and conditionHint helps. Reuse a key other rules wait for where it fits; get_list shows a list's switches.`,
+  "A leader ability that works “while this model is leading a unit”, or on “models in this unit”, is shared: true, so it reaches the whole attached unit. A rule that marks an enemy unit for others (an Oath of Moment) sets mark; the effect that reads it uses when: <mark key>.",
+  "After saving, check it: explain_matchup a unit with the rule against a target where it should matter (with its condition switched on) and read the weapon notes."
+].join("\n\n")
+
+/** Every list with a rule that now reads this library rule: the ones the caller may name, and whether each is. */
+async function listsWith(caller: McpCaller, ruleId: string) {
+  return run(Effect.gen(function*() {
+    const lists = yield* Lists
+    const book = yield* (yield* Rules).book
+    const found: Array<{ id: string; name: string; units: Array<string>; visible: boolean }> = []
+    for (const s of yield* lists.all) {
+      const l = yield* lists.get(s.id)
+      const rules = listRuleBook(book, l.rules)
+      const units = l.units.filter((u) => u.rules.some((id) => id === ruleId || rules[id]?.lib === ruleId)).map((u) => u.nm)
+      if (units.length) found.push({ id: l.id, name: l.meta.name, units, visible: listedFor(caller.viewer, s) })
+    }
+    return found
+  }))
+}
+
+async function saveRuleTool(caller: McpCaller, a: Args): Promise<ToolResult> {
+  const ref = String(a.rule ?? "").trim()
+  if (!ref) throw new ToolError("Which rule? Give its name as get_list or search_rules shows it, or its library id.")
+  if (/^imp-/i.test(ref)) throw new ToolError(`"${ref}" is a list's own id for a rule the library doesn't have. Give the rule's name instead; saving it adds it to the library.`)
+  const all = await run(Effect.flatMap(Rules, (r) => r.all))
+  const named = all.filter((e) => nameKey(e.rule.nm) === nameKey(ref))
+  if (!all.some((e) => e.id === ref) && named.length > 1) {
+    throw new ToolError(`The library has ${named.length} rules called "${ref}": ${named.map((e) => `${e.id} (${e.faction ?? "no faction"}, ${e.rule.src})`).join(", ")}. Give the id of the one you mean.`)
+  }
+  const entry = all.find((e) => e.id === ref) ?? named[0]
+  const id = entry?.id ?? slug(ref)
+  if (!entry && all.some((e) => e.id === id)) throw new ToolError(`The id ${id} belongs to a rule with another name. Give that rule's name or id, or a different name.`)
+  const app = caller.clientId ? (await oauthClient(caller.clientId))?.name : undefined
+  const by = `Drafted${app ? ` by ${app}` : ""} through the MCP for ${caller.viewer.name}, ${new Date().toISOString().slice(0, 10)}.`
+  const str = (k: string) => (typeof a[k] === "string" ? (a[k] as string).trim() : undefined)
+  const bool = (k: string) => (typeof a[k] === "boolean" ? (a[k] as boolean) : undefined)
+  const shared = bool("shared")
+  const saved = await run(
+    saveRule(
+      id,
+      {
+        nm: entry ? undefined : ref,
+        src: str("source"),
+        txt: str("text"),
+        dmg: bool("changesDamage"),
+        scope: shared === undefined ? undefined : shared ? "unit" : "",
+        cond: str("condition"),
+        condNm: str("conditionLabel"),
+        condTxt: str("conditionHint"),
+        mark: str("mark"),
+        markNm: str("markLabel"),
+        markTxt: str("markHint"),
+        global: bool("markAppliesToAll"),
+        fx: a.effects,
+        status: "draft",
+        note: [by, str("note")].filter(Boolean).join(" "),
+        faction: str("faction")
+      },
+      { create: true }
+    ).pipe(Effect.catchTag("SchemaError", (e) => Effect.succeed({ error: e.message })))
+  )
+  if ("error" in saved) throw new ToolError(`Not saved: ${saved.error}`)
+  const lists = await listsWith(caller, saved.id)
+  const shown = lists.filter((l) => l.visible)
+  const others = lists.length - shown.length
+  const r = saved.rule
+  return {
+    text: [
+      `${saved.created ? "Added" : "Saved"} ${r.nm} (${saved.id}) to the library as a draft. In the engine: ${describeRule(r)}${r.scope === "unit" ? "; shared across the attached unit" : ""}${r.cond ? `; while “${r.condNm ?? r.cond}” (${r.cond}) is on` : ""}.`,
+      shown.length
+        ? `Lists with it, scoring with it now: ${shown.map((l) => `${l.name} (${l.id}: ${l.units.join(", ")})`).join("; ")}${others ? `; and ${others} of other people's` : ""}.`
+        : others
+          ? `${others} of other people's lists have it.`
+          : "No list has a rule of that name yet.",
+      `${caller.viewer.name} can check and verify it at ${SITE}/library/${encodeURIComponent(saved.id)}.`
+    ].join("\n"),
+    data: {
+      id: saved.id,
+      name: r.nm,
+      status: saved.status,
+      created: saved.created,
+      effect: describeRule(r),
+      rule: r,
+      lists: shown.map((l) => ({ id: l.id, name: l.name, units: l.units })),
+      otherLists: others
+    }
+  }
+}
+
+/** A library rule as save_rule takes it, for the worked examples. */
+const asSaveInput = (r: Rule) => ({
+  rule: r.nm,
+  changesDamage: r.dmg,
+  ...(r.scope === "unit" ? { shared: true } : {}),
+  ...(r.cond ? { condition: r.cond, conditionLabel: r.condNm } : {}),
+  ...(r.mark ? { mark: r.mark, markLabel: r.markNm, ...(r.global ? { markAppliesToAll: true } : {}) } : {}),
+  effects: r.fx ?? []
+})
+
+/** A few verified rules that between them use as much of the vocabulary as they can. */
+function workedExamples(entries: ReadonlyArray<RuleEntry>, n = 5): Array<RuleEntry> {
+  const pool = entries.filter((e) => e.status === "verified" && e.rule.dmg && e.rule.fx?.length)
+  const features = (e: RuleEntry) =>
+    new Set([...(e.rule.fx ?? []).flatMap((f) => Object.keys(f)), ...(e.rule.cond ? ["cond"] : []), ...(e.rule.scope === "unit" ? ["shared"] : []), ...(e.rule.mark ? ["mark"] : [])])
+  const seen = new Set<string>()
+  const out: Array<RuleEntry> = []
+  while (out.length < n) {
+    let best: RuleEntry | undefined
+    let most = 0
+    for (const e of pool) {
+      if (out.includes(e)) continue
+      const fresh = [...features(e)].filter((f) => !seen.has(f)).length
+      if (fresh > most) {
+        best = e
+        most = fresh
+      }
+    }
+    if (!best) break
+    out.push(best)
+    for (const f of features(best)) seen.add(f)
+  }
+  return out
+}
+
+/** The translate_rules prompt: a list's rules the library doesn't have, and what the agent needs to translate them. */
+async function translatePrompt(caller: McpCaller, args: Readonly<Record<string, string>>): Promise<string> {
+  const l = await load(args.list)
+  const entries = await run(Effect.flatMap(Rules, (r) => r.all))
+  const only = args.rule ? nameKey(args.rule) : ""
+  const wanted = (nm: string) => !only || nameKey(nm).includes(only)
+  const open = untranslated(l).filter((x) => wanted(x.rule.nm))
+  const todo = open.filter((x) => x.rule.todo)
+  const quiet = open.filter((x) => !x.rule.todo)
+  // library rules this list uses that wait for review: reworded since they were checked, or drafted and not verified
+  const used = new Set([...l.list.units.flatMap((u) => u.rules.map((id) => l.rules[id]?.lib ?? id)), ...l.list.armyRules])
+  const drafts = entries.filter((e) => used.has(e.id) && (e.status === "draft" || e.status === "todo") && wanted(e.rule.nm))
+  const unitLine = (u: Unit) =>
+    `- ${u.nm} (${(u.kw ?? []).join(", ").toLowerCase() || "no keywords"}): ${u.w.map((w) => `${w.nm} (${w.t === "r" ? "ranged" : "melee"})`).join(", ") || "no weapons"}`
+  const conditions = new Map<string, string>(SITUATION.map(([k, label]) => [k, `${label} (built in)`]))
+  for (const e of entries) if (e.rule.cond && !conditions.has(e.rule.cond)) conditions.set(e.rule.cond, `${e.rule.condNm ?? e.rule.cond} (for ${e.rule.nm})`)
+  const marks = entries.filter((e) => e.rule.mark && e.rule.markNm).map((e) => `- ${e.rule.mark}: ${e.rule.markNm}, set by ${e.rule.nm}`)
+  const name = l.list.meta.name
+  const about = [l.list.meta.faction, l.list.meta.detachments?.join(" and ")].filter(Boolean).join(", ")
+
+  if (!todo.length && !drafts.length) {
+    return [
+      `Every rule in ${name} (${l.list.id}) that reads like it changes damage is in Cogitator Core's rules library${only ? ` (looking only at rules called “${args.rule}”)` : ""}, and none of the ones it uses are waiting as drafts.`,
+      quiet.length
+        ? `These came from the roster and aren't in the library, but read as no effect on damage: ${quiet.map((x) => x.rule.nm).join(", ")}. If one of them does change damage, save_rule adds it.`
+        : "",
+      `Tell ${caller.viewer.name} so, and offer to score the list.`
+    ]
+      .filter(Boolean)
+      .join("\n\n")
+  }
+
+  return [
+    `Translate the rules in ${name} (${l.list.id}${about ? `, ${about}` : ""}) that Cogitator Core's damage engine doesn't model yet, using the cogitator-core tools.`,
+    [
+      "## How",
+      "1. For each rule below, decide from its text whether it changes damage this list deals. save_rule's description says what counts, and lists every field an effect can have.",
+      "2. Model only what the text says. Something the engine can't know goes behind a condition; reuse a key from “Conditions in use” where one fits.",
+      "3. Save each with save_rule. It goes into the library as a draft and counts at once in every list with a rule of that name.",
+      "4. Check each: explain_matchup a unit that has it against a target where it should matter (list_targets has them), with its condition switched on, and see that the weapon notes name it and the numbers move the way the text says. If they don't, fix it and save again.",
+      `5. Finish with a short table for ${caller.viewer.name}: rule, what you modelled, and anything you weren't sure of or left out. They verify drafts at ${SITE}/library.`
+    ].join("\n"),
+    todo.length
+      ? [
+          "## Rules to translate",
+          "Read from the roster file. The library has no rule of their name, and they read like they change damage.",
+          ...todo.map((x) => [`### ${x.rule.nm} (${x.rule.src})`, x.rule.txt, "Units with it:", ...x.units.map(unitLine)].join("\n"))
+        ].join("\n\n")
+      : "",
+    drafts.length
+      ? [
+          "## Library drafts this list uses",
+          "Translated already, but waiting for review: the official wording changed since they were checked, or they were drafted and not verified. Check each against its wording, and save it again if it's wrong.",
+          ...drafts.map((e) =>
+            [
+              `### ${e.rule.nm} (${e.id}, ${e.rule.src})`,
+              `Translated as: ${describeRule(e.rule)}. As save_rule input: ${JSON.stringify(asSaveInput(e.rule))}`,
+              e.wh ? `Official wording: ${e.wh.text}` : `Text: ${e.rule.txt}`,
+              e.notes ? `Notes: ${e.notes.split("\n")[0]}` : ""
+            ]
+              .filter(Boolean)
+              .join("\n")
+          )
+        ].join("\n\n")
+      : "",
+    quiet.length
+      ? [
+          "## Also not in the library",
+          "These read as no effect on damage, so leave them unless their text says otherwise.",
+          ...quiet.filter((x) => x.rule.src !== "Core").map((x) => `- ${x.rule.nm} (${x.rule.src}; ${x.units.map((u) => u.nm).join(", ")}): ${x.rule.txt}`),
+          ...(quiet.some((x) => x.rule.src === "Core") ? [`Core rules: ${quiet.filter((x) => x.rule.src === "Core").map((x) => x.rule.nm).join(", ")}.`] : [])
+        ].join("\n")
+      : "",
+    ["## Conditions in use", ...[...conditions].map(([k, v]) => `- ${k}: ${v}`), ...(marks.length ? ["", "Marks:", ...marks] : [])].join("\n"),
+    [
+      "## Worked examples from the library (verified)",
+      ...workedExamples(entries).map((e) => `### ${e.rule.nm} (${e.rule.src})\n${e.rule.txt}\nSaved as: ${JSON.stringify(asSaveInput(e.rule))}`)
+    ].join("\n\n")
+  ]
+    .filter(Boolean)
+    .join("\n\n")
+}
+
 // ---------- the owner's tools ----------
 
 const when = (iso: string) => iso.replace("T", " ").slice(0, 16)
@@ -476,7 +769,41 @@ const guarded = (f: (a: Args) => Promise<ToolResult>) => async (a: Args): Promis
   }
 }
 
-const OWNER_TOOLS: ReadonlyArray<McpTool> = [
+/** The owner's tools, as one caller gets them: save_rule records who drafted what. */
+const ownerTools = (caller: McpCaller): ReadonlyArray<McpTool> => [
+  {
+    name: "save_rule",
+    title: "Save a rule's translation (owner)",
+    description: `${SAVE_RULE_HELP}\n\nOnly the site's owner has this tool.`,
+    writes: true,
+    inputSchema: {
+      type: "object",
+      properties: {
+        rule: {
+          type: "string",
+          description:
+            "The rule's name as get_list or search_rules shows it, or its library id. A name the library doesn't have adds a new rule, and lists with a rule of that name use it at once."
+        },
+        text: { type: "string", description: "The rule in a sentence or two, as rule cards show it. Left out, a rule in the library keeps its own." },
+        source: { type: "string", description: "Where it comes from: Datasheet, Leader, Enhancement, Wargear, Core, or the detachment's name. A new rule defaults to Datasheet." },
+        faction: { type: "string", description: "For a new rule: the faction code as Wahapedia writes it (AE, SM, CSM, AM…)." },
+        changesDamage: { type: "boolean", description: "Whether the engine should count it. Defaults to whether effects has any clauses." },
+        effects: { type: "array", items: clauseSchema(), description: "The effect, as clauses. Left out, a rule in the library keeps its own." },
+        shared: { type: "boolean", description: "Reaches the whole attached unit (a leader's “while this model is leading a unit”), not just this datasheet." },
+        condition: { type: "string", description: "The switch the rule waits for: a built-in key, a key another rule uses, or a new one. \"\" for none." },
+        conditionLabel: { type: "string", description: "A new condition's switch label: “Made a Dark Pact”." },
+        conditionHint: { type: "string", description: "One line under a new condition's switch." },
+        mark: { type: "string", description: "The key of a mark this rule puts on an enemy unit; \"\" for none." },
+        markLabel: { type: "string", description: "The mark's switch label." },
+        markHint: { type: "string", description: "What the mark does, in a line." },
+        markAppliesToAll: { type: "boolean", description: "The mark's effect reaches every attacker in the list, not only the units with a rule that reads it." },
+        note: { type: "string", description: "What you assumed or weren't sure of, for whoever verifies the draft. Goes on top of the rule's notes." }
+      },
+      required: ["rule"],
+      additionalProperties: false
+    },
+    call: guarded((a) => saveRuleTool(caller, a))
+  },
   {
     name: "usage_report",
     title: "Usage report (owner)",
@@ -518,17 +845,35 @@ const OWNER_TOOLS: ReadonlyArray<McpTool> = [
   }
 ]
 
+const ownerPrompts = (caller: McpCaller): ReadonlyArray<McpPrompt> => [
+  {
+    name: "translate_rules",
+    title: "Translate a list's rules",
+    description:
+      "Work through an army list's rules that the damage engine doesn't model yet: each one's text and the units that have it, the conditions already in use and worked examples from the library. Your agent drafts each with save_rule and checks it with explain_matchup.",
+    arguments: [
+      { name: "list", description: "The list's id or a link to it.", required: true },
+      { name: "rule", description: "Only rules whose name has this in it." }
+    ],
+    get: (args) => translatePrompt(caller, args)
+  }
+]
+
 /** The server as one caller sees it: their own lists, and the owner's tools for the owner. */
 export function cogitatorMcp(caller: McpCaller): McpServer {
   const owner = caller.viewer.role === "owner"
   return {
   name: "cogitator-core",
   title: "Cogitator Core",
-  version: "1.1.0",
+  version: "1.2.0",
   instructions: [
     "Cogitator Core scores Warhammer 40,000 (11th edition) army lists: for every unit, how many enemy points it removes per point it costs (return %), against a set of benchmark targets, with the list's own rules applied. 65% or more is efficient.",
-    `You're signed in as ${caller.viewer.name}. list_lists names the built-in lists and theirs; any other list opens by its link (https://khld.dev/cogitator-core/lists/<id>) or id, so when the user names one you can't see, ask for its link. get_list shows a list's units, rules, and the switches, target marks and Orders it can use. score_list gives the whole matrix under any situation; explain_matchup breaks one unit against one target down weapon by weapon. search_rules shows how a rule is modelled. Nothing you set is saved.`,
-    ...(owner ? ["As the site's owner you also have usage_report (who used the site and the MCP), check_for_updates (refresh the rules data) and manage_accounts (accounts and their connected apps)."] : [])
+    `You're signed in as ${caller.viewer.name}. list_lists names the built-in lists and theirs; any other list opens by its link (https://khld.dev/cogitator-core/lists/<id>) or id, so when the user names one you can't see, ask for its link. get_list shows a list's units, rules (and which aren't in the rules library yet), and the switches, target marks and Orders it can use. score_list gives the whole matrix under any situation; explain_matchup breaks one unit against one target down weapon by weapon. search_rules shows how a rule is modelled. Nothing you set in these is saved.`,
+    ...(owner
+      ? [
+          "As the site's owner you also have save_rule, which saves a rule's translation to the rules library as a draft: the one tool that changes anything, and every list with that rule scores with it at once. The translate_rules prompt sets you to work through a list's untranslated rules. And usage_report (who used the site and the MCP), check_for_updates (refresh the rules data) and manage_accounts (accounts and their connected apps)."
+        ]
+      : [])
   ].join("\n\n"),
   tools: [
     {
@@ -599,8 +944,9 @@ export function cogitatorMcp(caller: McpCaller): McpServer {
       },
       call: guarded(searchRules)
     },
-    ...(owner ? OWNER_TOOLS : [])
-  ]
+    ...(owner ? ownerTools(caller) : [])
+  ],
+  prompts: owner ? ownerPrompts(caller) : []
   }
 }
 
@@ -618,4 +964,4 @@ export async function serveCogitatorMcp(request: Request): Promise<Response> {
 }
 
 /** Enough of a server to answer a preflight, which never reaches the tools. */
-const PREFLIGHT: McpServer = { name: "cogitator-core", title: "Cogitator Core", version: "1.1.0", instructions: "", tools: [] }
+const PREFLIGHT: McpServer = { name: "cogitator-core", title: "Cogitator Core", version: "1.2.0", instructions: "", tools: [] }

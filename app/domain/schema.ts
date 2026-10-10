@@ -205,7 +205,12 @@ export const Rule = Schema.Struct({
   /** Who the rule reaches, for army and detachment rules. */
   reach: opt(Schema.String),
   /** Orders (rule ids) this rule lets the list issue; they make up the modifier bar's Order menu. */
-  orders: opt(Schema.Array(Schema.String))
+  orders: opt(Schema.Array(Schema.String)),
+  /**
+   * On a list's own rule that the library's rule of the same name stands in for (see `listRuleBook`): that library
+   * rule's id, for links to it. Set when the rule book is put together, never stored.
+   */
+  lib: opt(Schema.String)
 })
 export type Rule = typeof Rule.Type
 export type RuleBook = Readonly<Record<string, Rule>>

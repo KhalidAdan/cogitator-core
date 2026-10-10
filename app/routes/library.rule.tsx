@@ -4,14 +4,14 @@
  * built as clauses from the effect vocabulary (components/effect-editor.tsx),
  * posted as JSON and validated against the schema on save.
  */
-import { Effect, Schema } from "effect"
+import { Effect } from "effect"
 import { data, Form, Link, redirect, useNavigation } from "react-router"
 import { requireOwner } from "~/.server/access"
+import { saveRule } from "~/.server/library"
 import { Rules } from "~/.server/repos/Rules"
 import { run } from "~/.server/runtime"
 import { EffectEditor } from "~/components/effect-editor"
 import { SITUATION } from "~/domain/options"
-import { Fx, Rule, RuleStatus } from "~/domain/schema"
 import { isOwner, useViewer } from "~/viewer"
 import type { Route } from "./+types/library.rule"
 
@@ -30,10 +30,6 @@ export async function loader({ params }: Route.LoaderArgs) {
     return { entry, conditions, switches: [...conditions, ...[...marks].map(([key, label]) => ({ key, label }))] }
   }))
 }
-
-const FxList = Schema.Array(Fx)
-/** Unknown fields are almost always typos, so the effect is decoded strictly. */
-const decodeFx = Schema.decodeUnknownEffect(FxList, { onExcessProperty: "error", errors: "all" })
 
 export async function action({ request, params, context }: Route.ActionArgs) {
   // the library is everyone's maths, so only the site's owner changes it
@@ -64,42 +60,30 @@ export async function action({ request, params, context }: Route.ActionArgs) {
   } catch (e) {
     return data({ error: `The effect isn’t valid JSON: ${e instanceof Error ? e.message : String(e)}` }, { status: 400 })
   }
-  if (!Array.isArray(fxInput)) fxInput = [fxInput]
 
   const result = await run(
-    Effect.gen(function*() {
-      const rules = yield* Rules
-      const current = yield* rules.get(id)
-      const fx = yield* decodeFx(fxInput)
-      const dmg = form.get("dmg") === "true"
+    saveRule(id, {
+      nm: text("nm"),
+      src: text("src"),
+      txt: text("txt"),
+      dmg: form.get("dmg") === "true",
+      scope: text("scope"),
       // a condition picked from the list, or a new one typed in (key and label)
-      const cond = text("condNew") || text("cond")
-      const builtIn = SITUATION.find(([k]) => k === cond)
-      const others = (yield* rules.all).find((e) => e.id !== id && e.rule.cond === cond)?.rule
-      const condNm = !cond ? undefined : builtIn ? builtIn[1] : text("condNm") || others?.condNm || current.rule.condNm || cond
-      const condTxt = !cond || builtIn ? undefined : text("condTxt") || others?.condTxt || undefined
-      const mark = text("mark")
-      const next = yield* Schema.decodeUnknownEffect(Rule)({
-        ...current.rule,
-        nm: text("nm") || current.rule.nm,
-        src: text("src") || current.rule.src,
-        txt: text("txt"),
-        dmg,
-        scope: text("scope") === "unit" ? "unit" : undefined,
-        cond: cond || undefined,
-        condNm,
-        condTxt,
-        mark: mark || undefined,
-        markNm: mark ? text("markNm") || undefined : undefined,
-        markTxt: mark ? text("markTxt") || undefined : undefined,
-        global: mark && form.get("global") === "true" ? true : undefined,
-        fx: dmg && fx.length ? fx : undefined,
-        todo: undefined
-      })
-      const status = yield* Schema.decodeUnknownEffect(RuleStatus)(text("status"))
-      yield* rules.save(id, { rule: next, status, notes: text("notes"), faction: text("faction") || null })
-      return { saved: "Saved. Every list that uses this rule now scores with it." }
-    }).pipe(Effect.catchTag("SchemaError", (e) => Effect.succeed({ error: e.message })))
+      cond: text("condNew") || text("cond"),
+      condNm: text("condNm"),
+      condTxt: text("condTxt"),
+      mark: text("mark"),
+      markNm: text("markNm"),
+      markTxt: text("markTxt"),
+      global: form.get("global") === "true",
+      fx: fxInput,
+      status: text("status"),
+      notes: text("notes"),
+      faction: text("faction")
+    }).pipe(
+      Effect.as({ saved: "Saved. Every list that uses this rule now scores with it." }),
+      Effect.catchTag("SchemaError", (e) => Effect.succeed({ error: e.message }))
+    )
   )
   return "error" in result ? data(result, { status: 400 }) : result
 }

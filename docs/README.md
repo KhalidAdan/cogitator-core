@@ -86,7 +86,7 @@ Said plainly, so you know where to look first:
 
 ## Not built
 
-- "Draft with Claude" (roadmap phase 4). It needs an API key and a decision about cost; the rule editor is where it would plug in, and the effect schema it has to produce is in place.
+- "Draft with Claude" (roadmap phase 4). It needs an API key and a decision about cost; the rule editor is where it would plug in, and the effect schema it has to produce is in place. *Dropped on 10 October: rules are translated through the MCP instead (D-50).*
 - Opponent roster as targets, list comparison, variance (roadmap phase 5). Targets are still single-profile.
 - Deployment. It runs locally. You have Tailscale, so `npm run build && npm start` on this machine would reach your phone; that's a suggestion, not something I set up.
 - Nothing is committed. I ran `git init` and wrote a `.gitignore` (which excludes `data/`), and left the first commit to you.

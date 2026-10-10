@@ -36,7 +36,8 @@ The library has it as a Corsair Coterie rule. The export's Corsair Coterie has t
 **10. Where should this run so your phone can use it?** *Answered on 2 October: Cloudflare, at khld.dev/cogitator-core, with accounts (D-38, D-39).*
 It's a Node server with a SQLite file. Your machine has Tailscale, so the least-effort answer is to run the production build here and open it over the tailnet. A small VPS or Fly.io with a volume would also work. I didn't set anything up, and there is no login, so it should not be exposed to the open internet as it stands.
 
-**11. "Draft with Claude": do you want it, and on whose key?**
+**11. "Draft with Claude": do you want it, and on whose key?** *Answered on 10 October: no. Rules are translated through the MCP instead (D-50).*
+Your agent drafts a translation with the owner's `save_rule` tool, on your own Claude account, so there's no key and no cost on the site. The `translate_rules` prompt hands it a list's untranslated rules. The original thinking:
 The roadmap's phase 4 was built around a claude.ai artifact capability that doesn't exist outside artifacts. Here it would be a server-side call to the Anthropic API with your key. The pieces it needs are in place (the effect schema validates what comes back; the rule editor is where the draft would land; the official wording to translate is one click away), so it's a contained piece of work once you decide.
 
 **12. Keep the POC in the repo?**
@@ -63,7 +64,7 @@ At Field Manual prices the list is 1,980, not 1,990. Possible causes: the roster
 **14. Should Astra Militarum Orders be modelled?** *Answered on 4 October: yes, unit by unit in the modifier bar (D-45).*
 Voice of Command has no text in the roster file, so the importer doesn't flag it, but three Orders change damage: Take Aim! (+1 Ballistic Skill), Fix Bayonets! (+1 Weapon Skill) and First Rank, Fire! Second Rank, Fire! (+1 Attack on Rapid Fire weapons). An Order is a choice per unit, a bit like a mark that only one unit gets. Until then, the modifier bar's +1 to hit stands in for Take Aim! and Fix Bayonets!, and nothing for the extra attack. The new "Under an Order" switch (D-40) only drives rules that wait for an Order.
 
-**15. Should agents be able to change things through the MCP endpoint?** *Half answered on 4 October: agents now sign in as one of your accounts (D-47), so the first point below is settled; the tools are still read-only.*
+**15. Should agents be able to change things through the MCP endpoint?** *Half answered on 4 October: agents now sign in as one of your accounts (D-47), so the first point below is settled. On 10 October the owner's agent got one write: `save_rule`, a rule's translation into the library, as a draft (D-50). Lists are still read-only.*
 It is read-only for now (D-46): agents can list, read and score lists, explain matchups and search the rules, but not import a roster, save a list's switches and modifiers, re-read a roster or edit anything. You decided on 4 October that read-only is enough for now. If writes come, two things decide the shape:
 - *Who the agent acts as.* A saved list needs an owner, so the agent has to sign in as you. MCP's way is OAuth: the assistant opens a khld.dev sign-in page once, and better-auth (which runs the accounts) acts as the OAuth server. Personal access tokens from the Accounts page would be simpler, but they only work in coding agents, not in Claude's or ChatGPT's connectors.
 - *How a roster gets in.* A `.ros` is about 125 KB of XML, roughly 40,000 tokens for an assistant to pass through a tool call. An import tool should take a link to the file, or hand back a one-time upload link you open to drop the file in.

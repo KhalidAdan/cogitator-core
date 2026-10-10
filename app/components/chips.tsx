@@ -109,14 +109,14 @@ export function RuleDrawer({ ledger }: { ledger: LedgerContext }) {
         ) : r.todo ? (
           <p className="hint">
             This reads like it changes damage, but the engine doesn’t model it yet. Approximate it with the modifier bar for now, or give it an
-            effect in the <Link to={`/library/${encodeURIComponent(id)}`}>rules library</Link>.
+            effect in the <Link to={`/library?q=${encodeURIComponent(r.nm)}`}>rules library</Link>.
           </p>
         ) : (
           <p className="hint">Doesn’t change damage dealt, so the matrix leaves it out.</p>
         )}
         {!r.imported ? (
           <p className="hint">
-            <Link to={`/library/${encodeURIComponent(id)}`}>Open in the rules library</Link>
+            <Link to={`/library/${encodeURIComponent(r.lib ?? id)}`}>Open in the rules library</Link>
           </p>
         ) : null}
       </div>
