@@ -114,15 +114,20 @@ export function PostButton({
   fields,
   className = "btn",
   children,
-  confirm: confirmText
+  confirm: confirmText,
+  busy
 }: {
   action: string
   fields: Record<string, string>
   className?: string
   children: React.ReactNode
   confirm?: string
+  /** The button's words while the post is on its way: "Reading the roster file…". */
+  busy?: string
 }) {
-  const fetcher = useFetcher()
+  // an action can answer with a `message`, which is shown beside the button once it's done
+  const fetcher = useFetcher<{ message?: string }>()
+  const working = fetcher.state !== "idle"
   return (
     <fetcher.Form
       method="post"
@@ -133,9 +138,15 @@ export function PostButton({
       }}
     >
       <Hidden fields={fields} />
-      <button className={className} type="submit" disabled={fetcher.state !== "idle"}>
-        {children}
+      <button className={className} type="submit" disabled={working}>
+        {working && busy ? busy : children}
       </button>
+      {!working && fetcher.data?.message ? (
+        <span className="hint" role="status">
+          {" "}
+          {fetcher.data.message}
+        </span>
+      ) : null}
     </fetcher.Form>
   )
 }

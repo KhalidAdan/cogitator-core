@@ -84,27 +84,33 @@ export async function action({ request, params, context }: Route.ActionArgs) {
 
   if (form.get("intent") === "reset") {
     // someone else's list: forget this browser's switches
-    if (!canEdit) return data({ ok: true }, { headers: { "Set-Cookie": await clearViewerOpts(request, listId) } })
+    if (!canEdit) return data({ ok: true, message: "Put back." }, { headers: { "Set-Cookie": await clearViewerOpts(request, listId) } })
     await run(Effect.gen(function*() {
       yield* (yield* Lists).reset(listId)
       // the benchmark targets are everyone's, so only the site's owner puts them back
       if (isOwner(viewer)) yield* (yield* Targets).replaceAll(seedData.targets)
     }))
-    return { ok: true }
+    return { ok: true, message: isOwner(viewer) ? "Restored, with the default targets." : "Restored." }
   }
   if (form.get("intent") === "reread") {
     requireListEditor(context, request, list)
     // Parse the stored roster again with today's rules library: a rule added to the library since the
     // import is picked up, and anything edited by hand on this list is replaced by what the file says.
     // Prices are kept where the file has none (a roster file without its text export has no points).
-    await run(Effect.gen(function*() {
+    const stats = await run(Effect.gen(function*() {
       const lists = yield* Lists
       const source = yield* lists.sources(listId)
-      if (source.rosterXml === null) return
+      if (source.rosterXml === null) return null
       const parsed = yield* parseRoster(source.rosterXml, source.textExport, yield* importContext)
       yield* lists.replaceContent(listId, { ...parsed, units: keepPrices(parsed.units, list.units) })
+      return parsed.stats
     }))
-    return { ok: true }
+    return {
+      ok: true,
+      message: stats
+        ? `Read again: ${stats.known} of its rules are in the library${stats.todo ? `, and ${stats.todo} that read like they change damage aren’t` : ""}.`
+        : "This list has no roster file to read."
+    }
   }
   const intent = intentFromForm(form)
   if (!intent) throw data({ message: "That isn’t a change this list understands." }, { status: 400 })
@@ -251,6 +257,7 @@ export default function ListLayout({ loaderData, params }: Route.ComponentProps)
               action={action}
               fields={{ intent: "reset" }}
               className="linkbtn"
+              busy="Restoring…"
               confirm="Restore this list’s units and options, and the default benchmark targets?"
             >
               Restore this list and the default targets
@@ -267,6 +274,7 @@ export default function ListLayout({ loaderData, params }: Route.ComponentProps)
                 action={action}
                 fields={{ intent: "reread" }}
                 className="linkbtn"
+                busy="Reading the roster file…"
                 confirm="Read the roster file again with the current rules library? Profile and points edits made on this list will be replaced by what the file says."
               >
                 Re-read the roster file
