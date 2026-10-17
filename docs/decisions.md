@@ -468,6 +468,28 @@ Found while checking Wrathful Presence: a list-wide mark counted twice when a li
 
 ---
 
+### D-55. The Leagues of Votann rules verified (17 October, your call)
+
+The Ancestor's Are Watching! was the second list translated through `save_rule` (D-50): seven damage rules, saved to the live library as drafts. You asked me to verify them, so I checked each against Wahapedia's wording in the 16 October export, or September's for Prioritised Efficiency, and the numbers with `explain_matchup`. All matched the official wording, and none needed changing. They're verified the way D-54's were (`RULE_REVIEWS` in Seed.ts, seed v11).
+
+- **Kindred Hero** (Kâhl, Leader): while he leads a unit, its weapons have Lethal Hits. Shared, so it reaches the whole attached unit.
+- **Decisive Destruction** (Einhyr Hearthguard): ranged attacks against the closest eligible target re-roll hit rolls of 1. Shared, and idle until "Target is the closest enemy unit" is on.
+- **Panspectral Scanning** (Hearthkyn Warriors): ranged attacks re-roll hit rolls of 1. Shared.
+- **Multispectral Visor** (Brôkhyr Iron-master): ranged attacks re-roll wound rolls of 1. It's on the Iron-master's own datasheet, and it's modelled as shared, so the Thunderkyn he leads re-roll too. That was a judgement call, and you accepted it.
+- **Geomantic Hunters** (Cthonian Earthshakers): up to twice a battle, attacks with the breacher ordnance re-roll the wound roll for that phase. Idle until "Geomantic Hunters used this phase" is on.
+- **Breaching Fire** (Brôkhyr Thunderkyn): an enemy unit they hit can't have the Benefit of Cover until your next Shooting phase. It's a mark, "Breached: no cover", that reaches every attacker in the list and gives ranged attacks Ignores Cover, so it matters only while the modifier bar's "In cover" is on.
+- **Prioritised Efficiency** (the army rule): +1 to hit in either of its states. In Hostile Acquisition it's against a target within range of an objective, so it waits for "Target is on an objective". Once you end a Command phase with 7YP or more, Fortify Takeover gives it while the unit is within range of an objective you control, behind its own switch. Every Votann unit carries it, with source "Faction", like Blessings of Khorne (D-52). With both switches on it's still +1, since hit modifiers are capped at ±1. Fortify Takeover's -1 to be wounded is defensive and left out. Kâhl + Einhyr Hearthguard A against Intercessors, shooting: 29% with neither state, 35% with either.
+
+Left out:
+
+- **Mass Driver Accelerators** (Einhyr Champion): mortal wounds at the end of a charge, which the engine has no field for.
+- **Ancestral Fortune** (Ûthar the Destined): one roll a turn changed to a 6.
+- **Purge Response** (Ironkin Steeljacks): it works through Fire Overwatch, a stratagem.
+
+Prioritised Efficiency's switch took a second session. The first one's Claude Code kept a stale `save_rule` schema, from before `switches` was added (D-52), even after the connector was reconnected. The field was dropped without an error and the rule saved without its switch. A fresh session had the current schema and added it; the rule's notes say so. After a `save_rule`, check that the returned rule has every field you sent.
+
+---
+
 ## Things I chose not to do
 
 - **No authentication.** One user, local. If you put it on Tailscale, Tailscale is the access control.

@@ -15,7 +15,7 @@ import { Targets } from "../repos/Targets"
 import { LIBRARY_RULES } from "./library"
 import raw from "./poc-seed.json"
 
-const VERSION = 10
+const VERSION = 11
 
 /**
  * Benchmark targets added after the Culling Cogitator's 19, which the calibration is measured against. Each goes into
@@ -48,6 +48,21 @@ export const RULE_REVIEWS: ReadonlyArray<{ readonly since: number; readonly ids:
     ],
     status: "verified",
     note: "Verified on 17 October 2026 by Claude Code, at Khalid's request: the wording checked against Wahapedia's (the 16 October export; Blessings of Khorne and the Berzerker Glaive against September's) and the numbers with explain_matchup."
+  },
+  {
+    since: 11,
+    // Leagues of Votann (The Ancestor's Are Watching!; all seven drafted through save_rule)
+    ids: [
+      "kindred-hero",
+      "decisive-destruction",
+      "panspectral-scanning",
+      "multispectral-visor",
+      "geomantic-hunters",
+      "breaching-fire",
+      "prioritised-efficiency"
+    ],
+    status: "verified",
+    note: "Verified on 17 October 2026 by Claude Code, at Khalid's request: the wording checked against Wahapedia's (the 16 October export; Prioritised Efficiency against September's) and the numbers with explain_matchup."
   }
 ]
 
