@@ -457,6 +457,17 @@ A 20th benchmark target, right after Terminator Squad: five Assault Terminators 
 
 ---
 
+### D-54. The World Eaters rules verified, and Angron's Wrathful Presence (17 October, your call)
+
+You asked me to verify the drafts, so I checked each against Wahapedia's wording in the 16 October export, or September's for Blessings of Khorne and the Berzerker Glaive, whose text the live database doesn't show. I checked the numbers with `explain_matchup` before marking them.
+- **Murderous Charge, Legendary Killer, A Worthy Skull, Rend and Tear, Possessed Lord, Berzerker Glaive, Blessings of Khorne and Bolter Discipline** are verified. All matched the official wording, and none needed changing.
+- **Wrathful Presence** went in through `save_rule` and is verified with them. Of Angron's three choices, only Driven by Ultimate Rage changes damage: melee re-rolls of 1 to hit and to wound for World Eaters units within 6". It's a list-wide switch, like the Warpsmith's Master of Mechanisms, reaching every KHORNE unit. Roster units don't carry WORLD EATERS as a keyword.
+- **A verification made outside the rule editor ships with the code** (`RULE_REVIEWS` in Seed.ts, seed v10). It's applied once, to rules that are still drafts, with a note that says who verified them and against what. `save_rule` still saves drafts only. These were verified because you asked, not because an agent can.
+
+Found while checking Wrathful Presence: a list-wide mark counted twice when a list's own rule stood for a library rule (D-50's name matching put the same rule in the book under two ids). Re-rolls don't stack, so no number moved for this one. A list-wide +1 Attacks or Damage would have doubled. The engine now counts only the library's copy.
+
+---
+
 ## Things I chose not to do
 
 - **No authentication.** One user, local. If you put it on Tailscale, Tailscale is the access control.

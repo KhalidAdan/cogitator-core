@@ -15,7 +15,7 @@ import { Targets } from "../repos/Targets"
 import { LIBRARY_RULES } from "./library"
 import raw from "./poc-seed.json"
 
-const VERSION = 9
+const VERSION = 10
 
 /**
  * Benchmark targets added after the Culling Cogitator's 19, which the calibration is measured against. Each goes into
@@ -24,6 +24,31 @@ const VERSION = 9
  */
 export const ADDED_TARGETS: ReadonlyArray<{ readonly since: number; readonly id: string; readonly after: string }> = [
   { since: 9, id: "assault-terminators", after: "terminators" }
+]
+
+/**
+ * Review decisions made outside the rule editor, applied once on the upgrade to `since` to each rule that is still a
+ * draft (a rule that isn't there, or that someone has reviewed since, is left alone). The note goes on top of the
+ * rule's notes.
+ */
+export const RULE_REVIEWS: ReadonlyArray<{ readonly since: number; readonly ids: ReadonlyArray<string>; readonly status: RuleStatus; readonly note: string }> = [
+  {
+    since: 10,
+    // World Eaters (The Red Sands Remember; six of them drafted through save_rule) and Imperial Fists (The Wall Advances)
+    ids: [
+      "murderous-charge",
+      "legendary-killer",
+      "a-worthy-skull",
+      "rend-and-tear",
+      "possessed-lord",
+      "berzerker-glaive",
+      "blessings-of-khorne",
+      "wrathful-presence",
+      "bolter-discipline"
+    ],
+    status: "verified",
+    note: "Verified on 17 October 2026 by Claude Code, at Khalid's request: the wording checked against Wahapedia's (the 16 October export; Blessings of Khorne and the Berzerker Glaive against September's) and the numbers with explain_matchup."
+  }
 ]
 
 /** Built-in lists that used to be seeded and are removed from existing databases on upgrade. */
@@ -89,6 +114,13 @@ export const seed = Effect.gen(function*() {
     }
     const former = FORMER_NAMES[l.id]
     if (former && (yield* lists.get(l.id).pipe(Effect.orDie)).meta.name === former) yield* lists.rename(l.id, l.meta.name)
+  }
+  for (const review of RULE_REVIEWS) {
+    if (Number(current) >= review.since) continue
+    for (const id of review.ids) {
+      const entry = yield* rules.get(id).pipe(Effect.option)
+      if (entry._tag === "Some" && entry.value.status === "draft") yield* rules.setStatus(id, review.status, review.note)
+    }
   }
   for (const id of RETIRED_LISTS) {
     if (yield* lists.exists(id)) yield* lists.remove(id)

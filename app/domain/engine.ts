@@ -172,12 +172,15 @@ function rulesReaching(unit: Unit, units: ReadonlyArray<Unit>, rules: RuleBook):
 }
 
 const globalMarkCache = new WeakMap<RuleBook, ReadonlyArray<EffectiveRule>>()
-/** Every rule in the book that, when its mark is on, reaches every attacker. */
+/**
+ * Every rule in the book that, when its mark is on, reaches every attacker. A list's own rule that the library's
+ * stands in for (`lib`, see book.ts) is the same rule under a second id, so only the library's counts.
+ */
 function globalMarks(rules: RuleBook): ReadonlyArray<EffectiveRule> {
   let out = globalMarkCache.get(rules)
   if (!out) {
     out = Object.entries(rules)
-      .filter(([, r]) => r.mark && r.global && r.fx)
+      .filter(([, r]) => r.mark && r.global && r.fx && !r.lib)
       .map(([id, r]) => ({ id, owner: "mark", r }))
     globalMarkCache.set(rules, out)
   }

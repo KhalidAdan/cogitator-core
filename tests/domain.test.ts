@@ -1,7 +1,7 @@
 /** The pure domain helpers: option intents, the matrix view model, weapon keywords, rule effects in words. */
 import { describe, expect, it } from "vitest"
 import { listRuleBook, notInLibrary, translateRequest } from "~/domain/book"
-import { MOD0 } from "~/domain/engine"
+import { attackUnit, MOD0 } from "~/domain/engine"
 import { describeFx, describeRule } from "~/domain/fx"
 import { keywordsFromInput, keywordsToInput, keywordText, parseWeaponKeywords } from "~/domain/keywords"
 import { availableMarks, effectiveOpts, findings, heat, isEfficient, matrix, ruleState } from "~/domain/ledger"
@@ -207,6 +207,25 @@ describe("a list's rule book", () => {
     expect(book["imp-made-up"]).toBe(own["imp-made-up"])
     expect(book["imp-born-soldiers"]).toBe(own["imp-born-soldiers"])
     expect(book["daring-recon"]).toBe(recon)
+  })
+})
+
+describe("a list-wide mark the library has", () => {
+  it("counts once, though a list's own rule of that name stands for it too", () => {
+    const library: RuleBook = { ...rules, rage: { nm: "Rage", src: "Datasheet", dmg: true, txt: "", mark: "rage", global: true, fx: [{ phase: "melee", a: 1 }] } }
+    const own: RuleBook = { "imp-rage": { nm: "Rage", src: "Datasheet", dmg: false, txt: "", imported: true } }
+    const leader = { id: "leader", nm: "Leader", pts: 100, models: 1, rules: ["imp-rage"], w: [] } as unknown as Unit
+    const squad = {
+      id: "squad", nm: "Squad", pts: 100, models: 5, rules: [],
+      w: [{ nm: "Blade", t: "m", n: 5, A: 2, sk: 3, S: 4, AP: 0, D: 1, kw: {} }]
+    } as unknown as Unit
+    const units = [leader, squad]
+    const book = listRuleBook(library, own)
+    const attacks = (on: boolean) =>
+      attackUnit(squad, targets[0], { ...defaultOpts(), combine: false, flags: { rage: on } }, { rules: book, units }).rows[0].attacks
+    expect(attacks(false)).toBe(10)
+    // +1 Attacks for each of five models, once
+    expect(attacks(true)).toBe(15)
   })
 })
 

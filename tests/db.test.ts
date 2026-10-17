@@ -13,7 +13,7 @@ import { Rules } from "~/.server/repos/Rules"
 import { ACTIVE_LIST, SEED_VERSION, Settings } from "~/.server/repos/Settings"
 import { Targets } from "~/.server/repos/Targets"
 import { LIBRARY_RULES } from "~/.server/seed/library"
-import { ADDED_TARGETS, seed, seedData } from "~/.server/seed/Seed"
+import { ADDED_TARGETS, RULE_REVIEWS, seed, seedData } from "~/.server/seed/Seed"
 
 const Repos = Layer.mergeAll(Lists.layer, Rules.layer, Targets.layer, Settings.layer)
 const TestLayer = Layer.effectDiscard(seed).pipe(Layer.provideMerge(Repos), Layer.provideMerge(layerAt(":memory:")))
@@ -232,5 +232,30 @@ describe("benchmark targets added since the Cogitator's 19", () => {
       yield* targets.remove("assault-terminators")
       yield* seed
       expect((yield* targets.all).map((t) => t.id)).not.toContain("assault-terminators")
+    }).pipe(Effect.provide(Unseeded)))
+})
+
+describe("review decisions shipped with the code", () => {
+  it.effect("verify the rules that are still drafts, once, and leave the rest as they are", () =>
+    Effect.gen(function*() {
+      const settings = yield* Settings
+      const rules = yield* Rules
+      const review = RULE_REVIEWS.find((r) => r.ids.includes("bolter-discipline"))!
+      // a database seeded at the version before, where you had already called Blessings of Khorne a note
+      yield* seed
+      yield* settings.set(SEED_VERSION, String(review.since - 1))
+      for (const id of ["bolter-discipline", "blessings-of-khorne"]) yield* rules.setStatus(id, "draft")
+      yield* rules.setStatus("blessings-of-khorne", "note")
+      yield* seed
+      const bolter = yield* rules.get("bolter-discipline")
+      expect(bolter.status).toBe("verified")
+      expect(bolter.notes.split("\n")[0]).toBe(review.note)
+      expect((yield* rules.get("blessings-of-khorne")).status).toBe("note")
+      // a rule saved through the MCP that this database never got is skipped, not an error
+      expect(review.ids).toContain("wrathful-presence")
+      // set back to a draft afterwards, it stays one: the review happened once
+      yield* rules.setStatus("bolter-discipline", "draft")
+      yield* seed
+      expect((yield* rules.get("bolter-discipline")).status).toBe("draft")
     }).pipe(Effect.provide(Unseeded)))
 })
