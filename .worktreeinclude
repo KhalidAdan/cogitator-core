@@ -1,0 +1,8 @@
+# gitignored files Claude Code copies into each new worktree (gitignore syntax)
+
+# secret names for `wrangler types`, so npm run typecheck passes
+.dev.vars
+
+# the downloaded Wahapedia export and Field Manual pages: without them 25 tests skip
+data/wahapedia/**
+data/mfm/**
