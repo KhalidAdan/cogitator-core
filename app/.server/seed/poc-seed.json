@@ -953,6 +953,20 @@
    "cls": "inf"
   },
   {
+   "id": "assault-terminators",
+   "nm": "Assault Terminators (shields)",
+   "pts": 195,
+   "T": 6,
+   "Sv": 2,
+   "inv": 4,
+   "W": 4,
+   "N": 5,
+   "fnp": 0,
+   "dr": 0,
+   "kw": "INFANTRY",
+   "cls": "inf"
+  },
+  {
    "id": "canoptek-wraiths",
    "nm": "Canoptek Wraiths",
    "pts": 95,

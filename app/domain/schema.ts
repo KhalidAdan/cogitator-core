@@ -207,6 +207,12 @@ export const Rule = Schema.Struct({
   /** Orders (rule ids) this rule lets the list issue; they make up the modifier bar's Order menu. */
   orders: opt(Schema.Array(Schema.String)),
   /**
+   * Switches for a rule that is a choice of several (the Blessings of Khorne): each is a situation switch on every
+   * list with the rule, and each of the rule's clauses waits for its own with `when`. Unlike `cond`, no one switch
+   * idles the whole rule.
+   */
+  switches: opt(Schema.Array(Schema.Struct({ key: Schema.String, label: Schema.String, hint: opt(Schema.String) }))),
+  /**
    * On a list's own rule that the library's rule of the same name stands in for (see `listRuleBook`): that library
    * rule's id, for links to it. Set when the rule book is put together, never stored.
    */

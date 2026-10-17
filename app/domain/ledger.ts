@@ -86,9 +86,16 @@ export function situations(units: ReadonlyArray<Unit>, rules: RuleBook): Array<S
   for (const u of units) {
     for (const id of u.rules) {
       const r = rules[id]
-      if (!r?.cond || !r.dmg || seen.has(r.cond)) continue
-      seen.add(r.cond)
-      out.push({ key: r.cond, label: r.condNm ?? r.cond, hint: r.condTxt ?? `For ${r.nm}.` })
+      if (!r?.dmg) continue
+      if (r.cond && !seen.has(r.cond)) {
+        seen.add(r.cond)
+        out.push({ key: r.cond, label: r.condNm ?? r.cond, hint: r.condTxt ?? `For ${r.nm}.` })
+      }
+      for (const s of r.switches ?? []) {
+        if (seen.has(s.key)) continue
+        seen.add(s.key)
+        out.push({ key: s.key, label: s.label, hint: s.hint ?? `For ${r.nm}.` })
+      }
     }
   }
   return out
@@ -166,7 +173,10 @@ export function ruleState(rule: Rule | undefined, owner: string, id: string, opt
   if (rule.mark) return opts.flags[rule.mark] ? "mark-on" : "mark-off"
   if (!rule.dmg) return rule.todo ? "todo" : "note"
   if (opts.off[ruleKey(owner, id)]) return "off"
-  return rule.cond && !unitFlags(unit, opts)[rule.cond] ? "idle" : "on"
+  const flags = unitFlags(unit, opts)
+  if (rule.cond && !flags[rule.cond]) return "idle"
+  // a choice of several: waiting until one of them is switched on
+  return rule.switches?.length && !rule.switches.some((s) => flags[s.key]) ? "idle" : "on"
 }
 
 export const RULE_STATE_TITLE: Record<RuleState, string> = {

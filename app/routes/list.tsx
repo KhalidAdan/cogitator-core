@@ -239,7 +239,7 @@ export default function ListLayout({ loaderData, params }: Route.ComponentProps)
       <footer className="foot">
         <p>
           Calibration: with bare datasheets, the Yriel, Fuegan, Kharseth and Shroud Runners rows reproduce the Culling Cogitator’s numbers
-          against all 19 targets.{" "}
+          against its 19 benchmark targets.{" "}
           {calibration ? (
             <>
               Live check, Yriel into Warp Spiders:{" "}

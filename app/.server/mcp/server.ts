@@ -471,6 +471,7 @@ const SAVE_RULE_HELP = [
   "A rule changes damage when it changes attacks this unit makes, or attacks of units it buffs. Moving, scoring, saves, Feel No Pain and other protection don't: save those with changesDamage false. Stratagems are left out of the app on purpose.",
   "effects is a list of clauses. A clause reaches an attack when every one of its When fields matches; its Does fields are then added to the attack. Hit and wound modifiers from everything are summed and capped at ±1; characteristic changes (skill, s, ap, a, d) aren't capped; the strongest re-roll wins. A misspelt field is refused, with where it is.",
   `Something the engine can't know from the profiles (a choice made in the game, the unit having charged, the target being below half strength) goes behind a condition: a switch on every list with the rule, and the rule idles while it's off. Built-in keys: ${SITUATION.map(([k, l]) => `${k} (${l})`).join(", ")}. A new key needs conditionLabel, and conditionHint helps. Reuse a key other rules wait for where it fits; get_list shows a list's switches.`,
+  "A rule that's a choice of several (activate two of six blessings, pick one of three auras) lists them in switches, one per choice that changes damage, and each clause waits for its own with when: <key>. Choices that don't change damage are left out.",
   "A leader ability that works “while this model is leading a unit”, or on “models in this unit”, is shared: true, so it reaches the whole attached unit. A rule that marks an enemy unit for others (an Oath of Moment) sets mark; the effect that reads it uses when: <mark key>.",
   "After saving, check it: explain_matchup a unit with the rule against a target where it should matter (with its condition switched on) and read the weapon notes."
 ].join("\n\n")
@@ -524,6 +525,9 @@ async function saveRuleTool(caller: McpCaller, a: Args): Promise<ToolResult> {
         markNm: str("markLabel"),
         markTxt: str("markHint"),
         global: bool("markAppliesToAll"),
+        switches: Array.isArray(a.switches)
+          ? a.switches.map(obj).map((s) => ({ key: String(s.key ?? "").trim(), label: String(s.label ?? "").trim(), ...(typeof s.hint === "string" ? { hint: s.hint } : {}) }))
+          : undefined,
         fx: a.effects,
         status: "draft",
         note: [by, str("note")].filter(Boolean).join(" "),
@@ -567,6 +571,7 @@ const asSaveInput = (r: Rule) => ({
   ...(r.scope === "unit" ? { shared: true } : {}),
   ...(r.cond ? { condition: r.cond, conditionLabel: r.condNm } : {}),
   ...(r.mark ? { mark: r.mark, markLabel: r.markNm, ...(r.global ? { markAppliesToAll: true } : {}) } : {}),
+  ...(r.switches?.length ? { switches: r.switches } : {}),
   effects: r.fx ?? []
 })
 
@@ -574,7 +579,13 @@ const asSaveInput = (r: Rule) => ({
 function workedExamples(entries: ReadonlyArray<RuleEntry>, n = 5): Array<RuleEntry> {
   const pool = entries.filter((e) => e.status === "verified" && e.rule.dmg && e.rule.fx?.length)
   const features = (e: RuleEntry) =>
-    new Set([...(e.rule.fx ?? []).flatMap((f) => Object.keys(f)), ...(e.rule.cond ? ["cond"] : []), ...(e.rule.scope === "unit" ? ["shared"] : []), ...(e.rule.mark ? ["mark"] : [])])
+    new Set([
+      ...(e.rule.fx ?? []).flatMap((f) => Object.keys(f)),
+      ...(e.rule.cond ? ["cond"] : []),
+      ...(e.rule.scope === "unit" ? ["shared"] : []),
+      ...(e.rule.mark ? ["mark"] : []),
+      ...(e.rule.switches?.length ? ["switches"] : [])
+    ])
   const seen = new Set<string>()
   const out: Array<RuleEntry> = []
   while (out.length < n) {
@@ -610,7 +621,10 @@ async function translatePrompt(caller: McpCaller, args: Readonly<Record<string, 
   const unitLine = (u: Unit) =>
     `- ${u.nm} (${(u.kw ?? []).join(", ").toLowerCase() || "no keywords"}): ${u.w.map((w) => `${w.nm} (${w.t === "r" ? "ranged" : "melee"})`).join(", ") || "no weapons"}`
   const conditions = new Map<string, string>(SITUATION.map(([k, label]) => [k, `${label} (built in)`]))
-  for (const e of entries) if (e.rule.cond && !conditions.has(e.rule.cond)) conditions.set(e.rule.cond, `${e.rule.condNm ?? e.rule.cond} (for ${e.rule.nm})`)
+  for (const e of entries) {
+    if (e.rule.cond && !conditions.has(e.rule.cond)) conditions.set(e.rule.cond, `${e.rule.condNm ?? e.rule.cond} (for ${e.rule.nm})`)
+    for (const s of e.rule.switches ?? []) if (!conditions.has(s.key)) conditions.set(s.key, `${s.label} (for ${e.rule.nm})`)
+  }
   const marks = entries.filter((e) => e.rule.mark && e.rule.markNm).map((e) => `- ${e.rule.mark}: ${e.rule.markNm}, set by ${e.rule.nm}`)
   const name = l.list.meta.name
   const about = [l.list.meta.faction, l.list.meta.detachments?.join(" and ")].filter(Boolean).join(", ")
@@ -801,6 +815,20 @@ const ownerTools = (caller: McpCaller): ReadonlyArray<McpTool> => [
         markLabel: { type: "string", description: "The mark's switch label." },
         markHint: { type: "string", description: "What the mark does, in a line." },
         markAppliesToAll: { type: "boolean", description: "The mark's effect reaches every attacker in the list, not only the units with a rule that reads it." },
+        switches: {
+          type: "array",
+          description: "For a rule that's a choice of several: a switch per choice. [] clears them.",
+          items: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "The key its clauses wait for with when." },
+              label: { type: "string", description: "The switch's label: “Warp Blades”." },
+              hint: { type: "string", description: "What it does, in a line." }
+            },
+            required: ["key", "label"],
+            additionalProperties: false
+          }
+        },
         note: { type: "string", description: "What you assumed or weren't sure of, for whoever verifies the draft. Goes on top of the rule's notes." }
       },
       required: ["rule"],

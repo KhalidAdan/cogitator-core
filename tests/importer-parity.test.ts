@@ -11,10 +11,12 @@ import { defaultOpts } from "~/domain/options"
 import type { RuleBook, Target, Unit } from "~/domain/schema"
 import { parseRosterSync, parseTextExport } from "~/.server/importer/roster"
 import seed from "~/.server/seed/poc-seed.json"
+import { ADDED_TARGETS } from "~/.server/seed/Seed"
 import { BURNING_V1, COPHASTA, pocBurningV1, pocCophasta, pocPath } from "./helpers/poc"
 
 const library = seed.rules as unknown as RuleBook
-const targets = seed.targets as unknown as Array<Target>
+// the Culling Cogitator's 19, which the POC was built against; the targets added since (Seed.ts) are left out
+const targets = (seed.targets as unknown as Array<Target>).filter((t) => !ADDED_TARGETS.some((a) => a.id === t.id))
 const ctx = {
   library,
   factionArmyRules: seed.factionArmyRules,

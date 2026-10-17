@@ -435,6 +435,28 @@ D-50 gave the owner's agent the tools; this tells the owner when to use them.
 
 ---
 
+### D-52. World Eaters, and rules that are a choice of several (10 October, your call)
+
+The Red Sands Remember was the first list translated through `save_rule` (D-50). Six of its rules went into the live library as drafts that way, and every number was checked with `explain_matchup`: Murderous Charge, Legendary Killer, A Worthy Skull, Rend and Tear, Possessed Lord and Berzerker Glaive. They live in the database only, like anything saved in the rule editor; the seed doesn't carry them.
+
+Blessings of Khorne couldn't go that way. You activate two of six blessings each battle round, and three of them change damage: Warp Blades (melee Lethal Hits), Martial Excellence (melee Sustained Hits 1) and Decapitating Strikes (melee Devastating Wounds against Infantry). A rule had one switch, so it couldn't say which.
+
+- **A rule can now offer several switches** (`Rule.switches`): one for each choice, and each clause waits for its own with `when`. They show with the list's other situation switches and on the rule card. The rule's chip is idle until one is on. No one switch idles the whole rule, unlike `cond`.
+- **`save_rule` takes them too**, so the next "pick one of several" rule can go through an agent. Angron's Wrathful Presence is one, once its choices' text is to hand (the roster only has the chooser). The rule editor keeps a rule's switches when it saves but doesn't show them yet.
+- **Blessings of Khorne is in the seed** (v9, draft) as each unit's own rule, since every World Eaters unit carries it. Its source is "Faction" rather than "Army rule", which the importer would file with the list instead of on the units. Total Carnage (fighting on as a model dies) is left out, as defensive.
+
+---
+
+### D-53. Assault Terminators with storm shields join the benchmarks (17 October, your call)
+
+A 20th benchmark target, right after Terminator Squad: five Assault Terminators with thunder hammers and storm shields, 195 points (170, plus 5 per storm shield). The profile is the codex's, from the 16 October Wahapedia export: Toughness 6, Save 2+, 4+ invulnerable save. A storm shield gives +1 Wound, so they have 4 each instead of the Terminators' 3. That makes them about a quarter harder to remove for the same points: Yriel + Voidscarred go from 107% to 83%.
+
+- **It reaches the live site once.** The seed only fills an empty table, so the upgrade to seed v9 puts it after Terminators in a database that doesn't have it (`ADDED_TARGETS` in Seed.ts, `Targets.insertAfter`). If you remove it later, it stays removed. "Restore the default targets" includes it.
+- **The calibration stays the Culling Cogitator's 19.** The parity tests and the handoff's headline numbers are measured against the targets the Cogitator uses, so they leave out anything in `ADDED_TARGETS`. The footer now says "its 19 benchmark targets".
+- **The T6 band has four targets now,** so a unit covers it by hurting two of them.
+
+---
+
 ## Things I chose not to do
 
 - **No authentication.** One user, local. If you put it on Tailscale, Tailscale is the access control.

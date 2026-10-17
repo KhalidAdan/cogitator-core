@@ -105,6 +105,12 @@ export function RuleDrawer({ ledger }: { ledger: LedgerContext }) {
                 <small>{opts.flags[r.cond] ? "On: the rule is changing the numbers now." : "Off: the rule is idle in every matchup."}</small>
               </Toggle>
             ) : null}
+            {(r.switches ?? []).map((s) => (
+              <Toggle key={s.key} big action={action} fields={{ intent: "flag", key: s.key }} checked={!!opts.flags[s.key]}>
+                {s.label}
+                {s.hint ? <small>{s.hint}</small> : null}
+              </Toggle>
+            ))}
           </>
         ) : r.todo ? (
           <p className="hint">

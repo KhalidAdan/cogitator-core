@@ -13,7 +13,7 @@ import { Rules } from "~/.server/repos/Rules"
 import { ACTIVE_LIST, SEED_VERSION, Settings } from "~/.server/repos/Settings"
 import { Targets } from "~/.server/repos/Targets"
 import { LIBRARY_RULES } from "~/.server/seed/library"
-import { seed, seedData } from "~/.server/seed/Seed"
+import { ADDED_TARGETS, seed, seedData } from "~/.server/seed/Seed"
 
 const Repos = Layer.mergeAll(Lists.layer, Rules.layer, Targets.layer, Settings.layer)
 const TestLayer = Layer.effectDiscard(seed).pipe(Layer.provideMerge(Repos), Layer.provideMerge(layerAt(":memory:")))
@@ -30,7 +30,10 @@ describe("database", () => {
       // the POC's library plus the rules translated since (seed/library.ts)
       expect(Object.keys(yield* rules.book)).toHaveLength(Object.keys(seedData.rules).length + LIBRARY_RULES.length)
       expect((yield* rules.get("despoilers")).status).toBe("draft")
-      expect(yield* targets.all).toHaveLength(19)
+      // the Culling Cogitator's 19, and Assault Terminators (shields) right after Terminators
+      const set = (yield* targets.all).map((t) => t.id)
+      expect(set).toHaveLength(20)
+      expect(set.slice(set.indexOf("terminators"), set.indexOf("terminators") + 2)).toEqual(["terminators", "assault-terminators"])
       // running the seed again adds nothing
       yield* seed
       expect(yield* lists.all).toHaveLength(1)
@@ -186,6 +189,19 @@ describe("saving a rule (the rule editor and the MCP's save_rule)", () => {
       expect((yield* rules.get("blood-for-the-guns")).notes).toBe("Checked the AP.\nDrafted by a test.")
     }).pipe(Effect.provide(TestLayer)))
 
+  it.effect("keeps a rule's switches unless an edit gives new ones, and clears them with none", () =>
+    Effect.gen(function*() {
+      const rules = yield* Rules
+      const before = (yield* rules.get("blessings-of-khorne")).rule
+      expect(before.switches?.map((s) => s.key)).toEqual(["warpblades", "martial", "decapitating"])
+      yield* saveRule("blessings-of-khorne", { txt: "Reworded.", status: "draft" })
+      expect((yield* rules.get("blessings-of-khorne")).rule.switches).toEqual(before.switches)
+      yield* saveRule("blessings-of-khorne", { switches: [{ key: "warpblades", label: "Warp Blades" }], status: "draft" })
+      expect((yield* rules.get("blessings-of-khorne")).rule.switches).toEqual([{ key: "warpblades", label: "Warp Blades" }])
+      yield* saveRule("blessings-of-khorne", { switches: [], status: "draft" })
+      expect((yield* rules.get("blessings-of-khorne")).rule.switches).toBeUndefined()
+    }).pipe(Effect.provide(TestLayer)))
+
   it.effect("gives a condition other rules wait for the label they use", () =>
     Effect.gen(function*() {
       const rules = yield* Rules
@@ -198,4 +214,23 @@ describe("saving a rule (the rule editor and the MCP's save_rule)", () => {
       const s = (yield* rules.get("daring-recon")).rule
       expect([s.cond, s.condNm, s.condTxt]).toEqual(["stationary", "Remained stationary", undefined])
     }).pipe(Effect.provide(TestLayer)))
+})
+
+describe("benchmark targets added since the Cogitator's 19", () => {
+  it.effect("reach a database seeded before them once, right after the target named, and stay gone if removed", () =>
+    Effect.gen(function*() {
+      const settings = yield* Settings
+      const targets = yield* Targets
+      // a database seeded at v8, before Assault Terminators: the Cogitator's 19 in their order
+      yield* targets.replaceAll(seedData.targets.filter((t) => !ADDED_TARGETS.some((a) => a.id === t.id)))
+      yield* settings.set(SEED_VERSION, "8")
+      yield* seed
+      const ids = (yield* targets.all).map((t) => t.id)
+      expect(ids).toEqual(seedData.targets.map((t) => t.id))
+      expect((yield* targets.all).find((t) => t.id === "assault-terminators")).toMatchObject({ T: 6, Sv: 2, inv: 4, W: 4, N: 5, pts: 195 })
+      // removed by the owner after the upgrade: the next seed leaves it out
+      yield* targets.remove("assault-terminators")
+      yield* seed
+      expect((yield* targets.all).map((t) => t.id)).not.toContain("assault-terminators")
+    }).pipe(Effect.provide(Unseeded)))
 })

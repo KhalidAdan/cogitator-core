@@ -8,10 +8,12 @@ import { availableMarks, effectiveOpts, findings, heat, isEfficient, matrix, rul
 import { applyIntent, defaultOpts, intentFromForm } from "~/domain/options"
 import type { RuleBook, Target, Unit } from "~/domain/schema"
 import seed from "~/.server/seed/poc-seed.json"
+import { ADDED_TARGETS } from "~/.server/seed/Seed"
 import { pocCophasta } from "./helpers/poc"
 
 const rules = seed.rules as unknown as RuleBook
-const targets = seed.targets as unknown as Array<Target>
+// the handoff's numbers were measured against the Culling Cogitator's 19; the targets added since (Seed.ts) are left out
+const targets = (seed.targets as unknown as Array<Target>).filter((t) => !ADDED_TARGETS.some((a) => a.id === t.id))
 const list = (id: string) => seed.lists.find((l) => l.id === id)! as unknown as { units: Array<Unit>; rules: RuleBook; groups: Record<string, { nm: string; short: string }> }
 const form = (fields: Record<string, string>) => {
   const fd = new FormData()

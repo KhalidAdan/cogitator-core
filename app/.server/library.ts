@@ -28,6 +28,8 @@ export interface RuleEdit {
   readonly markNm?: string
   readonly markTxt?: string
   readonly global?: boolean
+  /** Switches for a choice of several (`Rule.switches`); an empty list clears them. */
+  readonly switches?: ReadonlyArray<{ readonly key: string; readonly label: string; readonly hint?: string }>
   /** Effect clauses as plain JSON values; one clause on its own is taken as a list of one. */
   readonly fx?: unknown
   readonly status: string
@@ -89,6 +91,7 @@ export const saveRule = Effect.fn("saveRule")(function*(id: string, edit: RuleEd
     markNm: mark ? kept(edit.markNm, was?.markNm) : undefined,
     markTxt: mark ? kept(edit.markTxt, was?.markTxt) : undefined,
     global: mark && (edit.global ?? was?.global) ? true : undefined,
+    switches: (edit.switches ?? was?.switches)?.length ? (edit.switches ?? was?.switches) : undefined,
     fx: dmg && fx.length ? fx : undefined,
     // saved by someone, so translated: no longer waiting, and no longer only the roster's
     todo: undefined,

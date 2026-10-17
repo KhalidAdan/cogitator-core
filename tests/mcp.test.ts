@@ -413,6 +413,20 @@ describe("translating rules", () => {
     expect(imported.content[0].text).toMatch(/Give the rule's name instead/)
   })
 
+  it("saves a choice of several as switches, which every list with the rule offers", async () => {
+    const r = await callAs(owner, "save_rule", {
+      rule: "Daring Recon",
+      switches: [{ key: "recon-near", label: "Within 12\"", hint: "Re-roll hit rolls of 1." }],
+      effects: [{ phase: "ranged", when: "recon-near", rrHit: "ones" }]
+    })
+    expect(r.structuredContent.rule.switches).toEqual([{ key: "recon-near", label: "Within 12\"", hint: "Re-roll hit rolls of 1." }])
+    const listed = await callAs(owner, "get_list", { list: recon })
+    expect(listed.structuredContent.switches.map((s: any) => s.key)).toContain("recon-near")
+    const on = await callAs(owner, "explain_matchup", { list: recon, unit: "scout-sentinels-a", target: "intercessors", saved: false, switches: { "recon-near": true } })
+    const off = await sentinels()
+    expect(on.structuredContent.total).toBeGreaterThan(off.structuredContent.total)
+  })
+
   it("is the owner's alone, and says it writes", async () => {
     const save = (await owner.listTools()).tools.find((t) => t.name === "save_rule")!
     expect(save.annotations).toMatchObject({ readOnlyHint: false, destructiveHint: true })

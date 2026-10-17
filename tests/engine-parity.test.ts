@@ -15,10 +15,12 @@ import { attackerList, attackUnit, MOD0 } from "~/domain/engine"
 import { bareDatasheetOpts, defaultOpts } from "~/domain/options"
 import type { Mod, Opts, RuleBook, Target, Unit } from "~/domain/schema"
 import seed from "~/.server/seed/poc-seed.json"
+import { ADDED_TARGETS } from "~/.server/seed/Seed"
 import { COPHASTA, loadPoc, pocBurningV1, pocCophasta, pocLists, toPocOpts } from "./helpers/poc"
 
 const rules = seed.rules as unknown as RuleBook
-const targets = seed.targets as unknown as Array<Target>
+// the Culling Cogitator's 19: the targets added since (Seed.ts) aren't part of the calibration
+const targets = (seed.targets as unknown as Array<Target>).filter((t) => !ADDED_TARGETS.some((a) => a.id === t.id))
 type TestList = { id: string; units: Array<Unit>; rules: RuleBook }
 // the list the app ships, plus the POC's hand-built Aeldari list and its Space Marines list (see tests/helpers/poc.ts)
 const builtin = seed.lists[0] as unknown as TestList

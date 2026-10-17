@@ -25,7 +25,7 @@ describe("toughness bands", () => {
       ["T3–4", "T3–4", "T3–4", "T5", "T6", "T7–9", "T7–9", "T10–11", "T10–11", "T12+", "T12+"]
     )
     // the benchmark set has every band, but only one target at T12 or more
-    expect(BANDS.map((b) => targets.filter((t) => bandOf(t) === b).length)).toEqual([3, 3, 3, 4, 5, 1])
+    expect(BANDS.map((b) => targets.filter((t) => bandOf(t) === b).length)).toEqual([3, 3, 4, 4, 5, 1])
   })
 
   it("covers a band at half its targets or more", () => {

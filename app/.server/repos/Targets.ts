@@ -12,6 +12,9 @@ export class Targets extends Context.Service<Targets, {
   save(target: Target): Effect.Effect<void>
   /** Add a target at the end of the set, or replace the one with the same id. */
   add(target: Target): Effect.Effect<void>
+  /** Put a target the set doesn't have right after another; at the end if that one isn't there. */
+  insertAfter(target: Target, afterId: string): Effect.Effect<void>
+  has(id: string): Effect.Effect<boolean>
   remove(id: string): Effect.Effect<void>
   /** Replace the whole set (used for seeding and "restore defaults"). */
   replaceAll(targets: ReadonlyArray<Target>): Effect.Effect<void>
@@ -41,6 +44,17 @@ export class Targets extends Context.Service<Targets, {
         `.pipe(Effect.orDie)
       })
 
+      const insertAfter = Effect.fn("Targets.insertAfter")(function*(target: Target, afterId: string) {
+        yield* sql.withTransaction(Effect.gen(function*() {
+          const [after] = yield* sql<{ position: number }>`SELECT position FROM targets WHERE id = ${afterId}`
+          if (!after) return yield* add(target)
+          yield* sql`UPDATE targets SET position = position + 1 WHERE position > ${after.position}`
+          yield* sql`INSERT INTO targets (id, position, data) VALUES (${target.id}, ${after.position + 1}, ${enc(target)})`
+        })).pipe(Effect.orDie)
+      })
+
+      const has = (id: string) => sql<{ n: number }>`SELECT COUNT(*) AS n FROM targets WHERE id = ${id}`.pipe(Effect.map((r) => r[0].n > 0), Effect.orDie)
+
       const remove = Effect.fn("Targets.remove")(function*(id: string) {
         yield* sql`DELETE FROM targets WHERE id = ${id}`.pipe(Effect.orDie)
       })
@@ -58,7 +72,7 @@ export class Targets extends Context.Service<Targets, {
 
       const count = sql<{ n: number }>`SELECT COUNT(*) AS n FROM targets`.pipe(Effect.map((r) => r[0].n), Effect.orDie)
 
-      return Targets.of({ all, save, add, remove, replaceAll, count })
+      return Targets.of({ all, save, add, insertAfter, has, remove, replaceAll, count })
     })
   )
 }

@@ -317,3 +317,36 @@ describe("Thousand Sons", () => {
     expect(row(squad, [both, squad], opts({ fated: true }), "Gun").hitChance).toBeCloseTo(5 / 6)
   })
 })
+
+describe("World Eaters", () => {
+  const rule = "blessings-of-khorne"
+  const berzerkers = unit("berzerkers", { rules: [rule] })
+  const all = [berzerkers]
+  const dealt = (o: Opts, weapon: string, t = target()) => row(berzerkers, all, o, weapon, t).dealt ?? 0
+
+  it("Blessings of Khorne: a switch for each blessing that changes damage, and the rule waits for one", () => {
+    expect(situations(all, rules).filter((s) => ["warpblades", "martial", "decapitating"].includes(s.key)).map((s) => s.label)).toEqual([
+      "Blessing: Warp Blades",
+      "Blessing: Martial Excellence",
+      "Blessing: Decapitating Strikes"
+    ])
+    expect(ruleState(rules[rule], berzerkers.id, rule, opts(), berzerkers)).toBe("idle")
+    expect(ruleState(rules[rule], berzerkers.id, rule, opts({ martial: true }), berzerkers)).toBe("on")
+    expect(row(berzerkers, all, opts(), "Blade").notes ?? []).not.toContain("Blessings of Khorne")
+  })
+
+  it("Blessings of Khorne: each blessing adds its own, to melee only, and Decapitating Strikes only against Infantry", () => {
+    const none = opts()
+    for (const key of ["warpblades", "martial", "decapitating"]) {
+      const on = opts({ [key]: true })
+      expect(dealt(on, "Blade"), key).toBeGreaterThan(dealt(none, "Blade"))
+      expect(row(berzerkers, all, on, "Blade").notes, key).toContain("Blessings of Khorne")
+      expect(dealt(on, "Gun"), key).toBe(dealt(none, "Gun"))
+    }
+    const tank = target({ kw: "VEHICLE", cls: "veh", T: 9, W: 10, N: 1 })
+    expect(dealt(opts({ decapitating: true }), "Blade", tank)).toBe(dealt(none, "Blade", tank))
+    expect(dealt(opts({ warpblades: true }), "Blade", tank)).toBeGreaterThan(dealt(none, "Blade", tank))
+    // two blessings at once, as the roll allows
+    expect(dealt(opts({ warpblades: true, martial: true }), "Blade")).toBeGreaterThan(dealt(opts({ warpblades: true }), "Blade"))
+  })
+})

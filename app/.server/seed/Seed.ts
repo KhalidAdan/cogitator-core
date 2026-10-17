@@ -15,7 +15,16 @@ import { Targets } from "../repos/Targets"
 import { LIBRARY_RULES } from "./library"
 import raw from "./poc-seed.json"
 
-const VERSION = 8
+const VERSION = 9
+
+/**
+ * Benchmark targets added after the Culling Cogitator's 19, which the calibration is measured against. Each goes into
+ * an existing database once, on the upgrade to `since`, right after the target named; one the owner removes later
+ * stays removed. The calibration tests leave them out.
+ */
+export const ADDED_TARGETS: ReadonlyArray<{ readonly since: number; readonly id: string; readonly after: string }> = [
+  { since: 9, id: "assault-terminators", after: "terminators" }
+]
 
 /** Built-in lists that used to be seeded and are removed from existing databases on upgrade. */
 const RETIRED_LISTS = ["builtin-cophasta", "builtin-burning-v1"]
@@ -69,6 +78,10 @@ export const seed = Effect.gen(function*() {
     ...LIBRARY_RULES
   ])
   if ((yield* targets.count) === 0) yield* targets.replaceAll(seedData.targets)
+  for (const a of ADDED_TARGETS) {
+    const target = seedData.targets.find((t) => t.id === a.id)
+    if (target && Number(current) < a.since && !(yield* targets.has(a.id))) yield* targets.insertAfter(target, a.after)
+  }
   for (const l of seedData.lists) {
     if (!(yield* lists.exists(l.id))) {
       yield* lists.create({ ...l, builtin: true, opts: seedData.opts })

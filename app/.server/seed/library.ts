@@ -303,6 +303,33 @@ export const LIBRARY_RULES: ReadonlyArray<LibraryRule> = [
   ...order("take-cover", "Take Cover!", "Improve the unit’s Save by 1 (not better than 3+). No effect on damage dealt, but the unit is under an Order."),
   ...order("duty-and-honour", "Duty and Honour!", "Add 1 to the unit’s Leadership and Objective Control. No effect on damage, but the unit is under an Order."),
 
+  // ---------- World Eaters (10 October 2026, from "The Red Sands Remember")
+  // The rest of that list's rules were drafted through the MCP's save_rule, so they live in the library itself.
+  {
+    // Every World Eaters unit carries it, so it works as each unit's own rule. The source isn't "Army rule", which the
+    // importer would file with the list instead of on the units. Total Carnage (fight on death) is left out: it's
+    // the unit fighting back while being destroyed, which the matrix doesn't score.
+    id: "blessings-of-khorne",
+    faction: "WE",
+    status: "draft",
+    rule: {
+      nm: "Blessings of Khorne",
+      src: "Faction",
+      dmg: true,
+      txt: "At the start of the battle round, roll eight D6 and use doubles or triples to activate up to two Blessings, which last the battle round for every unit with this ability. Three change damage dealt: switch on the ones you activated. Unbridled Bloodlust, Rage-fuelled Invigoration and Total Carnage don't.",
+      switches: [
+        { key: "warpblades", label: "Blessing: Warp Blades", hint: "Melee weapons have Lethal Hits (a double 5+)." },
+        { key: "martial", label: "Blessing: Martial Excellence", hint: "Melee weapons have Sustained Hits 1." },
+        { key: "decapitating", label: "Blessing: Decapitating Strikes", hint: "Melee attacks against Infantry have Devastating Wounds." }
+      ],
+      fx: [
+        { phase: "melee", when: "warpblades", grant: { lethal: 1 } },
+        { phase: "melee", when: "martial", grant: { sus: 1 } },
+        { phase: "melee", when: "decapitating", vs: { only: ["INFANTRY"] }, grant: { dev: 1 } }
+      ]
+    }
+  },
+
   // ---------- Space Marines (10 October 2026, from "The Wall Advances": the importer only learned to read it that day)
   {
     // Either condition is enough. With both switched on, the two +1s are capped at +1, as every hit modifier is.
