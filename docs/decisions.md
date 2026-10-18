@@ -490,6 +490,16 @@ Prioritised Efficiency's switch took a second session. The first one's Claude Co
 
 ---
 
+### D-56. The Falcon's Fire Support (18 October, your call)
+
+"elves who are also pirates, in space" had one rule the engine didn't model that changes damage: the Falcon's Fire Support. After the Falcon shoots, models that disembarked from it this turn re-roll wound rolls against a unit it hit. It went in through `save_rule`, was checked against Wahapedia's wording and with `explain_matchup`, and is verified at your request (seed v12).
+
+- **It's a list-wide mark, "Fire Support target",** that reaches every unit that could ride in a Falcon: Infantry without jump packs. That's the pattern of the Warpsmith's Master of Mechanisms, and of Angron's Wrathful Presence (D-54), showing each possible passenger as if it were the one that got out. There's no phase limit, because the re-roll lasts the turn, so it covers a charge out of the Falcon too.
+- **A known overstatement:** the Falcon carries 6 models, and the matrix can't count them, so the 10-model Voidscarred and Voidreavers get the re-roll too. The rule card says to read it only for small units.
+- **The list's other rules the library doesn't have don't change damage:** Superlative Strategist, The Bloody-Handed, Path of Command and Molten Form, and core rules.
+
+---
+
 ## Things I chose not to do
 
 - **No authentication.** One user, local. If you put it on Tailscale, Tailscale is the access control.

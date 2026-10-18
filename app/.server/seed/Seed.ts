@@ -15,7 +15,7 @@ import { Targets } from "../repos/Targets"
 import { LIBRARY_RULES } from "./library"
 import raw from "./poc-seed.json"
 
-const VERSION = 11
+const VERSION = 12
 
 /**
  * Benchmark targets added after the Culling Cogitator's 19, which the calibration is measured against. Each goes into
@@ -63,6 +63,13 @@ export const RULE_REVIEWS: ReadonlyArray<{ readonly since: number; readonly ids:
     ],
     status: "verified",
     note: "Verified on 17 October 2026 by Claude Code, at Khalid's request: the wording checked against Wahapedia's (the 16 October export; Prioritised Efficiency against September's) and the numbers with explain_matchup."
+  },
+  {
+    since: 12,
+    // Aeldari (elves who are also pirates, in space), drafted through save_rule
+    ids: ["fire-support"],
+    status: "verified",
+    note: "Verified on 18 October 2026 by Claude Code, at Khalid's request: the wording checked against Wahapedia's (the 16 October export) and the numbers with explain_matchup. Known overstatement: units of more than 6 models get it in the matrix too."
   }
 ]
 
