@@ -9,6 +9,7 @@ export default [
     // One list: the layout owns the list's data, its options and every change to them.
     route(":listId", "routes/list.tsx", [
       index("routes/list.matrix.tsx"),
+      route("clear", "routes/list.clear.tsx"),
       route("bands", "routes/list.bands.tsx"),
       route("units/:unitId", "routes/list.unit.tsx"),
       route("targets/:targetId", "routes/list.target.tsx"),

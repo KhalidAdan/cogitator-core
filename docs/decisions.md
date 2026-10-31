@@ -515,6 +515,21 @@ Found while translating the list's rules, and saved to the live library as draft
 
 ---
 
+### D-58. The clear matrix (31 October, your call)
+
+You wanted to be able to say Yriel and his Voidscarred smoke a Terminator, and return % can't say that: it asks whether a unit is worth its points, not whether it removes the target. There's a new list tab, **Clear matrix**: the damage matrix's table, with the average share of the target cleared in each cell and the chance of a wipe beneath it. Gold is a wipe more often than not; jade and the tint go by how much it clears.
+
+- **Damage divided by wounds would have been wrong, so it isn't that.** It ignores what's lost on models already dead, and it hides how often the job gets done. Yriel + Voidscarred into Assault Terminators average 21.4 damage into 20 wounds, which reads as 107%. They clear 4.1 of the 5 models on average, and wipe the squad 44% of the time.
+- **Exact, not simulated.** `clear.ts` follows the attacks one at a time and keeps a chance for every state the target can be in, so a cell reads the same on every load. A whole list takes about 170 ms. The tests check it by hand on small cases, against the matrix's averages where nothing can be wasted, and against a simulation of the same attacks.
+- **It reads the matrix's rows,** so it follows the phase selector, attached units, modifiers, rules and switches like every other tab. `attack.ts` now hands over each weapon's rolls as chances, and none of the averages changed. Yriel + Voidscarred into Terminators clear 2.4 models shooting (6% to wipe), 3.4 in melee (23%) and 4.6 with both (77%).
+- **Squads count by models, single models by wounds.** A Land Raider at 60% of its wounds is worth knowing about even if it almost never dies.
+- **What it assumes:** one full activation into a full-strength target. Shooting comes before fighting, and the biggest hitters in each go first, so the small ones finish damaged models. Damage is capped at a model's wounds before Feel No Pain, as the matrix does, which slightly favours the target.
+- **The benchmarks stay as they are, your call.** Clearing depends on squad size in a way return % doesn't, so a 5-man Terminator Squad flatters a unit that meets 10. Two benchmarks of a unit that matters this much is the next step if it starts to mislead.
+
+The MCP tools don't show it; `score_list` and `explain_matchup` still report returns only.
+
+---
+
 ## Things I chose not to do
 
 - **No authentication.** One user, local. If you put it on Tailscale, Tailscale is the access control.

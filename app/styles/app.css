@@ -95,6 +95,10 @@ table.mx{border-collapse:separate; border-spacing:0; width:max-content; min-widt
 .mx tr.cov td.rowh{padding:8px 10px; text-align:left}
 .mx tr.cov td.zero{color:var(--warn); font-weight:600}
 
+/* clear matrix: the matrix's table, with the chance of a wipe under each number */
+.mx.clear td.c a{flex-direction:column; height:46px; line-height:1.15}
+.mx.clear .wp{font-size:11px; font-weight:400; opacity:.8}
+
 /* toughness bands: the matrix's table, one column per band */
 .mx.bands th.band{min-width:96px; max-width:116px; padding:8px 8px 8px; text-align:left; font-weight:500}
 .mx.bands .bl{display:block; font-family:var(--serif); font-size:18px; font-weight:600; margin-bottom:4px; color:var(--ink)}

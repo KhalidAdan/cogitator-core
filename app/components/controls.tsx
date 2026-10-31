@@ -369,6 +369,9 @@ export function Tabs({ listId }: { listId: string }) {
       <NavLink to={base} end prefetch="intent">
         Damage matrix
       </NavLink>
+      <NavLink to={`${base}/clear`} prefetch="intent">
+        Clear matrix
+      </NavLink>
       <NavLink to={`${base}/bands`} prefetch="intent">
         Toughness bands
       </NavLink>

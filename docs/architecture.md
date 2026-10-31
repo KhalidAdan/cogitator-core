@@ -10,6 +10,7 @@ app/
     attack.ts          one weapon against one target: resolve the effects, roll, explain
     ledger.ts          view model: matrix, findings, rule-chip states, heat colours
     bands.ts           coverage by toughness band, built from the matrix
+    clear.ts           how much of a target one activation clears and how often it wipes it, attack by attack
     book.ts            the rule book a list is scored with: the library, with the list's own rules over it, matched by name
     options.ts         defaults, presets, and the intent reducer for option changes
     keywords.ts        weapon ability strings ↔ the engine's kw object
@@ -160,6 +161,7 @@ The `wh_*` tables, the loader and the change report are all generated from one r
 | `mcp.test.ts` | OAuth sign-in as Claude does it (register, authorize, sign in, consent, token), then the MCP endpoint through the official SDK's client: every tool, the owner's tools, the usage report, disconnecting, and the transport |
 | `fx.test.ts` | the effect vocabulary's words and help, and how clauses from the bar, rules and core abilities combine |
 | `domain.test.ts` | option intents, the matrix and findings (including the handoff's headline numbers), keywords, effect descriptions |
+| `clear.test.ts` | the clear matrix: small cases by hand, against the matrix's averages, and against a simulation |
 | `db.test.ts` | migrations, seed (and upgrading an older database's built-in lists), repositories, typed errors |
 | `mfm.test.ts` | the Field Manual reader and parser, version comparison, and pricing lists from it (against the saved pages when present) |
 | `wahapedia.test.ts` | the CSV dialect, the change report, points tiers; and against the real export: loading, diffing, datasheet queries, the list check, rule linking |

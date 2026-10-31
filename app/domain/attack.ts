@@ -102,6 +102,32 @@ export interface AttackRow {
   dmg?: number
   dealt?: number
   notes?: Array<string>
+  /** The same rolls as chances, for following the weapon attack by attack (clear.ts). */
+  chances?: AttackChances
+}
+
+type Dist = ReadonlyArray<readonly [number, number]>
+
+/** One weapon's rolls as chances, where the rest of a row holds averages. */
+export interface AttackChances {
+  /** Attacks from each model carrying it, as `[attacks, chance]` pairs. */
+  readonly perModel: Dist
+  /** Chance one attack hits, and hits critically. */
+  readonly normal: number
+  readonly crit: number
+  /** Extra hits from a critical hit, and whether a critical hit wounds without rolling. */
+  readonly sus: number
+  readonly lethal: boolean
+  /** Chance one wound roll goes to a save, and that it's a mortal wound. */
+  readonly wound: number
+  readonly mortal: number
+  /** Chance a wound gets past the save. */
+  readonly unsaved: number
+  /** What gets through one wound and one mortal wound, spill-over already lost, as `[damage, chance]` pairs. */
+  readonly damage: Dist
+  readonly mortalDamage: Dist
+  /** Share of damage that gets past Feel No Pain. */
+  readonly fnp: number
 }
 
 /** One weapon of an attacker, with what reaches it whatever the target (engine.ts prepares these). */
@@ -158,7 +184,20 @@ export function scoreWeapon(a: Armed, tgt: Target, opts: Opts): Omit<AttackRow, 
     fail,
     dmg: denom ? dealt / denom : damage.normal * damage.fnp,
     dealt,
-    notes: explain(md, baseRf, ranged, p, { volley, hit, wound, damage })
+    notes: explain(md, baseRf, ranged, p, { volley, hit, wound, damage }),
+    chances: {
+      perModel: diceDist(w.A).map(([v, pr]) => [v + volley.attacks / w.n - avgDice(w.A), pr] as const),
+      normal: hit.normal,
+      crit: hit.crit,
+      sus: hit.sus,
+      lethal: hit.lethal,
+      wound: wound.rollSaves,
+      mortal: wound.rollMortal,
+      unsaved: pass,
+      damage: damage.dist,
+      mortalDamage: damage.mortalDist,
+      fnp: damage.fnp
+    }
   }
 }
 
@@ -333,6 +372,9 @@ interface WoundRoll {
   readonly normal: number
   readonly mortal: number
   readonly perAttack: number
+  /** The same two, per wound roll. */
+  readonly rollSaves: number
+  readonly rollMortal: number
 }
 
 function woundRoll(w: Weapon, p: Profile, tgt: Target, targetKw: string, hit: HitRoll): WoundRoll {
@@ -351,7 +393,9 @@ function woundRoll(w: Weapon, p: Profile, tgt: Target, targetKw: string, hit: Hi
     anti,
     normal: (dev ? rolled - crits : rolled) + hit.autoWounds,
     mortal: dev ? crits : 0,
-    perAttack: rolled + hit.autoWounds
+    perAttack: rolled + hit.autoWounds,
+    rollSaves: dev ? success - crit : success,
+    rollMortal: dev ? crit : 0
   }
 }
 
@@ -369,6 +413,21 @@ interface DamageRoll {
   readonly mortal: number
   /** Share of damage that gets past Feel No Pain. */
   readonly fnp: number
+  /** The same two as `[damage, chance]` pairs. */
+  readonly dist: Dist
+  readonly mortalDist: Dist
+}
+
+/** A damage roll's outcomes: a low roll is re-rolled on the rule `expect` uses, so the two agree on the mean. */
+function outcomes(dist: Dist, f: (v: number) => number, rerollBelow: number | null): Dist {
+  const out = new Map<number, number>()
+  const add = (v: number, pr: number) => out.set(v, (out.get(v) ?? 0) + pr)
+  const again = rerollBelow === null ? 0 : dist.reduce((s, [v, pr]) => (f(v) < rerollBelow ? s + pr : s), 0)
+  for (const [v, pr] of dist) {
+    if (rerollBelow === null || f(v) >= rerollBelow) add(f(v), pr)
+    add(f(v), again * pr)
+  }
+  return [...out].filter(([, pr]) => pr > 0)
 }
 
 function damageRoll(w: Weapon, p: Profile, tgt: Target, half: boolean): DamageRoll {
@@ -378,9 +437,9 @@ function damageRoll(w: Weapon, p: Profile, tgt: Target, half: boolean): DamageRo
   // no spill-over: damage beyond the model's wounds is lost
   const normal = (v: number) => Math.min(tgt.dr ? Math.max(1, v + add - tgt.dr) : v + add, tgt.W)
   const mortal = (v: number) => Math.min(v + add, tgt.W)
+  const firstRoll = (f: (v: number) => number) => dist.reduce((s, [v, pr]) => s + f(v) * pr, 0)
   const expect = (f: (v: number) => number) => {
-    let e = 0
-    for (const [v, pr] of dist) e += f(v) * pr
+    let e = firstRoll(f)
     if (p.rrDmg && dist.length > 1) {
       // optimal single re-roll: keep anything at or above the first roll's mean
       const e1 = e
@@ -389,7 +448,15 @@ function damageRoll(w: Weapon, p: Profile, tgt: Target, half: boolean): DamageRo
     }
     return e
   }
-  return { melta, normal: expect(normal), mortal: expect(mortal), fnp: tgt.fnp ? (tgt.fnp - 1) / 6 : 1 }
+  const spread = (f: (v: number) => number) => outcomes(dist, f, p.rrDmg && dist.length > 1 ? firstRoll(f) : null)
+  return {
+    melta,
+    normal: expect(normal),
+    mortal: expect(mortal),
+    fnp: tgt.fnp ? (tgt.fnp - 1) / 6 : 1,
+    dist: spread(normal),
+    mortalDist: spread(mortal)
+  }
 }
 
 // ---------- 3. explain ----------
