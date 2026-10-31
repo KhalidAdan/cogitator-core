@@ -172,6 +172,19 @@ const group = (rows: Rows, key = "datasheet_id") => {
   return m
 }
 
+/** A row of `wh_datasheet_wargear`. */
+export const wargearProfile = (w: Record<string, string>): WargearProfile => ({
+  name: w.name,
+  abilities: stripHtml(w.description),
+  range: w.range,
+  type: w.type,
+  A: w.A,
+  skill: w.BS_WS,
+  S: w.S,
+  AP: w.AP,
+  D: w.D
+})
+
 /** Cost rows carry their tier as a header line above them; fold it into each priced line. */
 export function costLines(rows: Rows): Array<CostLine> {
   const out: Array<CostLine> = []
@@ -295,17 +308,7 @@ const readDatasheets = Effect.fn("wahapedia.readDatasheets")(function*(snapshotI
         Ld: m.Ld,
         OC: m.OC
       })),
-      wargear: (g.wargear.get(h.id) ?? []).map((w) => ({
-        name: w.name,
-        abilities: stripHtml(w.description),
-        range: w.range,
-        type: w.type,
-        A: w.A,
-        skill: w.BS_WS,
-        S: w.S,
-        AP: w.AP,
-        D: w.D
-      })),
+      wargear: (g.wargear.get(h.id) ?? []).map(wargearProfile),
       abilities: byLine(g.abilities.get(h.id)).map((a) => {
         // a filled ability_id means "take the name and text from Abilities.csv"
         const ref = a.ability_id ? (sharedById.get(a.ability_id) ?? []) : []

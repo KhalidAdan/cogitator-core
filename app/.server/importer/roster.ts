@@ -14,6 +14,7 @@ import { parseDice, parseNum, parseWeaponKeywords } from "~/domain/keywords"
 import type { Enhancement, Group, ListMeta, Role, Rule, RuleBook, Unit, UnitStats, Weapon, WeaponKw } from "~/domain/schema"
 import { baseRuleName, clean, norm, slug, titleCase } from "~/domain/text"
 import { type Swap, weaponKey } from "../wahapedia/swaps"
+import type { Twin } from "../wahapedia/twins"
 import { attr, descendants, kid, kids, parseXml, textContent, type XNode } from "./xml"
 
 export class RosterParseError extends Schema.TaggedError<RosterParseError>()("RosterParseError", {
@@ -29,6 +30,8 @@ export interface ImportContext {
   readonly detachmentUnitGrants: Readonly<Record<string, ReadonlyArray<{ readonly name: string; readonly rule: string }>>>
   /** A unit's wargear swaps from its Wahapedia datasheet, by the unit's name in the roster (see `dropReplaced`). */
   readonly swaps?: (unitName: string) => ReadonlyArray<Swap>
+  /** A weapon's two rows, when a unit's Wahapedia datasheet has it as both ranged and melee (see `addTwins`). */
+  readonly twin?: (unitName: string, faction: string, weapon: string) => Twin | undefined
 }
 
 export interface ImportStats {
@@ -180,6 +183,25 @@ function dropReplaced(g: ModelGroup, swaps: ReadonlyArray<Swap>): void {
   if (gone.size) g.items = g.items.filter((i) => !gone.has(key(i)))
 }
 
+/**
+ * 40k.app's roster files keep one row of a weapon that's ranged and melee under one name ("Foehammer"). A model with
+ * the weapon has both, so the row the file left out comes from the datasheet. Returns what was added.
+ */
+function addTwins(g: ModelGroup, twin: (weapon: string) => Twin | undefined): Array<string> {
+  const added: Array<string> = []
+  for (const i of [...g.items]) {
+    const found = twin(i.w.nm)
+    if (!found) continue
+    const other = i.w.t === "r" ? "m" : "r"
+    const rows = (t: W["t"]) => g.items.filter((x) => x.w.t === t && twin(x.w.nm) === found)
+    if (rows(other).length) continue
+    const n = rows(i.w.t).reduce((s, x) => s + x.w.n, 0)
+    g.items.push({ w: { ...found[other], nm: found.name, t: other, n }, upg: found.name, multi: false })
+    added.push(`${other === "m" ? "melee" : "ranged"} ${found.name}`)
+  }
+  return added
+}
+
 // ---------- rules ----------
 
 const STRUCTURAL = new Set(["attached to", "led by", "supported by", "leader", "support", "invulnerable save", "battle focus"])
@@ -293,6 +315,8 @@ export function parseRosterSync(xmlText: string, exportText: string | null | und
   const units: Array<DraftUnit> = []
   const armyFound = new Set<string>()
   const forces = descendants(roster, "force")
+  const force = forces[0] ?? null
+  const faction = txt.faction || attr(force, "catalogueName") || ""
   const tops: Array<XNode> = []
   for (const f of forces) {
     for (const s of kids(kid(f, "selections"), "selection")) {
@@ -363,6 +387,12 @@ export function parseRosterSync(xmlText: string, exportText: string | null | und
     const groups = modelGroups(top).filter((g) => g.items.length || g.prof)
     const swaps = ctx.swaps?.(nm) ?? []
     groups.forEach((g) => dropReplaced(g, swaps))
+    const { twin } = ctx
+    if (twin) {
+      for (const a of new Set(groups.flatMap((g) => addTwins(g, (weapon) => twin(nm, faction, weapon))))) {
+        warnings.push(`${nm}: the roster file leaves out its ${a}, so that profile comes from Wahapedia.`)
+      }
+    }
     const merged: Array<ModelGroup> = []
     for (const g of groups) {
       const sig = JSON.stringify(g.items.map((i) => profKey(i.w)).sort())
@@ -578,9 +608,7 @@ export function parseRosterSync(xmlText: string, exportText: string | null | und
 
   // army and detachment rules we know about
   const army: Array<string> = []
-  const force = forces[0] ?? null
-  const facKey = norm(txt.faction || attr(force, "catalogueName") || "")
-  for (const id of ctx.factionArmyRules[facKey] || []) army.push(id)
+  for (const id of ctx.factionArmyRules[norm(faction)] || []) army.push(id)
   armyFound.forEach((id) => {
     if (!army.includes(id)) army.push(id)
   })
@@ -593,7 +621,6 @@ export function parseRosterSync(xmlText: string, exportText: string | null | und
     } else unknownDets.push(d)
   }
 
-  const faction = txt.faction || attr(force, "catalogueName") || ""
   const meta: Mutable<ListMeta> = {
     name: titleCase(txt.name || clean(attr(roster, "name")) || "Imported list"),
     faction,

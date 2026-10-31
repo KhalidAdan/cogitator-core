@@ -500,6 +500,21 @@ Prioritised Efficiency's switch took a second session. The first one's Claude Co
 
 ---
 
+### D-57. Weapons that are ranged and melee under one name (31 October, from "The High King of Fenris Rides")
+
+Arjac Rockfist had no melee weapon. **40k.app's roster files keep only one row of a weapon that has a ranged and a melee profile under one name.** A fresh download of the list has the ranged Foehammer and nothing else, and the importer gave back exactly what the file holds. The stored Ten Thousand and No More shows the same thing in the raw file, with Venatari lance and Galatus warblade.
+
+- **Which row survives varies, and nobody knows why.** Foehammer and Warblade keep ranged; Guardian Spear and Verutum Lance keep melee. So this doesn't assume one way round.
+- **The datasheet has both rows, and a model with the weapon has both.** `wahapedia/twins.ts` finds every weapon a datasheet lists twice under one name, and the importer adds the row the file left out, one for each model with the weapon. It runs after `dropReplaced`, so a weapon a model gave up doesn't come back. Rows split by type in the file ("Guardian spear - ranged") already count as both.
+- **The import review says so,** one warning per weapon. Across nine real rosters it added rows for only three weapons: Foehammer, Venatari lance and Galatus warblade.
+- **"Read the file again" picks this up**, as well as new imports, so a saved list is fixed without importing it again. As ever, that replaces anything edited by hand on the list.
+- **An added row is only as current as the site's Wahapedia export.** The 28 September export has Foehammer at S8; the live datasheet and the roster have S10. Check the row after re-reading if the export is old.
+- **The check page still can't see a missing row.** It compares the rows a list has, so a saved list that hasn't been read again shows nothing wrong.
+
+Found while translating the list's rules, and saved to the live library as drafts through `save_rule`: Thunderous Charge, Tempered Ferocity, Champion of the Kingsguard, Cunning Hunters and Aquilon Optics. All five match the live datasheets word for word. The 28 September export's wording for them is out of date, so a difference from it isn't evidence of a mistake.
+
+---
+
 ## Things I chose not to do
 
 - **No authentication.** One user, local. If you put it on Tailscale, Tailscale is the access control.

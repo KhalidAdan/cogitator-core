@@ -12,7 +12,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 import { layerAt } from "~/.server/db/Db"
 import { importContext } from "~/.server/importer/context"
-import { keepPrices, looksOffensive, NO_TEXT_EXPORT, parseRosterSync } from "~/.server/importer/roster"
+import { type ImportContext, keepPrices, looksOffensive, NO_TEXT_EXPORT, parseRosterSync } from "~/.server/importer/roster"
 import { Lists } from "~/.server/repos/Lists"
 import { Rules } from "~/.server/repos/Rules"
 import { Settings } from "~/.server/repos/Settings"
@@ -22,10 +22,11 @@ import { seed, seedData } from "~/.server/seed/Seed"
 import { checkList } from "~/.server/wahapedia/check"
 import { Snapshots } from "~/.server/wahapedia/Snapshots"
 import { parseSwap, type Swap } from "~/.server/wahapedia/swaps"
+import type { Twin } from "~/.server/wahapedia/twins"
 import { loadDirectory } from "~/.server/node/directory"
 import { attackerList, attackUnit } from "~/domain/engine"
 import { defaultOpts } from "~/domain/options"
-import type { RuleBook } from "~/domain/schema"
+import type { RuleBook, Unit } from "~/domain/schema"
 
 /** The library a fresh database starts with. */
 const library: RuleBook = { ...seedData.rules, ...Object.fromEntries(LIBRARY_RULES.map((r) => [r.id, r.rule])) }
@@ -254,6 +255,38 @@ describe("wargear swaps", () => {
   })
 })
 
+// ---------- weapons that are ranged and melee under one name ----------
+
+describe("twin weapons", () => {
+  const xml = readFileSync("tests/fixtures/rosters/ten-thousand-and-no-more.ros", "utf8")
+  const twinOf = (name: string): Twin => {
+    const profile = { A: 8, sk: 2, S: 10, AP: 2, D: 3, kw: {} }
+    return { name, r: profile, m: profile }
+  }
+  const on = (unit: string, twin: Twin) => ({
+    ...ctx,
+    twin: (u: string, _faction: string, weapon: string) => (u === unit && weapon.toLowerCase().startsWith(twin.name.toLowerCase()) ? twin : undefined)
+  })
+  const rows = (c: ImportContext, unit: string) => parseRosterSync(xml, "", c).units.find((u) => u.nm === unit)!.w.map((w) => `${w.t}:${w.nm}×${w.n}`)
+
+  it("add the melee row a roster left out, and say so", () => {
+    const c = on("Contemptor-Galatus Dreadnought", twinOf("Galatus warblade"))
+    expect(rows(ctx, "Contemptor-Galatus Dreadnought")).toEqual(["r:Galatus warblade×1"])
+    expect(rows(c, "Contemptor-Galatus Dreadnought")).toEqual(["r:Galatus warblade×1", "m:Galatus warblade×1"])
+    expect(parseRosterSync(xml, "", c).warnings).toContain("Contemptor-Galatus Dreadnought: the roster file leaves out its melee Galatus warblade, so that profile comes from Wahapedia.")
+  })
+
+  it("add the ranged row the same way, one for each model with the weapon", () => {
+    expect(rows(on("Prosecutors", twinOf("Close combat weapon")), "Prosecutors")).toEqual(["r:Boltgun×4", "r:Close combat weapon×4", "m:Close combat weapon×4"])
+  })
+
+  it("leave a weapon alone when the roster has both rows", () => {
+    const c = on("Custodian Guard A", twinOf("Guardian spear"))
+    expect(rows(c, "Custodian Guard A")).toEqual(rows(ctx, "Custodian Guard A"))
+    expect(parseRosterSync(xml, "", c).warnings).toEqual([NO_TEXT_EXPORT])
+  })
+})
+
 // ---------- against the downloaded Wahapedia export ----------
 
 const ROOT = "data/wahapedia"
@@ -291,6 +324,23 @@ describe.skipIf(!exportDir)("real rosters against the downloaded export", () => 
         const plain = parseRosterSync(readFileSync("tests/fixtures/rosters/strike-force-cophasta.ros", "utf8"), "", ctx)
         const again = parseRosterSync(readFileSync("tests/fixtures/rosters/strike-force-cophasta.ros", "utf8"), "", live)
         expect(again.units.map((u) => u.w)).toEqual(plain.units.map((u) => u.w))
+      }))
+
+    it.effect("twin weapons from the export: the row a roster left out comes from the datasheet", () =>
+      Effect.gen(function*() {
+        const live = yield* importContext
+        const list = parseRosterSync(readFileSync("tests/fixtures/rosters/ten-thousand-and-no-more.ros", "utf8"), "", live)
+        const melee = (units: ReadonlyArray<Unit>, unit: string) => units.find((u) => u.nm === unit)!.w.filter((w) => w.t === "m").map((w) => `${w.nm}×${w.n} A${w.A}`)
+        expect(melee(list.units, "Contemptor-Galatus Dreadnought")).toEqual(["Galatus warblade×1 A8"])
+        expect(melee(list.units, "Venatari Custodians A")).toEqual(["Venatari lance×3 A5"])
+        // split by type in the file, so it has both already
+        expect(list.units.find((u) => u.nm === "Custodian Guard A")!.w.map((w) => w.nm)).toEqual(["Guardian spear - ranged", "Guardian spear - melee"])
+        // Space Wolves are on Wahapedia's Space Marines datasheets
+        const arjac = `<roster name="Arjac"><forces><force catalogueName="Space Wolves"><selections><selection name="Arjac Rockfist" type="model" number="1"><selections>
+          <selection name="Foehammer" type="upgrade" number="1"><profiles><profile name="Foehammer" typeName="Ranged Weapons"><characteristics>
+          <characteristic name="A">1</characteristic><characteristic name="BS">2+</characteristic><characteristic name="S">10</characteristic><characteristic name="AP">-2</characteristic><characteristic name="D">3</characteristic>
+          </characteristics></profile></profiles></selection></selections></selection></selections></force></forces></roster>`
+        expect(melee(parseRosterSync(arjac, "", live).units, "Arjac Rockfist")).toEqual(["Foehammer×1 A5"])
       }))
 
     for (const r of ROSTERS) {

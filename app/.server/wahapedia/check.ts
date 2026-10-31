@@ -152,7 +152,7 @@ const unitNameKeys = (nm: string) => {
 }
 
 export function pickDatasheet(
-  unit: Unit,
+  unit: Pick<Unit, "nm">,
   index: ReadonlyMap<string, ReadonlyArray<DatasheetSummary>>,
   factionId: string | null
 ): { pick: DatasheetSummary | null; candidates: number } {
@@ -167,14 +167,14 @@ export function pickDatasheet(
 }
 
 /** Weapon names as lists write them: "Neuro disruptor (Felarch)" → "neuro disruptor". */
-const weaponKey = (nm: string) => norm(nm.replace(/\([^)]*\)/g, ""))
+export const weaponKey = (nm: string) => norm(nm.replace(/\([^)]*\)/g, ""))
 
 /**
  * Rosters split a weapon with a ranged and a melee profile by type ("Guardian
  * spear - ranged"); the datasheet gives both rows the one name and tells them
  * apart by type, which `findWargear` already filters on.
  */
-const TYPE_SUFFIX = /\s*[-–—]\s*(ranged|melee)\s*$/i
+export const TYPE_SUFFIX = /\s*[-–—]\s*(ranged|melee)\s*$/i
 
 function findWargear(nm: string, wargear: ReadonlyArray<WargearProfile>, melee: boolean): { w: WargearProfile; exact: boolean } | null {
   const sameType = wargear.filter((w) => (w.type === "Melee") === melee)
@@ -196,7 +196,7 @@ function findWargear(nm: string, wargear: ReadonlyArray<WargearProfile>, melee: 
 
 const dbSkill = (s: string) => (/n\/a|^-$/i.test(s.trim()) ? 0 : parseNum(s))
 
-function toEngine(w: WargearProfile): NonNullable<WeaponCheck["db"]> {
+export function toEngine(w: WargearProfile): NonNullable<WeaponCheck["db"]> {
   const kw = parseWeaponKeywords(w.abilities)
   return { A: parseDice(w.A), sk: kw.torrent ? 0 : dbSkill(w.skill), S: parseNum(w.S), AP: Math.abs(parseNum(w.AP)), D: parseDice(w.D), kw }
 }
@@ -485,6 +485,9 @@ function nameIndex(all: ReadonlyArray<DatasheetSummary>): ReadonlyMap<string, Re
   return index
 }
 
+/** `nameIndex` of a snapshot's datasheets, kept between calls. */
+export const datasheetIndex = (snapshot: number, all: ReadonlyArray<DatasheetSummary>) => memo("datasheetIndex", snapshot, Effect.sync(() => nameIndex(all)), 2)
+
 /** Where each unit sits among units of the same kind, for tiered prices ("your 3rd+ unit costs…"). */
 function positions(units: ReadonlyArray<Unit>, keyOf: (u: Unit, i: number) => string | null): Array<number> {
   const seen = new Map<string, number>()
@@ -513,7 +516,7 @@ export const checkList = Effect.fn("wahapedia.checkList")(function*(list: Pick<A
   const detachmentNames = list.meta.detachments ?? []
 
   const all = snapshot === undefined ? [] : yield* allDatasheets(snapshot)
-  const index = snapshot === undefined ? new Map<string, Array<DatasheetSummary>>() : yield* memo("datasheetIndex", snapshot, Effect.sync(() => nameIndex(all)), 2)
+  const index = snapshot === undefined ? new Map<string, Array<DatasheetSummary>>() : yield* datasheetIndex(snapshot, all)
   const factionId = factionIdFor(list.meta.faction, all)
   const picks = list.units.map((u) => {
     const known = u.datasheetId ? all.find((d) => d.id === u.datasheetId) : undefined
