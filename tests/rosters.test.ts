@@ -366,7 +366,7 @@ describe("weapons an enhancement gives", () => {
       expect(w.kw.other ?? [], e.enhancement).toEqual(e.enhancement === "Auriferous Orb" ? ["BLINDING LIGHT"] : [])
     }
     // Anti 2+ against anything that isn't a Monster or Vehicle
-    expect(givenWeapon("Auriferous Orb")!.kw.anti).toEqual({ INFANTRY: 2, MOUNTED: 2, BEASTS: 2, SWARM: 2 })
+    expect(givenWeapon("Auriferous Orb")!.kw.anti).toEqual(["NON-MONSTER/VEHICLE", 2])
     expect(givenWeapon("Emperor’s Light")).toMatchObject({ t: "m", A: 3, sk: 2, S: 5, AP: 2, D: 2, kw: { extra: 1 } })
   })
 })

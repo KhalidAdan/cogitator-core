@@ -571,10 +571,21 @@ Deffkilla Wartrike A had Da Gobshot Thunderbuss and no Thunderbuss (D-59). **Sev
 - **An enhancement with no profile still imports, with a warning** that the file leaves out its weapon and the app has no profile for it, so it isn't counted. Orksbane (Space Marines, Vengeful Hosts) is the only one. It's in the 28 September export but gone from Wahapedia now, so there was nothing to copy. A test reads the downloaded export for these, so a new one shows up as a failing test.
 - **The check page counts the weapon as on the bearer's datasheet** and compares it with the kept profile, so it doesn't show as "not on the datasheet".
 - **"Read the file again" picks this up**, as well as new imports. Once this is deployed, Brakes Iz' for Grots needs reading again for the Thunderbuss to appear. I haven't done that. As ever, it replaces anything edited by hand on the list.
-- **The Auriferous Orb's Anti is written as four.** The engine would read "Anti-non-Monster/Vehicle 2+" as Anti-Vehicle 2+, so it's stored as Anti-Infantry, -Mounted, -Beasts and -Swarm 2+. Three Wahapedia weapons have the same wording (Venomcrest Spit, Stone Stave and a Master-crafted Chainsword) and are misread that way today. Fixing them is separate.
+- **The Auriferous Orb's Anti is written as four.** The engine would read "Anti-non-Monster/Vehicle 2+" as Anti-Vehicle 2+, so it's stored as Anti-Infantry, -Mounted, -Beasts and -Swarm 2+. Three Wahapedia weapons have the same wording (Venomcrest Spit, Stone Stave and a Master-crafted Chainsword) and are misread that way today. Fixing them is separate. *Done the same day: D-62, and the Orb keeps the page's wording now.*
 - **A kept profile only changes when someone changes it.** A codex update to one of these weapons won't reach the app through the export, because the export never had it.
 
 The library's Imperium's Sword says its profile "comes in with the roster file, so it's already in the loadout". That was never true; the importer now adds it from Wahapedia instead.
+
+---
+
+### D-62. Anti-non-Monster/Vehicle (4 November, found doing D-61)
+
+"Anti-non-Monster/Vehicle 2+" is one ability: a critical wound on a 2+ against anything that is neither a Monster nor a Vehicle. **The engine split it into "NON-MONSTER" and "VEHICLE", so it acted as Anti-Vehicle,** against exactly the targets it shouldn't. A Stonesinger's Venomcrest Spit (S3, Anti 3+) wounded a Rhino on a 3+, and Intercessors only on a 5+. Now it's the other way round.
+
+- **Fixed where the ability is read, not where it's stored.** Weapons still keep it as `["NON-MONSTER/VEHICLE", 2]`. `antiOf` no longer splits it, and the wound roll reads a keyword that starts with NON- as "has none of these". Lists saved before are right without reading the file again, and there's no seed bump.
+- **Four weapons have it:** the Stonesinger's Venomcrest Spit (3+) and Stone Stave (2+) in our 28 September export, Captain Titus's Master-crafted Chainsword (2+) in the live 30 October one (it was Anti-Infantry 2+ before), and the Auriferous Orb (2+, D-61). The Orb keeps the page's wording now, not the four separate Anti abilities it was written as. A test reads the downloaded export and checks every such weapon reads as one ability.
+- **It reads as written:** "Anti-non-monster/vehicle 2+" in the dossier and the matrix's notes, and `anti-non-monster/vehicle2` in the loadout editor. A rule's Anti can name `NON-MONSTER/VEHICLE` too.
+- **Also read right now:** two keywords at one roll beside another Anti ability ("Anti-Infantry 2+, Anti-Monster/Vehicle 4+") were kept as one keyword and counted against neither. No weapon in either export has that.
 
 ---
 

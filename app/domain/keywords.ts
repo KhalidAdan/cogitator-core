@@ -40,13 +40,29 @@ export const ABILITIES: ReadonlyArray<{ readonly key: string; readonly label: st
 
 export type Anti = NonNullable<WeaponKw["anti"]>
 
+/** "NON-MONSTER/VEHICLE" is one Anti ability: against anything with none of those keywords. */
+const NON = /^NON-/
+
 /** A weapon's Anti abilities as keyword → critical wound roll, whichever way they are stored. */
 export function antiOf(a: Anti | undefined | null): Record<string, number> {
   if (!a) return {}
   if (!Array.isArray(a)) return { ...(a as Record<string, number>) }
   const [keywords, roll] = a as readonly [string, number]
+  const k = String(keywords).trim().toUpperCase()
+  if (NON.test(k)) return { [k]: roll }
   // older data could name several keywords at one roll, "MONSTER/VEHICLE"
-  return Object.fromEntries(String(keywords).split("/").map((k) => [k.trim().toUpperCase(), roll]))
+  return Object.fromEntries(k.split("/").map((x) => [x.trim(), roll]))
+}
+
+/** The targets one Anti keyword counts against: those with it, or for "NON-MONSTER/VEHICLE", those with neither. */
+export function antiCond(keyword: string): KwCond {
+  const k = keyword.trim().toUpperCase()
+  const list = (s: string) =>
+    s
+      .split("/")
+      .map((x) => x.trim())
+      .filter(Boolean)
+  return NON.test(k) ? { not: list(k.slice(4)) } : { only: list(k) }
 }
 
 /** Both sets of Anti abilities; where both have a keyword, the better roll. */
@@ -199,7 +215,7 @@ export function keywordsFromInput(s: string): WeaponKw {
     else if ((m = tok.match(/^melta(\d)$/))) k.melta = +m[1]
     else if ((m = tok.match(/^(rf|rapidfire)(\d)$/))) k.rf = +m[2]
     else if ((m = tok.match(/^cleave(\d)$/))) k.cleave = +m[1]
-    else if ((m = tok.match(/^anti-([a-z/]+?)(\d)$/))) k.anti = antiValue(mergeAnti(k.anti, [m[1].toUpperCase(), +m[2]]))
+    else if ((m = tok.match(/^anti-((?:non-)?[a-z/]+?)(\d)$/))) k.anti = antiValue(mergeAnti(k.anti, [m[1].toUpperCase(), +m[2]]))
     else if ((FLAGS as ReadonlyArray<string>).includes(tok)) (k as Record<string, number>)[tok] = 1
   }
   return k

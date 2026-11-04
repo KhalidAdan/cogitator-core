@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import { listRuleBook, notInLibrary, translateRequest } from "~/domain/book"
 import { attackUnit, MOD0 } from "~/domain/engine"
 import { describeFx, describeRule } from "~/domain/fx"
-import { keywordsFromInput, keywordsToInput, keywordText, parseWeaponKeywords } from "~/domain/keywords"
+import { antiCond, antiOf, keywordsFromInput, keywordsToInput, keywordText, parseWeaponKeywords } from "~/domain/keywords"
 import { availableMarks, effectiveOpts, findings, heat, isEfficient, matrix, ruleState } from "~/domain/ledger"
 import { applyIntent, defaultOpts, intentFromForm } from "~/domain/options"
 import type { RuleBook, Target, Unit } from "~/domain/schema"
@@ -186,6 +186,20 @@ describe("weapon keywords", () => {
     expect(parseWeaponKeywords("Anti-Vehicle 4+, Anti-Vehicle 2+").anti).toEqual(["VEHICLE", 2])
     // lists saved before could name several keywords at one roll
     expect(keywordText({ kw: { anti: ["MONSTER/VEHICLE", 3] } })).toBe("Anti-monster 3+, Anti-vehicle 3+")
+  })
+
+  it("reads Anti-non-Monster/Vehicle as one ability, against anything without those keywords", () => {
+    // Venomcrest Spit, as the export writes it
+    const kw = parseWeaponKeywords("ANTI-non-MONSTER/VEHICLE 3+, BLAST 1, Torrent")
+    expect(kw.anti).toEqual(["NON-MONSTER/VEHICLE", 3])
+    expect(antiOf(kw.anti)).toEqual({ "NON-MONSTER/VEHICLE": 3 })
+    expect(antiCond("NON-MONSTER/VEHICLE")).toEqual({ not: ["MONSTER", "VEHICLE"] })
+    expect(keywordText({ kw })).toBe("Torrent, Blast, Anti-non-monster/vehicle 3+")
+    expect(keywordsToInput(kw)).toBe("torrent blast anti-non-monster/vehicle3")
+    expect(keywordsFromInput(keywordsToInput(kw))).toEqual(kw)
+    // beside another Anti ability it keeps its own roll
+    expect(parseWeaponKeywords("Anti-Infantry 4+, Anti-non-Monster/Vehicle 2+").anti).toEqual({ INFANTRY: 4, "NON-MONSTER/VEHICLE": 2 })
+    expect(antiCond("MONSTER/VEHICLE")).toEqual({ only: ["MONSTER", "VEHICLE"] })
   })
 })
 

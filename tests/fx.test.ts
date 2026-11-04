@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest"
 import { attackUnit, MOD0 } from "~/domain/engine"
 import { Schema } from "effect"
 import { CLAUSE, describeFx, FX_HELP, tidyClause } from "~/domain/fx"
+import { parseWeaponKeywords } from "~/domain/keywords"
 import { defaultOpts } from "~/domain/options"
 import { Fx, type Mod, Opts, type RuleBook, type Target, type Unit, type Weapon } from "~/domain/schema"
 
@@ -119,6 +120,20 @@ describe("clauses from different places combine by the same rules", () => {
     expect(vs("INFANTRY", { DAEMON: 4, INFANTRY: 5 }).notes).toContain("Anti-infantry 5+")
     expect(vs("VEHICLE", ["MONSTER/VEHICLE", 3]).wound).toBeCloseTo(4 / 6)
     expect(vs("MOUNTED", ["MONSTER/VEHICLE", 3]).wound).toBeCloseTo(1 / 6)
+    // two keywords at one roll beside another Anti ability, where they're kept together
+    expect(vs("VEHICLE", parseWeaponKeywords("Anti-Infantry 2+, Anti-Monster/Vehicle 4+").anti).wound).toBeCloseTo(3 / 6)
+  })
+
+  it("wounds critically with Anti-non-Monster/Vehicle on anything that is neither", () => {
+    const anti = parseWeaponKeywords("ANTI-non-MONSTER/VEHICLE 2+").anti
+    const vs = (kw: string) => attackUnit(unit({ w: [gun({ S: 1, kw: { anti } })] }), { ...target, T: 8, kw }, opts(), { rules: {}, units: [] }).rows[0]
+    // S1 into T8 wounds on 6+, so the wound chance is the critical roll's
+    expect(vs("INFANTRY").wound).toBeCloseTo(5 / 6)
+    expect(vs("INFANTRY").notes).toContain("Anti-non-monster/vehicle 2+")
+    expect(vs("MOUNTED CHARACTER").wound).toBeCloseTo(5 / 6)
+    expect(vs("VEHICLE").wound).toBeCloseTo(1 / 6)
+    expect(vs("MONSTER CHARACTER").wound).toBeCloseTo(1 / 6)
+    expect((vs("VEHICLE").notes ?? []).filter((n) => n.startsWith("Anti"))).toEqual([])
   })
 
   it("lets a rule grant Anti abilities, keeping the better roll", () => {

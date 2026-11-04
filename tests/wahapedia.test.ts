@@ -25,6 +25,7 @@ import { Snapshots } from "~/.server/wahapedia/Snapshots"
 import { syncRules } from "~/.server/wahapedia/sync"
 import { WH_ALL_FILES, WH_TABLES, whTableByFile } from "~/.server/wahapedia/tables"
 import { loadDirectory } from "~/.server/node/directory"
+import { antiOf, parseWeaponKeywords } from "~/domain/keywords"
 import type { Unit, Weapon } from "~/domain/schema"
 import { stripHtml, textHash } from "~/domain/text"
 
@@ -271,6 +272,15 @@ describe.skipIf(!exportDir)("with the downloaded export", () => {
       expect(t.columns.filter((c) => !csv.columns.includes(c)), `${t.file}: missing columns`).toEqual([])
       expect(csv.rows.length, t.file).toBeGreaterThan(0)
     }
+  })
+
+  it("reads every Anti-non-Monster/Vehicle weapon as one ability, not Anti-Vehicle", () => {
+    const wargear = parseExportCsvSync("Datasheets_wargear", readFileSync(join(exportDir!, "Datasheets_wargear.csv"), "utf8"))
+    const [name, abilities] = [wargear.columns.indexOf("name"), wargear.columns.indexOf("description")]
+    const non = wargear.rows.filter((r) => /\bANTI-non-/i.test(r[abilities]))
+    // Venomcrest Spit and Stone Stave in the 28 Sep export
+    expect(non.length).toBeGreaterThan(0)
+    for (const r of non) expect(Object.keys(antiOf(parseWeaponKeywords(r[abilities]).anti)), r[name]).toEqual(["NON-MONSTER/VEHICLE"])
   })
 
   // one database, loaded once, shared by the tests below

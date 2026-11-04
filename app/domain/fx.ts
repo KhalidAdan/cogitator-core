@@ -331,7 +331,7 @@ export const CLAUSE: { readonly [K in keyof Fx]-?: When<NonNullable<Fx[K]>> | Do
       p.kw.anti = antiValue(mergeAnti(p.kw.anti, v))
     },
     says: (v) => Object.entries(v).map(([k, n]) => `Anti-${k.toLowerCase()} ${n}+`),
-    help: ["anti", '{"INFANTRY": 2, "MONSTER": 5}: Anti abilities to add (target keyword → critical wound roll); the better roll wins']
+    help: ["anti", '{"INFANTRY": 2, "MONSTER": 5}: Anti abilities to add (target keyword → critical wound roll); the better roll wins. "NON-MONSTER/VEHICLE" counts against anything with neither keyword']
   }
 }
 

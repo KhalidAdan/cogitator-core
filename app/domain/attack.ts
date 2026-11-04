@@ -14,7 +14,7 @@
  */
 import type { EffectiveRule, ResolvedMod } from "./engine"
 import { clause, type ClauseCtx, kwCond, type Profile, startProfile } from "./fx"
-import { antiOf } from "./keywords"
+import { antiCond, antiOf } from "./keywords"
 import type { Dice, Fx, Opts, Reroll, Target, Weapon } from "./schema"
 
 // ---------- dice ----------
@@ -379,10 +379,10 @@ interface WoundRoll {
 
 function woundRoll(w: Weapon, p: Profile, tgt: Target, targetKw: string, hit: HitRoll): WoundRoll {
   const need = clamp(woundNeed(w.S + p.s, tgt.T) - clamp(p.wound, -1, 1), 2, 6)
-  // the best of the weapon's Anti abilities that this target has the keyword for
+  // the best of the weapon's Anti abilities that this target has the keyword for (or, for Anti-non-X, lacks it)
   let anti: readonly [string, number] | null = null
   if (p.kw.anti) {
-    for (const [k, n] of Object.entries(antiOf(p.kw.anti))) if (kwCond({ only: [k] }, targetKw) && (!anti || n < anti[1])) anti = [k, n]
+    for (const [k, n] of Object.entries(antiOf(p.kw.anti))) if (kwCond(antiCond(k), targetKw) && (!anti || n < anti[1])) anti = [k, n]
   }
   const critOn = anti ? Math.min(6, anti[1]) : 6
   const [success, crit] = reroll(p.rrWound, (7 - Math.min(need, critOn)) / 6, (7 - critOn) / 6)

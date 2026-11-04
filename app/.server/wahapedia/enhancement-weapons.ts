@@ -67,9 +67,7 @@ export const ENHANCEMENT_WEAPONS: ReadonlyArray<EnhancementWeapon> = [
       S: "1",
       AP: "0",
       D: "1",
-      // The page has ANTI-non-MONSTER/VEHICLE 2+, which the engine can't read: it would take it as Anti-Vehicle 2+.
-      // Against anything that isn't a Monster or Vehicle it's Anti 2+, so it's written as those four.
-      abilities: "ANTI-INFANTRY 2+, ANTI-MOUNTED 2+, ANTI-BEASTS 2+, ANTI-SWARM 2+, BLINDING LIGHT, DEVASTATING WOUNDS"
+      abilities: "ANTI-non-MONSTER/VEHICLE 2+, BLINDING LIGHT, DEVASTATING WOUNDS"
     }
   },
   {
