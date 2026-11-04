@@ -175,8 +175,11 @@ export function ruleState(rule: Rule | undefined, owner: string, id: string, opt
   if (opts.off[ruleKey(owner, id)]) return "off"
   const flags = unitFlags(unit, opts)
   if (rule.cond && !flags[rule.cond]) return "idle"
-  // a choice of several: waiting until one of them is switched on
-  return rule.switches?.length && !rule.switches.some((s) => flags[s.key]) ? "idle" : "on"
+  if (!rule.switches?.length) return "on"
+  // a choice of several: waiting until one of its clauses can apply, which for most means one of its switches is on.
+  // A clause that waits for no switch (Ferocious Show-off's +1 A) applies already.
+  if (!rule.fx?.length) return rule.switches.some((s) => flags[s.key]) ? "on" : "idle"
+  return rule.fx.some((c) => (!c.when || flags[c.when]) && (!c.whenNot || !flags[c.whenNot])) ? "on" : "idle"
 }
 
 export const RULE_STATE_TITLE: Record<RuleState, string> = {

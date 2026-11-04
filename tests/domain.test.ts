@@ -139,6 +139,21 @@ describe("the matrix view model", () => {
     expect(ruleState(rules["fury-void"], "kharseth", "fury-void", o)).toBe("mark-off")
     expect(ruleState(rules["voidstone"], "x", "voidstone", o)).toBe("note")
   })
+
+  it("shows a rule with switches as on when one of its clauses waits for none of them", () => {
+    const o = defaultOpts()
+    const choice = { nm: "Blessings", src: "Faction", dmg: true, txt: "", switches: [{ key: "a", label: "A" }, { key: "b", label: "B" }] }
+    const blessings = { ...choice, fx: [{ when: "a", hit: 1 }, { when: "b", wound: 1 }] }
+    expect(ruleState(blessings, "x", "blessings", o)).toBe("idle")
+    expect(ruleState(blessings, "x", "blessings", { ...o, flags: { b: true } })).toBe("on")
+    // Ferocious Show-off: +1 A always, a switch for the second
+    const showOff = { ...choice, switches: [{ key: "models11", label: "Unit has 11+ models" }], fx: [{ a: 1 }, { when: "models11", a: 1 }] }
+    expect(ruleState(showOff, "x", "show-off", o)).toBe("on")
+    // a clause that waits for a built-in switch counts once that one is on
+    const either = { ...choice, switches: [{ key: "fortify", label: "Fortify" }], fx: [{ when: "objective", whenNot: "fortify", hit: 1 }, { when: "fortify", hit: 1 }] }
+    expect(ruleState(either, "x", "either", o)).toBe("idle")
+    expect(ruleState(either, "x", "either", { ...o, flags: { objective: true } })).toBe("on")
+  })
 })
 
 describe("weapon keywords", () => {

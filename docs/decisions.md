@@ -530,6 +530,26 @@ The MCP tools don't show it; `score_list` and `explain_matchup` still report ret
 
 ---
 
+### D-59. The first Orks rules (4 November, from "Brakes Iz' for Grots")
+
+Twelve Orks rules went into the live library as drafts through `save_rule`: the ten the list flagged, and two the importer read as no effect. Each matches the live Wahapedia datasheet or detachment page word for word, and each was checked with `explain_matchup`.
+
+- **After a charge:** Might Is Right (the Warboss's own melee +3 A, +2 S), High-speed Carnage (Warbikers, +1 S and D) and Tide of Muscle (Boyz, Lethal Hits). The last two are shared, so a leader in the unit gets them too.
+- **Always on:** Sumfin' to Prove (Bigboss, melee +1 to hit), Brutal But Kunnin' (+1 D, Killa Jet included) and Blitz Dem Gitz! (the Dakkarig's Blitzkannon +6 A against anything that isn't a Monster or Vehicle: 14 shots into Intercessors, 8 into a Rhino).
+- **New switches:** "Made an ingress move this turn" (Deff from Above, ranged +1 to hit), "Riled up" (Even More Dakka, ranged Sustained Hits 1), "Ammo Runts used this phase" and "Boss' Ammo Runt used this phase" (+1 to hit; the Boyz' is shared, the Warboss's own isn't), and "Warpath used this phase".
+- **Waaagh! Energy (psyker level 1) carries Warpath.** The Weirdboy's rule only says he has the psychic abilities listed, and Warpath is the one that changes damage: melee re-rolls wound rolls of 1, shared. Only the Weirdboy has a rule of that name; the Kill Rig's is Wurrboy, with a different Warpath.
+- **Ferocious Show-off is +1 A always, and a switch for the second.** The engine can't count an attached unit's models, so "Unit has 11+ models" is yours to set. Warboss A with 10 Boyz and a Weirdboy is 12.
+- **Two judgement calls.** Sumfin' to Prove is shared, reading "this unit" on a Support model as the attached unit, the same as on a bodyguard. Waaagh! itself has no effect on damage: riled up gives a 5+ invulnerable save, Assault and a charge after advancing.
+
+**A rule with switches no longer shows as idle while a clause that waits for none of them applies.** Ferocious Show-off's +1 A counts with its switch off, and its chip said "idle". The chip is now on when any clause can apply, so the same goes for a clause waiting on a built-in switch that's on.
+
+Not modelled, because `save_rule` can't reach them:
+
+- **Da Gobshot Thunderbuss's weapon isn't on Deffkilla Wartrike A.** The enhancement gives a gun (24", A6, BS4+, S7, AP-2, D2, Lethal Hits against non-Monster/Vehicle, Rapid Fire 6), and the importer took the enhancement but not the weapon.
+- **Green Tide's detachment rule, Mob-handed Brutality, isn't counted.** Boyz melee Sustained Hits 1, and Lethal Hits (not against Monster/Vehicle) for Orks Infantry after a charge. The importer finds detachment rules through the seed's `detachmentRules`, which has no Orks detachments, so neither Green Tide nor Brute Bosses reaches the list.
+
+---
+
 ## Things I chose not to do
 
 - **No authentication.** One user, local. If you put it on Tailscale, Tailscale is the access control.
