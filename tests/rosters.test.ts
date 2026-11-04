@@ -12,7 +12,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 import { layerAt } from "~/.server/db/Db"
 import { importContext } from "~/.server/importer/context"
-import { type ImportContext, keepPrices, looksOffensive, NO_TEXT_EXPORT, parseRosterSync } from "~/.server/importer/roster"
+import { detachmentGrants, type ImportContext, keepPrices, looksOffensive, NO_TEXT_EXPORT, parseRosterSync } from "~/.server/importer/roster"
 import { Lists } from "~/.server/repos/Lists"
 import { Rules } from "~/.server/repos/Rules"
 import { Settings } from "~/.server/repos/Settings"
@@ -371,5 +371,36 @@ describe("reading whether a rule changes damage", () => {
     expect(looksOffensive("Once per battle, when an attack is allocated to this model, you change the Damage characteristic of that attack to 0.")).toBe(false)
     expect(looksOffensive("At the end of your Command phase, if this unit is within range of an objective marker you control, that objective marker remains under your control.")).toBe(false)
     expect(looksOffensive("While this model is leading a unit, add 1 to Advance and Charge rolls made for that unit.")).toBe(false)
+  })
+})
+
+describe("rules a detachment hands to units", () => {
+  const u = (id: string, nm: string, kw: Array<string>, rules: Array<string> = []) => ({ id, nm, kw, rules })
+  const grants = {
+    "mob-handed-brutality": [
+      { kw: "INFANTRY", rule: "mob-handed-brutality" },
+      { name: "boyz", rule: "mob-handed-brutality-boyz" }
+    ],
+    "spearpoint-tf": [{ name: "suboden khan", rule: "wrath-first-khan" }]
+  }
+
+  it("go by keyword, or to the units of one datasheet by name, A/B letter or not", () => {
+    const units = [
+      u("boyz-a", "Boyz A", ["INFANTRY", "MOB"]),
+      u("boyz", "Boyz", ["INFANTRY", "MOB"], ["mob-handed-brutality"]),
+      u("stormboyz", "Stormboyz", ["INFANTRY"]),
+      u("snagga", "Beast Snagga Boyz", ["INFANTRY", "MOB"]),
+      u("trukk", "Trukk", ["VEHICLE"]),
+      u("suboden", "Suboden Khan", ["MOUNTED"])
+    ]
+    expect(detachmentGrants(units, ["mob-handed-brutality"], grants)).toEqual({
+      "boyz-a": ["mob-handed-brutality", "mob-handed-brutality-boyz"],
+      // already has the first
+      boyz: ["mob-handed-brutality-boyz"],
+      stormboyz: ["mob-handed-brutality"],
+      snagga: ["mob-handed-brutality"]
+    })
+    expect(detachmentGrants(units, ["spearpoint-tf"], grants)).toEqual({ suboden: ["wrath-first-khan"] })
+    expect(detachmentGrants(units, [], grants)).toEqual({})
   })
 })

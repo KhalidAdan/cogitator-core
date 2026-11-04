@@ -350,3 +350,29 @@ describe("World Eaters", () => {
     expect(dealt(opts({ warpblades: true, martial: true }), "Blade")).toBeGreaterThan(dealt(opts({ warpblades: true }), "Blade"))
   })
 })
+
+describe("Orks", () => {
+  // what the Green Tide detachment hands out (see detachmentUnitGrants): every Infantry unit gets the first, Boyz both
+  const boyz = unit("boyz", { grp: "A", role: "Bodyguard", rules: ["mob-handed-brutality", "mob-handed-brutality-boyz"] })
+  const warboss = unit("warboss", { grp: "A", role: "Leader", models: 1, rules: ["mob-handed-brutality"] })
+  const nobz = unit("nobz", { rules: ["mob-handed-brutality"] })
+  const all = [boyz, warboss, nobz]
+  const vehicle = target({ kw: "VEHICLE", cls: "veh", T: 9, W: 10, N: 1 })
+
+  it("Mob-handed Brutality: Sustained Hits 1 for a Boyz unit and its leader, in melee, charge or not", () => {
+    for (const charged of [true, false]) {
+      expect(row(boyz, all, opts({ charged }), "Blade").susExtra ?? 0).toBeGreaterThan(0)
+      expect(row(warboss, all, opts({ charged }), "Blade").susExtra ?? 0).toBeGreaterThan(0)
+    }
+    expect(row(boyz, all, opts(), "Gun").susExtra ?? 0).toBe(0)
+    expect(row(nobz, all, opts(), "Blade").susExtra ?? 0).toBe(0)
+  })
+
+  it("Mob-handed Brutality: Lethal Hits in melee after a charge, not against Monsters or Vehicles", () => {
+    expect(row(nobz, all, opts(), "Blade").lethalShare ?? 0).toBeGreaterThan(0)
+    expect(row(nobz, all, opts({ charged: false }), "Blade").lethalShare ?? 0).toBe(0)
+    expect(row(nobz, all, opts(), "Blade", vehicle).lethalShare ?? 0).toBe(0)
+    expect(row(nobz, all, opts(), "Gun").lethalShare ?? 0).toBe(0)
+    expect(ruleState(rules["mob-handed-brutality"], "nobz", "mob-handed-brutality", opts({ charged: false }))).toBe("idle")
+  })
+})

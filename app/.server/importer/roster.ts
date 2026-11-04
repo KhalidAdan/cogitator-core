@@ -21,13 +21,46 @@ export class RosterParseError extends Schema.TaggedError<RosterParseError>()("Ro
   message: Schema.String
 }) {}
 
+/**
+ * Rules an army or detachment rule hands to some units, by that rule's id: to the units of one datasheet (`name`,
+ * "suboden khan") or to every unit with a keyword (`kw`, "INFANTRY").
+ */
+export type UnitGrants = Readonly<Record<string, ReadonlyArray<{ readonly name?: string; readonly kw?: string; readonly rule: string }>>>
+
+/** A unit of the datasheet a grant names: "boyz" is Boyz and Boyz A, not Stormboyz or Beast Snagga Boyz. */
+const isNamed = (unitName: string, name: string) => norm(unitName).replace(/ [a-z]$/, "") === name
+
+/**
+ * What a list's army and detachment rules hand to its units, by unit id: Wrath of the First Khan to Suboden Khan,
+ * Mob-handed Brutality to every Orks Infantry unit. Rules a unit has already are left out. The seed uses it too, to
+ * give lists saved before a detachment was known the rules they would get today.
+ */
+export function detachmentGrants(
+  units: ReadonlyArray<Pick<Unit, "id" | "nm" | "kw" | "rules">>,
+  army: ReadonlyArray<string>,
+  grants: UnitGrants
+): Record<string, Array<string>> {
+  const out: Record<string, Array<string>> = {}
+  for (const id of army) {
+    for (const g of grants[id] ?? []) {
+      for (const u of units) {
+        const hit = g.kw ? (u.kw ?? []).includes(g.kw) : !!g.name && isNamed(u.nm, g.name)
+        if (!hit || u.rules.includes(g.rule)) continue
+        const add = (out[u.id] ??= [])
+        if (!add.includes(g.rule)) add.push(g.rule)
+      }
+    }
+  }
+  return out
+}
+
 /** Lookups the importer needs beyond the roster itself. */
 export interface ImportContext {
   /** The rules library, for matching abilities by name. */
   readonly library: RuleBook
   readonly factionArmyRules: Readonly<Record<string, ReadonlyArray<string>>>
   readonly detachmentRules: Readonly<Record<string, ReadonlyArray<string>>>
-  readonly detachmentUnitGrants: Readonly<Record<string, ReadonlyArray<{ readonly name: string; readonly rule: string }>>>
+  readonly detachmentUnitGrants: UnitGrants
   /** A unit's wargear swaps from its Wahapedia datasheet, by the unit's name in the roster (see `dropReplaced`). */
   readonly swaps?: (unitName: string) => ReadonlyArray<Swap>
   /** A weapon's two rows, when a unit's Wahapedia datasheet has it as both ranged and melee (see `addTwins`). */
@@ -629,13 +662,9 @@ export function parseRosterSync(xmlText: string, exportText: string | null | und
   }
   meta.sub = [meta.faction, dets.join(" and "), meta.mission].filter(Boolean).join(", ") + ". Imported from a roster file."
 
-  // detachment rules that hand a named unit an extra ability (e.g. Wrath of the First Khan)
-  for (const id of army) {
-    for (const g of ctx.detachmentUnitGrants[id] || []) {
-      units.forEach((u) => {
-        if (norm(u.nm).includes(g.name) && !u.rules.includes(g.rule)) u.rules.push(g.rule)
-      })
-    }
+  // army and detachment rules that hand some units an ability of their own (Wrath of the First Khan, Mob-handed Brutality)
+  for (const [id, add] of Object.entries(detachmentGrants(units, army, ctx.detachmentUnitGrants))) {
+    units.find((u) => u.id === id)?.rules.push(...add)
   }
   if (unknownDets.length) warnings.push(`No rules library yet for ${unknownDets.join(" or ")}. Its detachment rules won’t show until we add them.`)
 

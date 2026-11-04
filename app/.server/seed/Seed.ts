@@ -8,6 +8,8 @@
  */
 import { Effect, Layer, Option, Schema } from "effect"
 import { Group, ListMeta, Opts, Rule, RuleStatus, Target, Unit } from "~/domain/schema"
+import { norm } from "~/domain/text"
+import { detachmentGrants } from "../importer/roster"
 import { Lists } from "../repos/Lists"
 import { Rules } from "../repos/Rules"
 import { ACTIVE_LIST, SEED_VERSION, Settings } from "../repos/Settings"
@@ -15,7 +17,7 @@ import { Targets } from "../repos/Targets"
 import { LIBRARY_RULES } from "./library"
 import raw from "./poc-seed.json"
 
-const VERSION = 12
+const VERSION = 13
 
 /**
  * Benchmark targets added after the Culling Cogitator's 19, which the calibration is measured against. Each goes into
@@ -73,6 +75,15 @@ export const RULE_REVIEWS: ReadonlyArray<{ readonly since: number; readonly ids:
   }
 ]
 
+/**
+ * Detachments (as `detachmentRules` keys them) whose rules the seed gained after lists with them were saved. On the
+ * upgrade to `since`, each such list gets the detachment's rules, and its units the rules those hand out, as an
+ * import would today. Nothing else on the list changes, so hand edits stay.
+ */
+export const ADDED_DETACHMENTS: ReadonlyArray<{ readonly since: number; readonly detachments: ReadonlyArray<string> }> = [
+  { since: 13, detachments: ["green tide", "kult of speed", "brute bosses"] }
+]
+
 /** Built-in lists that used to be seeded and are removed from existing databases on upgrade. */
 const RETIRED_LISTS = ["builtin-cophasta", "builtin-burning-v1"]
 
@@ -98,7 +109,7 @@ const SeedFile = Schema.Struct({
   detachmentRules: Schema.Record(Schema.String, Schema.Array(Schema.String)),
   detachmentUnitGrants: Schema.Record(
     Schema.String,
-    Schema.Array(Schema.Struct({ name: Schema.String, rule: Schema.String }))
+    Schema.Array(Schema.Struct({ name: Schema.optional(Schema.String), kw: Schema.optional(Schema.String), rule: Schema.String }))
   ),
   bareDatasheetRulesOff: Schema.Array(Schema.String)
 })
@@ -142,6 +153,14 @@ export const seed = Effect.gen(function*() {
     for (const id of review.ids) {
       const entry = yield* rules.get(id).pipe(Effect.option)
       if (entry._tag === "Some" && entry.value.status === "draft") yield* rules.setStatus(id, review.status, review.note)
+    }
+  }
+  for (const a of ADDED_DETACHMENTS) {
+    if (Number(current) >= a.since) continue
+    for (const summary of yield* lists.all) {
+      const list = yield* lists.get(summary.id).pipe(Effect.orDie)
+      const army = (list.meta.detachments ?? []).map(norm).filter((d) => a.detachments.includes(d)).flatMap((d) => seedData.detachmentRules[d] ?? [])
+      if (army.length) yield* lists.addRules(list.id, army, detachmentGrants(list.units, army, seedData.detachmentUnitGrants))
     }
   }
   for (const id of RETIRED_LISTS) {

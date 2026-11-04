@@ -346,6 +346,62 @@ export const LIBRARY_RULES: ReadonlyArray<LibraryRule> = [
         { phase: "ranged", when: "objective", hit: 1 }
       ]
     }
+  },
+
+  // ---------- Orks detachment rules (4 November 2026, from "Brakes Iz' for Grots"; the live Wahapedia wording)
+  {
+    // The list's Green Tide entry, and what every Orks Infantry unit gets (detachmentUnitGrants). The Boyz half is its own
+    // rule below, because no 11th edition datasheet has a BOYZ keyword: the rule means the Boyz datasheet.
+    id: "mob-handed-brutality",
+    faction: "ORK",
+    status: "draft",
+    rule: {
+      nm: "Mob-handed Brutality",
+      src: "Green Tide",
+      dmg: true,
+      cond: "charged",
+      condNm: "Charged this turn",
+      reach: "Orks Infantry units; Boyz units for Sustained Hits",
+      txt: "Green Tide detachment rule. After an Orks Infantry unit charges, its melee attacks have Lethal Hits against anything that isn't a Monster or Vehicle. Boyz units' melee attacks also have Sustained Hits 1 at all times: that's Mob-handed Brutality (Boyz). Idle until you switch on “Charged this turn”.",
+      fx: [{ phase: "melee", vs: { not: ["MONSTER", "VEHICLE"] }, grant: { lethal: 1 } }]
+    }
+  },
+  {
+    id: "mob-handed-brutality-boyz",
+    faction: "ORK",
+    status: "draft",
+    rule: {
+      nm: "Mob-handed Brutality (Boyz)",
+      src: "Green Tide",
+      scope: "unit",
+      dmg: true,
+      txt: "From Green Tide's detachment rule. Boyz units' melee attacks have Sustained Hits 1. A leader or Support character in the unit benefits too, as part of a Boyz unit.",
+      fx: [{ phase: "melee", grant: { sus: 1 } }]
+    }
+  },
+  {
+    id: "adrenaline-junkies",
+    faction: "ORK",
+    status: "note",
+    rule: {
+      nm: "Adrenaline Junkies",
+      src: "Kult of Speed",
+      dmg: false,
+      reach: "Speed Freeks units",
+      txt: "Kult of Speed detachment rule. Warbikers units have Battleline. A Speed Freeks unit that advances or falls back gets Assault on its ranged attacks for the turn and can still charge. Movement and Battleline, so the matrix leaves it out."
+    }
+  },
+  {
+    id: "ard-as-nails",
+    faction: "ORK",
+    status: "note",
+    rule: {
+      nm: "’Ard as Nails",
+      src: "Brute Bosses",
+      dmg: false,
+      reach: "Warboss models",
+      txt: "Brute Bosses detachment rule. When a Warboss model is destroyed before its unit has fought this phase, on a 3+ (+1 while riled up) it isn't removed until the unit has fought or the phase ends. The matrix already counts every model as alive, so it leaves this out."
+    }
   }
 ]
 

@@ -3027,6 +3027,15 @@
   ],
   "assault brethren": [
    "assault-brethren"
+  ],
+  "green tide": [
+   "mob-handed-brutality"
+  ],
+  "kult of speed": [
+   "adrenaline-junkies"
+  ],
+  "brute bosses": [
+   "ard-as-nails"
   ]
  },
  "detachmentUnitGrants": {
@@ -3034,6 +3043,16 @@
    {
     "name": "suboden khan",
     "rule": "wrath-first-khan"
+   }
+  ],
+  "mob-handed-brutality": [
+   {
+    "kw": "INFANTRY",
+    "rule": "mob-handed-brutality"
+   },
+   {
+    "name": "boyz",
+    "rule": "mob-handed-brutality-boyz"
    }
   ]
  },

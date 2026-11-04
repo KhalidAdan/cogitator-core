@@ -546,7 +546,19 @@ Twelve Orks rules went into the live library as drafts through `save_rule`: the 
 Not modelled, because `save_rule` can't reach them:
 
 - **Da Gobshot Thunderbuss's weapon isn't on Deffkilla Wartrike A.** The enhancement gives a gun (24", A6, BS4+, S7, AP-2, D2, Lethal Hits against non-Monster/Vehicle, Rapid Fire 6), and the importer took the enhancement but not the weapon.
-- **Green Tide's detachment rule, Mob-handed Brutality, isn't counted.** Boyz melee Sustained Hits 1, and Lethal Hits (not against Monster/Vehicle) for Orks Infantry after a charge. The importer finds detachment rules through the seed's `detachmentRules`, which has no Orks detachments, so neither Green Tide nor Brute Bosses reaches the list.
+- **Green Tide's detachment rule, Mob-handed Brutality, isn't counted.** Boyz melee Sustained Hits 1, and Lethal Hits (not against Monster/Vehicle) for Orks Infantry after a charge. The importer finds detachment rules through the seed's `detachmentRules`, which has no Orks detachments, so neither Green Tide nor Brute Bosses reaches the list. *Done the same day: D-60.*
+
+---
+
+### D-60. Mob-handed Brutality, and detachments learned after a list was saved (4 November, your call)
+
+Green Tide's detachment rule changes damage, and the list had no way to get it. The engine only counts rules that sit on units, so a detachment's damage rule has to be handed to the units it reaches when the list is imported.
+
+- **Two rules, because the wording has two halves.** Mob-handed Brutality: after an Orks Infantry unit charges, its melee attacks have Lethal Hits against anything that isn't a Monster or Vehicle. Mob-handed Brutality (Boyz): Boyz units' melee attacks have Sustained Hits 1, always. The Boyz half is shared, so a Warboss, Bigboss or Weirdboy in the unit gets it too.
+- **"BOYZ units" means the Boyz datasheet.** No 11th edition datasheet has a BOYZ keyword, so it goes by name: Boyz and Boyz A, not Stormboyz, Breaka Boyz or Beast Snagga Boyz. If Wahapedia later gives Boyz the keyword, a keyword grant would be cleaner.
+- **`detachmentUnitGrants` can go by keyword now** (`kw: "INFANTRY"`), as well as by name. A name now has to match the unit's name exactly, an A/B letter aside. It used to match any name that contained it, which would have handed the Boyz half to Stormboyz. Suboden Khan's Wrath of the First Khan still matches.
+- **Kult of Speed and Brute Bosses are known too,** as notes: Adrenaline Junkies (Battleline, Assault and a charge after advancing) and 'Ard as Nails (a Warboss fights on before he's removed). So the import review stops saying their rules won't show.
+- **Lists saved before get them once, on the upgrade to seed v13** (`ADDED_DETACHMENTS` in Seed.ts). Each list with one of those detachments gets its rules, and its units the rules those hand out, in the units as they are and as imported (`Lists.addRules`). Nothing else changes, so hand edits stay. "Read the file again" would have done the same, but it replaces hand edits.
 
 ---
 

@@ -259,3 +259,49 @@ describe("review decisions shipped with the code", () => {
       expect((yield* rules.get("bolter-discipline")).status).toBe("draft")
     }).pipe(Effect.provide(Unseeded)))
 })
+
+describe("detachments the seed learns after lists with them were saved", () => {
+  const unit = (id: string, nm: string, kw: Array<string>) => ({ id, nm, pts: 100, models: 10, kw, rules: [], w: [] })
+
+  it.effect("give those lists the detachment's rules and its units theirs, keeping hand edits", () =>
+    Effect.gen(function*() {
+      const settings = yield* Settings
+      const lists = yield* Lists
+      yield* seed
+      const id = yield* lists.create({
+        meta: { name: "Green Tide", faction: "Orks", detachments: ["Brute Bosses", "Green Tide"] },
+        groups: {},
+        armyRules: [],
+        rules: {},
+        units: [
+          unit("boyz-a", "Boyz A", ["INFANTRY", "MOB"]),
+          unit("warboss", "Warboss", ["INFANTRY", "CHARACTER", "WARBOSS"]),
+          unit("stormboyz", "Stormboyz", ["INFANTRY", "JUMP PACK"]),
+          unit("warbikers", "Warbikers", ["MOUNTED", "SPEED FREEKS"])
+        ]
+      })
+      const other = yield* lists.create({ meta: { name: "Other", faction: "Orks", detachments: ["War Horde"] }, groups: {}, armyRules: [], rules: {}, units: [unit("boyz", "Boyz", ["INFANTRY"])] })
+      // edited by hand before the upgrade
+      const before = yield* lists.get(id)
+      yield* lists.saveUnit(id, { ...before.units.find((u) => u.id === "warboss")!, pts: 120 })
+      yield* settings.set(SEED_VERSION, "12")
+      yield* seed
+
+      const after = yield* lists.get(id)
+      expect(after.armyRules).toEqual(["ard-as-nails", "mob-handed-brutality"])
+      const rulesOf = (uid: string) => after.units.find((u) => u.id === uid)!.rules
+      expect(rulesOf("boyz-a")).toEqual(["mob-handed-brutality", "mob-handed-brutality-boyz"])
+      expect(rulesOf("warboss")).toEqual(["mob-handed-brutality"])
+      // Infantry, but not the Boyz datasheet
+      expect(rulesOf("stormboyz")).toEqual(["mob-handed-brutality"])
+      expect(rulesOf("warbikers")).toEqual([])
+      expect(after.units.find((u) => u.id === "warboss")!.pts).toBe(120)
+      // in the as-imported copy too, so undoing the edits keeps them
+      yield* lists.reset(id)
+      expect((yield* lists.get(id)).units.find((u) => u.id === "boyz-a")!.rules).toEqual(["mob-handed-brutality", "mob-handed-brutality-boyz"])
+      // a list without those detachments is left alone, and the upgrade happens once
+      expect((yield* lists.get(other)).armyRules).toEqual([])
+      yield* seed
+      expect((yield* lists.get(id)).armyRules).toEqual(["ard-as-nails", "mob-handed-brutality"])
+    }).pipe(Effect.provide(Unseeded)))
+})

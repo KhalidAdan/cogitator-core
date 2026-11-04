@@ -66,6 +66,7 @@ const SummaryRow = Schema.Struct({
 })
 
 const encUnit = Schema.encodeSync(json(Unit))
+const decUnit = Schema.decodeUnknownSync(json(Unit))
 const encOpts = Schema.encodeSync(json(Opts))
 const encMeta = Schema.encodeSync(json(ListMeta))
 const encRules = Schema.encodeSync(json(Schema.Record(Schema.String, Rule)))
@@ -85,6 +86,11 @@ export class Lists extends Context.Service<Lists, {
   replaceUnits(listId: string, units: ReadonlyArray<Unit>): Effect.Effect<void>
   /** Replace what was read from the roster (units, rules, groups, army rules), keeping the name and options. */
   replaceContent(id: string, content: Pick<NewList, "units" | "rules" | "groups" | "armyRules">): Effect.Effect<void>
+  /**
+   * Add rule ids to a list's army rules and to some of its units (by unit id), both as they are now and as imported,
+   * as if the import had known them. Nothing else changes, so hand edits stay.
+   */
+  addRules(id: string, armyRules: ReadonlyArray<string>, unitRules: Readonly<Record<string, ReadonlyArray<string>>>): Effect.Effect<void>
   /** Units back to as-imported, options back to table defaults. */
   reset(id: string): Effect.Effect<void>
   rename(id: string, name: string): Effect.Effect<void>
@@ -246,6 +252,32 @@ export class Lists extends Context.Service<Lists, {
         }
       )
 
+      const addRules = Effect.fn("Lists.addRules")(
+        function*(id: string, armyRules: ReadonlyArray<string>, unitRules: Readonly<Record<string, ReadonlyArray<string>>>) {
+          const adding = (have: ReadonlyArray<string>, add: ReadonlyArray<string>) => [...have, ...add.filter((r, i) => !have.includes(r) && add.indexOf(r) === i)]
+          yield* sql.withTransaction(Effect.gen(function*() {
+            const list = yield* findList(id)
+            if (list._tag === "None") return
+            yield* sql`UPDATE lists SET army_rules = ${JSON.stringify(adding(list.value.army_rules, armyRules))} WHERE id = ${id}`
+            const rows = yield* sql<{ unit_id: string; data: string; base: string }>`
+              SELECT unit_id, data, base FROM list_units WHERE list_id = ${id}
+            `
+            for (const row of rows) {
+              const add = unitRules[row.unit_id]
+              if (!add?.length) continue
+              const withRules = (doc: string) => {
+                const u = decUnit(doc)
+                return encUnit({ ...u, rules: adding(u.rules, add) })
+              }
+              yield* sql`
+                UPDATE list_units SET data = ${withRules(row.data)}, base = ${withRules(row.base)}
+                WHERE list_id = ${id} AND unit_id = ${row.unit_id}
+              `
+            }
+          })).pipe(Effect.orDie)
+        }
+      )
+
       const reset = Effect.fn("Lists.reset")(function*(id: string) {
         yield* sql.withTransaction(Effect.gen(function*() {
           yield* sql`UPDATE list_units SET data = base WHERE list_id = ${id}`
@@ -282,6 +314,7 @@ export class Lists extends Context.Service<Lists, {
         saveUnit,
         replaceUnits,
         replaceContent,
+        addRules,
         reset,
         rename,
         remove,
