@@ -7,12 +7,12 @@
  * up as a change to these lists.
  */
 import { describe, expect, it, layer } from "@effect/vitest"
-import { Effect, Layer } from "effect"
+import { Effect, Layer, Option } from "effect"
 import { existsSync, readdirSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 import { layerAt } from "~/.server/db/Db"
-import { importContext } from "~/.server/importer/context"
-import { detachmentGrants, type ImportContext, keepPrices, looksOffensive, NO_TEXT_EXPORT, parseRosterSync } from "~/.server/importer/roster"
+import { givenWeapon, importContext } from "~/.server/importer/context"
+import { detachmentGrants, GIVES_A_WEAPON, type ImportContext, keepPrices, looksOffensive, NO_TEXT_EXPORT, parseRosterSync } from "~/.server/importer/roster"
 import { Lists } from "~/.server/repos/Lists"
 import { Rules } from "~/.server/repos/Rules"
 import { Settings } from "~/.server/repos/Settings"
@@ -20,6 +20,8 @@ import { Targets } from "~/.server/repos/Targets"
 import { LIBRARY_RULES } from "~/.server/seed/library"
 import { seed, seedData } from "~/.server/seed/Seed"
 import { checkList } from "~/.server/wahapedia/check"
+import { ENHANCEMENT_WEAPONS } from "~/.server/wahapedia/enhancement-weapons"
+import { currentSnapshotId, enhancements } from "~/.server/wahapedia/queries"
 import { Snapshots } from "~/.server/wahapedia/Snapshots"
 import { parseSwap, type Swap } from "~/.server/wahapedia/swaps"
 import type { Twin } from "~/.server/wahapedia/twins"
@@ -27,6 +29,7 @@ import { loadDirectory } from "~/.server/node/directory"
 import { attackerList, attackUnit } from "~/domain/engine"
 import { defaultOpts } from "~/domain/options"
 import type { RuleBook, Unit } from "~/domain/schema"
+import { norm } from "~/domain/text"
 
 /** The library a fresh database starts with. */
 const library: RuleBook = { ...seedData.rules, ...Object.fromEntries(LIBRARY_RULES.map((r) => [r.id, r.rule])) }
@@ -287,6 +290,87 @@ describe("twin weapons", () => {
   })
 })
 
+// ---------- weapons an enhancement gives ----------
+
+const GOBSHOT = "Warboss model only. This model has the following weapon:"
+const gun = (name: string, A: number) =>
+  `<profile name="${name}" typeName="Ranged Weapons"><characteristics><characteristic name="Range">24"</characteristic><characteristic name="A">${A}</characteristic>` +
+  `<characteristic name="BS">5+</characteristic><characteristic name="S">5</characteristic><characteristic name="AP">0</characteristic><characteristic name="D">1</characteristic>` +
+  `<characteristic name="Keywords">LETHAL HITS: non-MONSTER/VEHICLE</characteristic></characteristics></profile>`
+/** A Deffkilla Wartrike as 40k.app writes one: the enhancement as an ability, then its own gun. `extra`: more selections. */
+const wartrike = (enhancement: string, text: string, extra = "") => `<roster name="Brakes Iz' for Grots"><forces><force catalogueName="Orks"><selections>
+  <selection name="Deffkilla Wartrike A" type="model" number="1"><profiles>
+    <profile name="Deffkilla Wartrike" typeName="Unit"><characteristics><characteristic name="M">12"</characteristic><characteristic name="T">6</characteristic>
+      <characteristic name="SV">4+</characteristic><characteristic name="W">8</characteristic><characteristic name="LD">7+</characteristic><characteristic name="OC">2</characteristic></characteristics></profile>
+    <profile name="Enhancement: ${enhancement}" typeName="Abilities"><characteristics><characteristic name="Description">${text}</characteristic></characteristics></profile>
+  </profiles><selections>
+    <selection name="Boomstikks" type="upgrade" number="1"><profiles>${gun("Boomstikks", 6)}</profiles></selection>${extra}
+  </selections></selection></selections></force></forces></roster>`
+
+describe("weapons an enhancement gives", () => {
+  const withWeapons = { ...ctx, enhancementWeapon: givenWeapon }
+  const rows = (xml: string, c: ImportContext, unit: string) => parseRosterSync(xml, "", c).units.find((u) => u.nm === unit)!.w.map((w) => `${w.t}:${w.nm}×${w.n}`)
+
+  it("give the bearer the weapon the roster file leaves out, and say so", () => {
+    const xml = wartrike("Da Gobshot Thunderbuss", GOBSHOT)
+    expect(rows(xml, ctx, "Deffkilla Wartrike A")).toEqual(["r:Boomstikks×1"])
+    const got = parseRosterSync(xml, "", withWeapons)
+    expect(rows(xml, withWeapons, "Deffkilla Wartrike A")).toEqual(["r:Boomstikks×1", "r:Da Gobshot Thunderbuss×1"])
+    // 24", A6, BS4+, S7, AP-2, D2, Lethal Hits against anything but a Monster or Vehicle, Rapid Fire 6
+    expect(got.units[0].w[1]).toMatchObject({ A: 6, sk: 4, S: 7, AP: 2, D: 2, kw: { lethal: 1, rf: 6, when: { lethal: { not: ["MONSTER", "VEHICLE"] } } } })
+    expect(got.units[0].enh?.nm).toBe("Da Gobshot Thunderbuss")
+    expect(got.warnings).toEqual([
+      "Deffkilla Wartrike A: the roster file has Da Gobshot Thunderbuss but leaves out the weapon it gives, so that profile comes from Wahapedia.",
+      NO_TEXT_EXPORT
+    ])
+  })
+
+  it("make a melee weapon one of the bearer's choices, so it fights with the better one", () => {
+    // Strike Force Cophasta's Bladeguard Ancient took Imperium's Sword; 40k.app gave him his Relics of Battle and no sword
+    const cophasta = readFileSync("tests/fixtures/rosters/strike-force-cophasta.ros", "utf8")
+    expect(rows(cophasta, ctx, "Bladeguard Ancient")).toEqual(["r:Heavy Bolt Pistol×1", "m:Relics of Battle×1"])
+    // the sword (A6, WS2+, S7, AP-3, D3) is better in every number, so the relics drop out as they would for any weapon it beats
+    expect(rows(cophasta, withWeapons, "Bladeguard Ancient")).toEqual(["r:Heavy Bolt Pistol×1", "m:Imperium's Sword×1"])
+  })
+
+  it("leave the weapon alone when the roster file has it", () => {
+    const xml = wartrike("Da Gobshot Thunderbuss", GOBSHOT, `<selection name="Da Gobshot Thunderbuss" type="upgrade" number="1"><profiles>${gun("Da Gobshot Thunderbuss", 6)}</profiles></selection>`)
+    expect(rows(xml, withWeapons, "Deffkilla Wartrike A")).toEqual(rows(xml, ctx, "Deffkilla Wartrike A"))
+    expect(parseRosterSync(xml, "", withWeapons).warnings).toEqual([NO_TEXT_EXPORT])
+  })
+
+  it("say so when the app has no profile for the weapon, and nothing for an enhancement that gives none", () => {
+    const unknown = wartrike("Da Shiny Choppa", "Warboss model only. This model has the following weapon.")
+    expect(rows(unknown, withWeapons, "Deffkilla Wartrike A")).toEqual(["r:Boomstikks×1"])
+    expect(parseRosterSync(unknown, "", withWeapons).warnings).toEqual([
+      "Deffkilla Wartrike A: the roster file has Da Shiny Choppa but leaves out the weapon it gives, and the app has no profile for it yet, so it isn’t counted.",
+      NO_TEXT_EXPORT
+    ])
+    const blitzboss = wartrike("Blitzboss", "Warboss model only. A transport unit (excluding Walker units) this unit is embarked within has: +2&quot; M. 5+ InSv.")
+    expect(parseRosterSync(blitzboss, "", withWeapons).warnings).toEqual([NO_TEXT_EXPORT])
+  })
+
+  it("know every profile kept for one", () => {
+    expect(ENHANCEMENT_WEAPONS.map((e) => e.enhancement)).toEqual([
+      "Da Gobshot Thunderbuss",
+      "Da Krunch",
+      "'Eadbanger",
+      "Auriferous Orb",
+      "Emperor's Light",
+      "The Thief of Secrets",
+      "Imperium's Sword"
+    ])
+    for (const e of ENHANCEMENT_WEAPONS) {
+      const w = givenWeapon(e.enhancement)!
+      // every keyword is one the engine reads, but the Orb's Blinding Light, which comes after it has shot
+      expect(w.kw.other ?? [], e.enhancement).toEqual(e.enhancement === "Auriferous Orb" ? ["BLINDING LIGHT"] : [])
+    }
+    // Anti 2+ against anything that isn't a Monster or Vehicle
+    expect(givenWeapon("Auriferous Orb")!.kw.anti).toEqual({ INFANTRY: 2, MOUNTED: 2, BEASTS: 2, SWARM: 2 })
+    expect(givenWeapon("Emperor’s Light")).toMatchObject({ t: "m", A: 3, sk: 2, S: 5, AP: 2, D: 2, kw: { extra: 1 } })
+  })
+})
+
 // ---------- against the downloaded Wahapedia export ----------
 
 const ROOT = "data/wahapedia"
@@ -320,8 +404,8 @@ describe.skipIf(!exportDir)("real rosters against the downloaded export", () => 
         expect(guns("the-fifteenth-grievance.ros", "Rubric Marines B")).toEqual(["Inferno boltgun×8", "Malefic Curse×1", "Soulreaper cannon×1"])
         // two plasma guns, a marksman rifle, and a laspistol with a melta mine each replace a hot-shot lasgun
         expect(guns("by-writ-of-the-lord-solar.ros", "Kasrkin")).toContain("Hot-shot lasgun×5")
-        // nothing to drop in a list whose options all add, or that has none
-        const plain = parseRosterSync(readFileSync("tests/fixtures/rosters/strike-force-cophasta.ros", "utf8"), "", ctx)
+        // nothing to drop in a list whose options all add, or that has none (its Bladeguard Ancient's Imperium's Sword is added either way)
+        const plain = parseRosterSync(readFileSync("tests/fixtures/rosters/strike-force-cophasta.ros", "utf8"), "", { ...ctx, enhancementWeapon: givenWeapon })
         const again = parseRosterSync(readFileSync("tests/fixtures/rosters/strike-force-cophasta.ros", "utf8"), "", live)
         expect(again.units.map((u) => u.w)).toEqual(plain.units.map((u) => u.w))
       }))
@@ -341,6 +425,27 @@ describe.skipIf(!exportDir)("real rosters against the downloaded export", () => 
           <characteristic name="A">1</characteristic><characteristic name="BS">2+</characteristic><characteristic name="S">10</characteristic><characteristic name="AP">-2</characteristic><characteristic name="D">3</characteristic>
           </characteristics></profile></profiles></selection></selections></selection></selections></force></forces></roster>`
         expect(melee(parseRosterSync(arjac, "", live).units, "Arjac Rockfist")).toEqual(["Foehammer×1 A5"])
+      }))
+
+    it.effect("weapons enhancements give: every one in the export has a profile but Orksbane, and the check page counts it", () =>
+      Effect.gen(function*() {
+        const snapshot = Option.getOrThrow(yield* currentSnapshotId)
+        const giving = (yield* enhancements(snapshot)).filter((e) => GIVES_A_WEAPON.test(e.text))
+        const kept = new Map(ENHANCEMENT_WEAPONS.map((e) => [norm(e.enhancement), e]))
+        // Orksbane (Vengeful Hosts) was gone from Wahapedia by 4 November, so there was no profile to copy
+        expect(giving.filter((e) => !kept.has(norm(e.name))).map((e) => `${e.factionId}: ${e.name}`)).toEqual(["SM: Orksbane"])
+        for (const e of giving) {
+          const k = kept.get(norm(e.name))
+          if (k) expect([k.faction, k.detachment], e.name).toEqual([e.factionId, e.detachment])
+        }
+        // importing and "read the file again" both read rosters with `importContext`
+        const live = yield* importContext
+        const trike = parseRosterSync(wartrike("Da Gobshot Thunderbuss", GOBSHOT), "", live).units[0]
+        expect(trike.w.map((w) => w.nm)).toEqual(["Boomstikks", "Da Gobshot Thunderbuss"])
+        // the sword is on no datasheet, so the check compares it with the enhancement's profile
+        const list = parseRosterSync(readFileSync("tests/fixtures/rosters/strike-force-cophasta.ros", "utf8"), "", live)
+        const check = yield* checkList({ units: list.units, meta: list.meta, rules: list.rules }, library)
+        expect(check.units.find((u) => u.unit === "Bladeguard Ancient")!.weapons.find((w) => w.nm === "Imperium's Sword")?.status).toBe("ok")
       }))
 
     for (const r of ROSTERS) {

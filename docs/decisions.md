@@ -545,7 +545,7 @@ Twelve Orks rules went into the live library as drafts through `save_rule`: the 
 
 Not modelled, because `save_rule` can't reach them:
 
-- **Da Gobshot Thunderbuss's weapon isn't on Deffkilla Wartrike A.** The enhancement gives a gun (24", A6, BS4+, S7, AP-2, D2, Lethal Hits against non-Monster/Vehicle, Rapid Fire 6), and the importer took the enhancement but not the weapon.
+- **Da Gobshot Thunderbuss's weapon isn't on Deffkilla Wartrike A.** The enhancement gives a gun (24", A6, BS4+, S7, AP-2, D2, Lethal Hits against non-Monster/Vehicle, Rapid Fire 6), and the importer took the enhancement but not the weapon. *Done the same day: D-61.*
 - **Green Tide's detachment rule, Mob-handed Brutality, isn't counted.** Boyz melee Sustained Hits 1, and Lethal Hits (not against Monster/Vehicle) for Orks Infantry after a charge. The importer finds detachment rules through the seed's `detachmentRules`, which has no Orks detachments, so neither Green Tide nor Brute Bosses reaches the list. *Done the same day: D-60.*
 
 ---
@@ -559,6 +559,22 @@ Green Tide's detachment rule changes damage, and the list had no way to get it. 
 - **`detachmentUnitGrants` can go by keyword now** (`kw: "INFANTRY"`), as well as by name. A name now has to match the unit's name exactly, an A/B letter aside. It used to match any name that contained it, which would have handed the Boyz half to Stormboyz. Suboden Khan's Wrath of the First Khan still matches.
 - **Kult of Speed and Brute Bosses are known too,** as notes: Adrenaline Junkies (Battleline, Assault and a charge after advancing) and 'Ard as Nails (a Warboss fights on before he's removed). So the import review stops saying their rules won't show.
 - **Lists saved before get them once, on the upgrade to seed v13** (`ADDED_DETACHMENTS` in Seed.ts). Each list with one of those detachments gets its rules, and its units the rules those hand out, in the units as they are and as imported (`Lists.addRules`). Nothing else changes, so hand edits stay. "Read the file again" would have done the same, but it replaces hand edits.
+
+---
+
+### D-61. Weapons an enhancement gives (4 November, from "Brakes Iz' for Grots")
+
+Deffkilla Wartrike A had Da Gobshot Thunderbuss and no Thunderbuss (D-59). **Seven enhancements give their bearer a weapon, and neither source the importer reads has its profile.** 40k.app's roster files keep the enhancement's text up to "This model has the following weapon:" and nothing after. Both Cophasta files show the same with Imperium's Sword on the Bladeguard Ancient. Wahapedia's export cuts the description at the same colon, in our 28 September export and in the live site's 30 October one. Only the faction pages show the table.
+
+- **So the profiles are kept in the code,** in `wahapedia/enhancement-weapons.ts`. They were copied from the live faction pages today and are written the way the export writes wargear. The seven are Da Gobshot Thunderbuss, Da Krunch and 'Eadbanger (Orks), Auriferous Orb and Emperor's Light (Custodes), and The Thief of Secrets and Imperium's Sword (Space Marines). That's every enhancement in the 30 October export whose text stops at the weapon.
+- **The importer gives the weapon to the bearer,** one row on the unit's first model, and the import review says so, as it does for a twin (D-57). If the file already has a weapon of that name (a BattleScribe roster may), the importer leaves it alone. A melee weapon becomes one of the bearer's choices like any other. Cophasta's Bladeguard Ancient now fights with Imperium's Sword (A6, S7, AP-3, D3), and his Relics of Battle drop out because the sword beats them in every number.
+- **An enhancement with no profile still imports, with a warning** that the file leaves out its weapon and the app has no profile for it, so it isn't counted. Orksbane (Space Marines, Vengeful Hosts) is the only one. It's in the 28 September export but gone from Wahapedia now, so there was nothing to copy. A test reads the downloaded export for these, so a new one shows up as a failing test.
+- **The check page counts the weapon as on the bearer's datasheet** and compares it with the kept profile, so it doesn't show as "not on the datasheet".
+- **"Read the file again" picks this up**, as well as new imports. Once this is deployed, Brakes Iz' for Grots needs reading again for the Thunderbuss to appear. I haven't done that. As ever, it replaces anything edited by hand on the list.
+- **The Auriferous Orb's Anti is written as four.** The engine would read "Anti-non-Monster/Vehicle 2+" as Anti-Vehicle 2+, so it's stored as Anti-Infantry, -Mounted, -Beasts and -Swarm 2+. Three Wahapedia weapons have the same wording (Venomcrest Spit, Stone Stave and a Master-crafted Chainsword) and are misread that way today. Fixing them is separate.
+- **A kept profile only changes when someone changes it.** A codex update to one of these weapons won't reach the app through the export, because the export never had it.
+
+The library's Imperium's Sword says its profile "comes in with the roster file, so it's already in the loadout". That was never true; the importer now adds it from Wahapedia instead.
 
 ---
 

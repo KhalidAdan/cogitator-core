@@ -31,8 +31,8 @@ app/
     db/                migrations; the Durable Object's SQLite (DurableDb.ts) and node:sqlite for tests (Db.ts)
     repos/             Lists, Rules, Targets, Settings, Imports: one Effect service each
     seed/              first-run data: the POC's library, lists and targets, plus rules translated since (library.ts)
-    importer/          roster (.ros/.rosz) and text-export parser, and the context it reads them with (library, wargear swaps)
-    wahapedia/         the data export: tables, csv, remote (read from wahapedia.ru), Snapshots, diff, queries, check, sync, swaps (which weapon an option replaces)
+    importer/          roster (.ros/.rosz) and text-export parser, and the context it reads them with (library, wargear swaps, twin weapons, enhancement weapons)
+    wahapedia/         the data export: tables, csv, remote (read from wahapedia.ru), Snapshots, diff, queries, check, sync, swaps (which weapon an option replaces), twins (weapons both ranged and melee under one name), enhancement-weapons (the weapons enhancements give, which the export leaves out)
     mfm/               points from the Munitorum Field Manual: flight, parse, store, refresh, factions
     node/              Node only, never imported by the app: downloading test data to disk
 

@@ -1,17 +1,19 @@
 /**
  * What the importer looks things up in: the rules library, the seeded army and
- * detachment rules, and the wargear swaps and twin weapons on the current
- * Wahapedia export's datasheets. Importing a list, its review and "read the
- * file again" all build it here, so they read a roster the same way.
+ * detachment rules, the wargear swaps and twin weapons on the current
+ * Wahapedia export's datasheets, and the weapons enhancements give. Importing a
+ * list, its review and "read the file again" all build it here, so they read a
+ * roster the same way.
  */
 import { Effect, Option } from "effect"
 import { Rules } from "../repos/Rules"
 import { seedData } from "../seed/Seed"
-import { datasheetIndex, factionIdFor, pickDatasheet } from "../wahapedia/check"
+import { datasheetIndex, factionIdFor, pickDatasheet, toEngine } from "../wahapedia/check"
+import { enhancementWeapon } from "../wahapedia/enhancement-weapons"
 import { allDatasheets, currentSnapshotId } from "../wahapedia/queries"
 import { type Swap, swapsFor, wargearSwaps } from "../wahapedia/swaps"
 import { type Twin, twinKey, weaponTwins } from "../wahapedia/twins"
-import type { ImportContext } from "./roster"
+import type { GivenWeapon, ImportContext } from "./roster"
 
 export const importContext = Effect.gen(function*() {
   const library = yield* (yield* Rules).book
@@ -29,6 +31,13 @@ export const importContext = Effect.gen(function*() {
     twin: (unitName: string, faction: string, weapon: string) => {
       const sheet = pickDatasheet({ nm: unitName }, index, factionIdFor(faction, sheets)).pick
       return sheet ? twins.get(sheet.id)?.get(twinKey(weapon)) : undefined
-    }
+    },
+    enhancementWeapon: givenWeapon
   } satisfies ImportContext
 })
+
+/** The weapon an enhancement gives, as a row for its bearer. */
+export function givenWeapon(enhancement: string): GivenWeapon | undefined {
+  const w = enhancementWeapon(enhancement)
+  return w ? { name: w.name, t: w.type === "Melee" ? "m" : "r", ...toEngine(w) } : undefined
+}

@@ -21,6 +21,7 @@ import { memo } from "../memo"
 import { fieldManualSlug } from "../mfm/factions"
 import type { FieldManual, ManualUnit } from "../mfm/parse"
 import { latestManual } from "../mfm/store"
+import { enhancementWeapon } from "./enhancement-weapons"
 import {
   allDatasheets,
   type CostLine,
@@ -451,7 +452,10 @@ export function checkUnit(unit: Unit, sheet: Datasheet | null, ctx: CheckContext
     }
   }
   const { stats, dbStats } = checkStats(unit, sheet)
-  const weapons = unit.w.map((w, i) => checkWeapon(w, i, sheet))
+  // a weapon the unit's enhancement gives is on no datasheet, so it's checked against the enhancement's
+  const given = unit.enh ? enhancementWeapon(unit.enh.nm) : undefined
+  const armed = given ? { ...sheet, wargear: [...sheet.wargear, given] } : sheet
+  const weapons = unit.w.map((w, i) => checkWeapon(w, i, armed))
   const abilities = checkAbilities(unit, sheet, ctx.rules)
   let leader: string | null = null
   if (ctx.attachedTo && (unit.role === "Leader" || unit.role === "Support")) {

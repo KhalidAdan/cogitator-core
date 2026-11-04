@@ -65,7 +65,18 @@ export interface ImportContext {
   readonly swaps?: (unitName: string) => ReadonlyArray<Swap>
   /** A weapon's two rows, when a unit's Wahapedia datasheet has it as both ranged and melee (see `addTwins`). */
   readonly twin?: (unitName: string, faction: string, weapon: string) => Twin | undefined
+  /** The weapon an enhancement gives its bearer, by the enhancement's name (see `addGiven`). */
+  readonly enhancementWeapon?: (enhancement: string) => GivenWeapon | undefined
 }
+
+/** A weapon an enhancement gives: one row for the bearer. */
+export interface GivenWeapon extends Pick<Weapon, "A" | "sk" | "S" | "AP" | "D" | "kw"> {
+  readonly name: string
+  readonly t: Weapon["t"]
+}
+
+/** An enhancement's text that stops where its weapon table was ("This model has the following weapon:"). */
+export const GIVES_A_WEAPON = /\b(?:has|is equipped with) the following weapons?\s*[:.]?\s*$/i
 
 export interface ImportStats {
   /** Datasheets, as the roster counts them. */
@@ -235,6 +246,21 @@ function addTwins(g: ModelGroup, twin: (weapon: string) => Twin | undefined): Ar
   return added
 }
 
+/**
+ * 40k.app's roster files keep an enhancement that gives a weapon, but not the weapon: the text stops at "This model
+ * has the following weapon:". The bearer has it, so it joins the first model's loadout, unless the file has a weapon
+ * of that name already. Returns whether it was added.
+ */
+function addGiven(groups: Array<ModelGroup>, given: GivenWeapon): boolean {
+  const key = weaponKey(given.name)
+  if (groups.some((g) => g.items.some((i) => weaponKey(i.w.nm) === key || weaponKey(i.upg) === key))) return false
+  let g = groups.find((x) => x.prof) ?? groups[0]
+  if (!g) groups.push((g = { n: 0, nm: "enhancement", items: [], prof: null }))
+  const { name, ...profile } = given
+  g.items.push({ w: { ...profile, nm: name, n: 1 }, upg: name, multi: false })
+  return true
+}
+
 // ---------- rules ----------
 
 const STRUCTURAL = new Set(["attached to", "led by", "supported by", "leader", "support", "invulnerable save", "battle focus"])
@@ -380,6 +406,7 @@ export function parseRosterSync(xmlText: string, exportText: string | null | und
     const get = (n: string) => abil.find((a) => a.nm.toLowerCase() === n)
     const unitRules: Array<string> = []
     let enh: Mutable<Enhancement> | null = null
+    let enhTxt = ""
     for (const a of abil) {
       let name = a.nm
       let src = "Datasheet"
@@ -412,7 +439,10 @@ export function parseRosterSync(xmlText: string, exportText: string | null | und
           }
         }
       }
-      if (src === "Enhancement") enh = { id: rid, nm: name, pts: 0 }
+      if (src === "Enhancement") {
+        enh = { id: rid, nm: name, pts: 0 }
+        enhTxt = a.txt
+      }
       if (!unitRules.includes(rid)) unitRules.push(rid)
     }
 
@@ -424,6 +454,15 @@ export function parseRosterSync(xmlText: string, exportText: string | null | und
     if (twin) {
       for (const a of new Set(groups.flatMap((g) => addTwins(g, (weapon) => twin(nm, faction, weapon))))) {
         warnings.push(`${nm}: the roster file leaves out its ${a}, so that profile comes from Wahapedia.`)
+      }
+    }
+    if (enh && ctx.enhancementWeapon) {
+      const given = ctx.enhancementWeapon(enh.nm)
+      const lacks = `${nm}: the roster file has ${enh.nm} but leaves out the weapon it gives`
+      if (given) {
+        if (addGiven(groups, given)) warnings.push(`${lacks}, so that profile comes from Wahapedia.`)
+      } else if (GIVES_A_WEAPON.test(enhTxt)) {
+        warnings.push(`${lacks}, and the app has no profile for it yet, so it isn’t counted.`)
       }
     }
     const merged: Array<ModelGroup> = []
