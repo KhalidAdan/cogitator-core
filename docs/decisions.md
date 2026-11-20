@@ -587,6 +587,15 @@ The library's Imperium's Sword says its profile "comes in with the roster file, 
 - **It reads as written:** "Anti-non-monster/vehicle 2+" in the dossier and the matrix's notes, and `anti-non-monster/vehicle2` in the loadout editor. A rule's Anti can name `NON-MONSTER/VEHICLE` too.
 - **Also read right now:** two keywords at one roll beside another Anti ability ("Anti-Infantry 2+, Anti-Monster/Vehicle 4+") were kept as one keyword and counted against neither. No weapon in either export has that.
 
+### D-63. Hunter profiles (20 November, from "The Host of the Angel")
+Some weapons have a second profile headed "HUNTER: MONSTER/VEHICLE". The rule: before selecting targets, pick one of the weapon's eligible profiles, and a Hunter profile can only target units with those keywords. The Eradicators' melta rifles were scored as two guns, both firing at everything: 87% into a Land Raider where 58% is right, 69% into Intercessors where 36% is.
+
+- **Why it was missed:** profiles were grouped into one weapon only when every name had a " - " suffix ("Plasma Pistol - Standard", "… - Supercharge"). 40k.app writes this pair as "Melta Rifle" and "Melta Rifle - Hunter", so the plain row was left out and neither got "pick one profile". And nothing knew a Hunter profile has targets it can't shoot.
+- **Grouping:** a row named for the weapon itself joins that weapon's suffixed rows of the same type, in the same model's loadout. "Melta Rifle (Hunter)" reads as "Melta Rifle - Hunter". Pairs that grouped before group exactly as they did: all nine rosters I have import identically.
+- **The restriction** is on the weapon row as `vs` (the same keyword filter a rule's clause has). The engine leaves such a row out against a target that doesn't match ("Can only target Monster or Vehicle units"), then picks the best of what's left, as it already did.
+- **Neither source says which keywords.** The stored rows show the roster file gives the Hunter profile no ability but Melta 2, and Wahapedia's export drops the "HUNTER:" line its page prints between the two rows. Every one I can find (the two melta weapons, and six Orks weapons on the live pages) is Monster/Vehicle, so that is assumed when the file is silent. If a file does carry "HUNTER: X/Y" among a row's abilities, on either row, that is used. A Hunter profile for something else would be read wrong until then.
+- **Saved lists** keep their old rows until "Read the roster again": The Host of the Angel and Strike Force Tu'shan both need it.
+
 ---
 
 ## Things I chose not to do

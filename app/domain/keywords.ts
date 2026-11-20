@@ -151,8 +151,51 @@ export const parseNum = (v: unknown): number => {
   return Number.isNaN(n) ? 0 : n
 }
 
+// ---------- Hunter profiles ----------
+
+/** A Hunter profile's name, however the source writes it: "Melta Rifle - Hunter", "Melta Rifle (Hunter)". */
+const HUNTER_NAME = /(?:^|\s[-–—]\s*|\(\s*)hunter\s*\)?\s*$/i
+
+export const isHunterProfile = (name: string): boolean => HUNTER_NAME.test(name)
+
+/**
+ * The weapon a profile belongs to, when its name says it is one of several: "Plasma Pistol - Supercharge" and
+ * "Melta Rifle (Hunter)" give "Plasma Pistol" and "Melta Rifle". Null for a name that is a weapon's own.
+ */
+export function profileBase(name: string): string | null {
+  if (name.includes(" - ")) return name.split(" - ")[0]
+  return isHunterProfile(name) ? name.replace(HUNTER_NAME, "").trim() || null : null
+}
+
+/** What a Hunter profile can target when its source doesn't say: every one seen so far is "HUNTER: MONSTER/VEHICLE". */
+export const HUNTER_DEFAULT: ReadonlyArray<string> = ["MONSTER", "VEHICLE"]
+
+/**
+ * Takes "HUNTER: MONSTER/VEHICLE" out of a weapon's ability list: it says which units the weapon's Hunter profile
+ * can target, and isn't an ability of the row it is printed on. Returns the rest, and the keywords if it was there.
+ */
+export function splitHunter(str: unknown): { readonly rest: string; readonly targets: ReadonlyArray<string> | null } {
+  let targets: Array<string> | null = null
+  const rest = String(str ?? "")
+    .split(",")
+    .filter((t) => {
+      const m = t.trim().match(/^\[?\s*hunter\s*:\s*(.+?)\s*\]?$/i)
+      if (!m) return true
+      targets = m[1].split("/").map((s) => s.trim().toUpperCase()).filter(Boolean)
+      return false
+    })
+    .join(",")
+  return { rest, targets }
+}
+
+/** Target keywords as a sentence has them: "Monster or Vehicle units". */
+export function targetsText(c: KwCond): string {
+  const names = (l: ReadonlyArray<string>) => l.map((k) => k.charAt(0) + k.slice(1).toLowerCase()).join(" or ")
+  return c.only?.length ? `${names(c.only)} units` : `units that aren’t ${names(c.not ?? [])}`
+}
+
 /** Weapon abilities as the dossier shows them. */
-export function keywordText(w: Pick<Weapon, "kw" | "alt">): string {
+export function keywordText(w: Pick<Weapon, "kw" | "alt" | "vs">): string {
   const k = w.kw || {}
   const t: Array<string> = []
   // conditional abilities read like "Lethal Hits (not vs monster/vehicle)"
@@ -183,6 +226,7 @@ export function keywordText(w: Pick<Weapon, "kw" | "alt">): string {
   if (k.hazardous) push("Hazardous")
   if (k.indirect) push("Indirect Fire")
   if (k.other) t.push(...k.other)
+  if (w.vs) push(`${targetsText(w.vs)} only`)
   if (w.alt) push(isMeleeChoice(w.alt) ? "one melee weapon per model" : "pick one profile")
   return t.join(", ")
 }

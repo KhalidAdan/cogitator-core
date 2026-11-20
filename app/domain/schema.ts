@@ -73,6 +73,8 @@ export const Weapon = Schema.Struct({
   kw: WeaponKw,
   /** Pick-one group: the engine keeps the best row per target. */
   alt: NullishString,
+  /** The only targets this profile can be used on: a Hunter profile's "HUNTER: MONSTER/VEHICLE". Against any other it isn't used. */
+  vs: opt(KwCond),
   /** Carried but not used (pistol rule); the string is the reason shown. */
   off: NullishString,
   /** Set only inside combined units. */

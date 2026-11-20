@@ -10,7 +10,7 @@
 import { Effect, Schema } from "effect"
 import { unzipSync } from "fflate"
 import { unitsOnTable } from "~/domain/engine"
-import { parseDice, parseNum, parseWeaponKeywords } from "~/domain/keywords"
+import { HUNTER_DEFAULT, isHunterProfile, parseDice, parseNum, parseWeaponKeywords, profileBase, splitHunter } from "~/domain/keywords"
 import type { Enhancement, Group, ListMeta, Role, Rule, RuleBook, Unit, UnitStats, Weapon, WeaponKw } from "~/domain/schema"
 import { baseRuleName, clean, norm, slug, titleCase } from "~/domain/text"
 import { type Swap, weaponKey } from "../wahapedia/swaps"
@@ -106,7 +106,8 @@ export interface ImportResult {
 }
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] }
-type W = Mutable<Weapon> & { range?: string }
+/** `hunter`: the keywords a "HUNTER: …" line on this row names, until the weapon's Hunter profile takes them as its `vs`. */
+type W = Mutable<Weapon> & { range?: string; hunter?: ReadonlyArray<string> }
 interface Item {
   w: W
   upg: string
@@ -133,7 +134,8 @@ const characteristics = (p: XNode): Record<string, string> => {
 function weaponFromProfile(p: XNode, count: number): W {
   const ch = characteristics(p)
   const melee = attr(p, "typeName") === "Melee Weapons" || /^melee$/i.test(ch.Range || "")
-  const kw = parseWeaponKeywords(ch.Keywords)
+  const { rest, targets } = splitHunter(ch.Keywords)
+  const kw = parseWeaponKeywords(rest)
   const skill = ch[melee ? "WS" : "BS"] || ""
   return {
     nm: clean(attr(p, "name")),
@@ -145,11 +147,12 @@ function weaponFromProfile(p: XNode, count: number): W {
     AP: Math.abs(parseNum(ch.AP)),
     D: parseDice(ch.D),
     kw,
-    range: ch.Range || ""
+    range: ch.Range || "",
+    ...(targets ? { hunter: targets } : {})
   }
 }
 
-const profKey = (w: W) => JSON.stringify([w.nm, w.t, w.A, w.sk, w.S, w.AP, w.D, w.kw])
+const profKey = (w: W) => JSON.stringify([w.nm, w.t, w.A, w.sk, w.S, w.AP, w.D, w.kw, w.vs])
 
 const avgD = (x: number | string): number => {
   if (typeof x === "number") return x
@@ -482,13 +485,23 @@ export function parseRosterSync(xmlText: string, exportText: string | null | und
       const items: Array<Item> = g.items.map((i) => ({ ...i, w: { ...i.w } }))
       // one weapon with several profiles, or "Name - profile" siblings: pick one per attack
       const byBase: Record<string, Array<Item>> = {}
+      const baseOf = (i: Item) => (i.multi ? i.upg : profileBase(i.w.nm))
+      // a weapon's plain profile can go by the weapon's own name beside a suffixed one: "Melta Rifle", "Melta Rifle - Hunter"
+      const suffixed = items.filter((i) => !i.multi && profileBase(i.w.nm))
+      const plainOf = (i: Item) => suffixed.find((s) => s.w.t === i.w.t && norm(profileBase(s.w.nm)!) === norm(i.w.nm))
       items.forEach((i) => {
-        const base = i.multi ? i.upg : i.w.nm.includes(" - ") ? i.w.nm.split(" - ")[0] : null
+        const base = baseOf(i) ?? (i.multi ? null : (profileBase(plainOf(i)?.w.nm ?? "") ?? null))
         if (base) (byBase[base] = byBase[base] || []).push(i)
       })
       for (const [base, list] of Object.entries(byBase)) {
         if (list.length > 1) list.forEach((i) => (i.w.alt = `p${gi}:${slug(base)}`))
       }
+      // a Hunter profile only targets the keywords its weapon names, on whichever of the weapon's rows the file has them
+      const stated = (i: Item) => (byBase[baseOf(i) ?? ""] ?? [i]).concat(i).find((x) => x.w.hunter)?.w.hunter
+      items.forEach((i) => {
+        if (isHunterProfile(i.w.nm)) i.w.vs = { only: [...(stated(i) ?? HUNTER_DEFAULT)] }
+      })
+      items.forEach((i) => delete i.w.hunter)
       // pistol rule
       const ranged = items.filter((i) => i.w.t === "r")
       if (!isVM && ranged.some((i) => !i.w.kw.pistol)) {

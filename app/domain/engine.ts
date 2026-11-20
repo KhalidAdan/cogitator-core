@@ -13,7 +13,8 @@
  * unit's weapons; attack.ts scores each weapon.
  */
 import { type Armed, type AttackRow, scoreWeapon } from "./attack"
-import { isMeleeChoice } from "./keywords"
+import { kwCond } from "./fx"
+import { isMeleeChoice, targetsText } from "./keywords"
 import type { Mod, Opts, Rule, RuleBook, Target, Unit, Weapon, WeaponKw } from "./schema"
 
 export { avgDice, diceDist, woundNeed } from "./attack"
@@ -286,6 +287,11 @@ export function attackUnit(unit: Unit, tgt: Target, opts: Opts, ctx: EngineConte
     if (phase === "melee" && w.t !== "m") continue
     if (w.off) {
       rows.push({ w, skipped: w.off })
+      continue
+    }
+    // a Hunter profile can only target units with its keywords
+    if (w.vs && !kwCond(w.vs, tgt.kw)) {
+      rows.push({ w, skipped: `Can only target ${targetsText(w.vs)}` })
       continue
     }
     rows.push({ w, ...scoreWeapon(a, tgt, opts) })
